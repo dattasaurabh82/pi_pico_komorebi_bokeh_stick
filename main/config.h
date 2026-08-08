@@ -9,8 +9,12 @@ constexpr int SCREEN_H = 240;
 
 // ---------- Pins (physical pin in parentheses) ----------
 constexpr uint8_t PIN_BTN_SURPRISE = 7; // (10) momentary to GND, pull-up
-constexpr uint8_t PIN_ENC_A        = 6; // (9)  KY-040 A/CLK — 3V3 module!
-constexpr uint8_t PIN_ENC_B        = 8; // (11) KY-040 B/DT
+constexpr uint8_t PIN_ENC_A        = 6; // (9)  KY-040 DT  — 3V3 module!
+constexpr uint8_t PIN_ENC_B        = 8; // (11) KY-040 CLK
+// NOTE: A/B vs CLK/DT assignment is arbitrary for the quadrature decoder —
+// swapping them only inverts the rotation direction. If clockwise turns
+// the values DOWN after wiring, negate the detents in main.ino
+// (params.adjust(selected, -det)) instead of resoldering.
 constexpr uint8_t PIN_ENC_SW       = 9; // (12) encoder push, to GND
 // A0 (GP26) stays free-floating: entropy source. DVI Sock owns GP12-19.
 
