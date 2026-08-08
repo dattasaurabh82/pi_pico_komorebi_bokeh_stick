@@ -8,8 +8,8 @@ constexpr int SCREEN_W = 320;
 constexpr int SCREEN_H = 240;
 
 // ---------- Pins (physical pin in parentheses) ----------
-constexpr uint8_t PIN_BTN_SURPRISE = 6; // (9)  momentary to GND, pull-up
-constexpr uint8_t PIN_ENC_A        = 7; // (10) KY-040 A/CLK — 3V3 module!
+constexpr uint8_t PIN_BTN_SURPRISE = 7; // (10) momentary to GND, pull-up
+constexpr uint8_t PIN_ENC_A        = 6; // (9)  KY-040 A/CLK — 3V3 module!
 constexpr uint8_t PIN_ENC_B        = 8; // (11) KY-040 B/DT
 constexpr uint8_t PIN_ENC_SW       = 9; // (12) encoder push, to GND
 // A0 (GP26) stays free-floating: entropy source. DVI Sock owns GP12-19.

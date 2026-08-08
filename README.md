@@ -62,8 +62,8 @@ per-frame work is integer adds, multiplies, and shifts.
 
 ## The "surprise me" button
 
-One momentary button between **GP6 (physical pin 9) and GND (physical pin
-8)** — two adjacent pins, no resistor needed (internal pull-up). Enclosure
+One momentary button between **GP7 (physical pin 10) and GND (physical pin
+8 or 13)** — two adjacent pins, no resistor needed (internal pull-up). Enclosure
 label: *surprise me*.
 
 ![Surprise button flow](assets/mood_button.png)
@@ -83,7 +83,7 @@ easy future addition on the same engine, e.g. on long-press — see
 
 ## The encoder: warmth / breeze / density
 
-A KY-040 rotary encoder (A=GP7, B=GP8, SW=GP9 — physical pins 10/11/12,
+A KY-040 rotary encoder (A=GP6, B=GP8, SW=GP9 — physical pins 9/11/12,
 GND at pin 13, VCC to **3V3, never 5V**) carries the three adjustable
 parameters. Since the piece has no display, the interaction grammar is:
 

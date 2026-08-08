@@ -2,8 +2,8 @@
 // All tuning lives in config.h; behavior in engine/render/controls/params.
 //
 // Hardware: Pico + Adafruit DVI Sock (pico_sock_cfg, GP12-19).
-//   GP6 (pin 9):  "surprise me" button, to GND (pin 8).
-//   GP7/8/9 (pins 10/11/12): KY-040 encoder A/B/SW, GND at pin 13, VCC 3V3.
+//   GP7 (pin 10): "surprise me" button, to GND (pin 8 or 13).
+//   GP6/8/9 (pins 9/11/12): KY-040 encoder A/B/SW, GND at pin 13, VCC 3V3.
 // Interaction: encoder click cycles warmth -> breeze -> density (the
 // selected parameter announces itself visually); turning adjusts it.
 // Selection falls back to warmth after SELECT_TIMEOUT_MS of inactivity.
