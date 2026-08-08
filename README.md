@@ -81,6 +81,44 @@ Mood *presets* (palette temperature + parameter ranges as data) remain an
 easy future addition on the same engine, e.g. on long-press — see
 `context` notes.
 
+## The encoder: warmth / breeze / density
+
+A KY-040 rotary encoder (A=GP7, B=GP8, SW=GP9 — physical pins 10/11/12,
+GND at pin 13, VCC to **3V3, never 5V**) carries the three adjustable
+parameters. Since the piece has no display, the interaction grammar is:
+
+- **Click** cycles the selected parameter: warmth → breeze → density.
+  The selected parameter *announces itself* on the wall in its own
+  language — warmth: a brief palette shimmer; breeze: a single gust;
+  density: one dapple blinks out and back.
+- **Turn** adjusts the selected parameter, hard-capped to safe ranges
+  (warmth 0–100, breeze 0–100, density 8–28 — limits chosen by visual
+  spike tests; see `tests/density_spike`).
+- After 30 s without interaction, selection falls back to warmth (the
+  most lamp-like expectation). Long-press is reserved for a future
+  fade-to-off.
+
+Density changes never re-deal the field: all 28 dapples always exist and
+melt in/out of visibility, so turning the knob feels continuous.
+
+The encoder is read via **pin-change interrupts** (full quadrature
+table), not polling — the render loop runs at 60 Hz (vsync-locked), far
+too slow to poll a fast twirl. Settings are session-only by design:
+writing the Pico's flash while PicoDVI runs kills the video core
+(proven in `tests/eeprom_dvi_spike`); if persistence is ever needed, use
+an external I2C FRAM/EEPROM — see context notes.
+
+## Code layout (main/)
+
+```
+main.ino      thin orchestrator: inputs → engine → swap
+config.h      every pin, limit, and tuning constant
+engine.*      KomorebiEngine: dapples, palette, fades, announcements
+render.*      fx:: sprite/vignette tables, additive scaled blit
+controls.*    RotaryEncoder (ISR quadrature) + ClickButton grammar
+params.h      the three user values + capped adjustment
+```
+
 ## Repo layout
 
 ```
