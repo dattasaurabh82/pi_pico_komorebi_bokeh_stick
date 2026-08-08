@@ -26,6 +26,17 @@ static Dapple d[N_DAPPLES];
 // otherwise the raster edge reads as a frame on the wall.
 static uint8_t vigx[W], vigy[H];
 
+// --- Surprise button (physical pin 9 = GP6, wired to GND on pin 8) ---
+// Press = "surprise me": fade out, deal a fresh constellation, fade in.
+#define BTN_PIN 6
+#define FADE_OUT_S 0.8f
+#define FADE_IN_S  1.2f
+enum SurpriseState { S_IDLE, S_FADE_OUT, S_FADE_IN };
+static SurpriseState sstate = S_IDLE;
+static float fade = 1.0f;          // global light multiplier 0..1
+static uint32_t btn_edge_ms = 0;   // debounce timestamp
+static bool btn_was_down = false;
+
 static float frand(float lo, float hi) {
   return lo + (hi - lo) * (random(10000) / 10000.0f);
 }
@@ -82,7 +93,12 @@ void setup() {
     vigy[y] = (uint8_t)(v * 255.0f);
   }
 
-  // Size classes: 3 large pools, 5 mid, 8 small sparkles between them.
+  pinMode(BTN_PIN, INPUT_PULLUP); // surprise button, GP6 (pin 9) to GND
+  deal_dapples();
+}
+
+// Deal a fresh constellation: 3 large pools, 5 mid, 8 small sparkles.
+static void deal_dapples() {
   for (int i = 0; i < N_DAPPLES; i++) {
     float base;
     if (i < 3)      base = frand(110, 150); // large
@@ -126,7 +142,37 @@ static void blit_add_scaled(uint8_t *buf, int cx, int cy, int bscale,
 }
 
 void loop() {
-  float t = millis() / 1000.0f;
+  static uint32_t last_ms = 0;
+  uint32_t now = millis();
+  float dt = (now - last_ms) / 1000.0f;
+  if (dt > 0.1f) dt = 0.1f; // first frame / hiccups
+  last_ms = now;
+  float t = now / 1000.0f;
+
+  // Surprise button: falling edge, 50 ms debounce, only when idle.
+  bool down = (digitalRead(BTN_PIN) == LOW);
+  if (down && !btn_was_down && (now - btn_edge_ms) > 50 && sstate == S_IDLE) {
+    sstate = S_FADE_OUT;
+    btn_edge_ms = now;
+  }
+  btn_was_down = down;
+
+  // Fade machine: breathe out -> new deal -> breathe in. No hard cuts.
+  if (sstate == S_FADE_OUT) {
+    fade -= dt / FADE_OUT_S;
+    if (fade <= 0.0f) {
+      fade = 0.0f;
+      randomSeed(entropy_seed()); // fresh luck
+      deal_dapples();
+      sstate = S_FADE_IN;
+    }
+  } else if (sstate == S_FADE_IN) {
+    fade += dt / FADE_IN_S;
+    if (fade >= 1.0f) { fade = 1.0f; sstate = S_IDLE; }
+  }
+  // Ease the fade so it breathes instead of ramping linearly.
+  float f_eased = fade * fade * (3.0f - 2.0f * fade);
+
   float wind = sinf(t * 0.020f) + 0.5f * sinf(t * 0.053f + 1.7f);
   uint8_t *buf = display.getBuffer();
   memset(buf, 0, W * H);
@@ -141,7 +187,7 @@ void loop() {
     if (b < 0.05f) b = 0.05f;
     // Shape breathing (from style C): slow area-preserving squash/stretch.
     float m = 1.0f + 0.06f * sinf(t * d[i].sf * 6.283f + d[i].sp);
-    blit_add_scaled(buf, (int)x, (int)y, (int)(b * 256),
+    blit_add_scaled(buf, (int)x, (int)y, (int)(b * f_eased * 256),
                     (int)(d[i].ow * m), (int)(d[i].oh / m));
   }
 

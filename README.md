@@ -60,26 +60,26 @@ per-frame work is integer adds, multiplies, and shifts.
 - **`swap()`** waits for vsync and flips buffers; no tearing, no half-drawn
   frames.
 
-## Mood button (planned)
+## The "surprise me" button
 
-A single momentary button (GP2 to GND, internal pull-up) will cycle between
-"moods" — presets that re-skin the same engine without touching its logic.
+One momentary button between **GP6 (physical pin 9) and GND (physical pin
+8)** — two adjacent pins, no resistor needed (internal pull-up). Enclosure
+label: *surprise me*.
 
-![Mood button flow](assets/mood_button.png)
+![Surprise button flow](assets/mood_button.png)
 
-Each press is debounced (~50 ms, falling edge only), advances
-`mood = (mood + 1) % N_MOODS`, and applies a preset struct:
+A press never hard-cuts. The light breathes out (~0.8 s eased fade to
+black), the RNG is re-seeded from 16 stirred floating-ADC reads, all 16
+dapples are re-dealt (new anchors, sizes, speeds, phases), and the light
+breathes back in (~1.2 s). Same character, fresh constellation — the same
+thing a power cycle does, minus the wait, plus the grace.
 
-- **Palette rebuild** — color temperature and max brightness (e.g. midday
-  white vs late-afternoon amber vs dim moonlight). 256 `setColor()` calls,
-  effectively free.
-- **Re-deal dapples** — the preset supplies the random *ranges* (dapple
-  count, size distribution, drift speeds, breathing rates), then dapples are
-  regenerated exactly like at boot. A "breeze" mood = livelier small
-  dapples; a "still evening" = fewer, slower, dimmer.
+Debounce is 50 ms on the falling edge, and presses are ignored while a
+fade is already running.
 
-The engine loop itself never changes — a mood is data, not code. GP2 is free
-on this board (DVI uses GP12–19, entropy uses A0/GP26).
+Mood *presets* (palette temperature + parameter ranges as data) remain an
+easy future addition on the same engine, e.g. on long-press — see
+`context` notes.
 
 ## Repo layout
 
