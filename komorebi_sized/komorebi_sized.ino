@@ -17,9 +17,14 @@ struct Dapple {
   float ax1, ay1, ax2, ay2;
   float f1, f2, p1, p2;
   float bri, bf, bp;
+  float sf, sp; // shape-breathing freq/phase (slow morph, from style C)
   int ow, oh; // rendered size (px) — ellipticity = ow != oh
 };
 static Dapple d[N_DAPPLES];
+
+// Separable vignette: light must never touch the projection borders,
+// otherwise the raster edge reads as a frame on the wall.
+static uint8_t vigx[W], vigy[H];
 
 static float frand(float lo, float hi) {
   return lo + (hi - lo) * (random(10000) / 10000.0f);
@@ -61,6 +66,22 @@ void setup() {
 
   randomSeed(entropy_seed());
 
+  // Vignette tables: full brightness in the middle, smoothstep to hard
+  // black over the outer margin. Nothing may glow at the raster edge.
+  const int MX = 72, MY = 58; // falloff widths (px)
+  for (int x = 0; x < W; x++) {
+    int e = min(x, W - 1 - x);
+    float v = (e >= MX) ? 1.0f : (float)e / MX;
+    v = v * v * (3.0f - 2.0f * v);
+    vigx[x] = (uint8_t)(v * 255.0f);
+  }
+  for (int y = 0; y < H; y++) {
+    int e = min(y, H - 1 - y);
+    float v = (e >= MY) ? 1.0f : (float)e / MY;
+    v = v * v * (3.0f - 2.0f * v);
+    vigy[y] = (uint8_t)(v * 255.0f);
+  }
+
   // Size classes: 3 large pools, 5 mid, 8 small sparkles between them.
   for (int i = 0; i < N_DAPPLES; i++) {
     float base;
@@ -81,6 +102,8 @@ void setup() {
     if (i < 8) { d[i].bri = frand(0.40f, 0.80f); d[i].bf = frand(0.010f, 0.030f); }
     else       { d[i].bri = frand(0.25f, 0.55f); d[i].bf = frand(0.025f, 0.060f); }
     d[i].bp = frand(0, 6.283f);
+    d[i].sf = frand(0.006f, 0.020f); // shape morph: 50–170 s
+    d[i].sp = frand(0, 6.283f);
   }
 }
 
@@ -116,7 +139,22 @@ void loop() {
     float b = d[i].bri * (0.55f + 0.35f * sinf(t * d[i].bf * 6.283f + d[i].bp)
                                  - 0.12f * wind * wind);
     if (b < 0.05f) b = 0.05f;
-    blit_add_scaled(buf, (int)x, (int)y, (int)(b * 256), d[i].ow, d[i].oh);
+    // Shape breathing (from style C): slow area-preserving squash/stretch.
+    float m = 1.0f + 0.06f * sinf(t * d[i].sf * 6.283f + d[i].sp);
+    blit_add_scaled(buf, (int)x, (int)y, (int)(b * 256),
+                    (int)(d[i].ow * m), (int)(d[i].oh / m));
+  }
+
+  // Vignette pass: dissolve the raster edges so the wall shows floating
+  // light, not a projected rectangle.
+  for (int y = 0; y < H; y++) {
+    int vy = vigy[y];
+    uint8_t *row = buf + y * W;
+    if (vy == 0) { memset(row, 0, W); continue; }
+    for (int x = 0; x < W; x++) {
+      int v = (vigx[x] * vy) >> 8;
+      row[x] = (uint8_t)((row[x] * (v + 1)) >> 8);
+    }
   }
   display.swap();
 }
