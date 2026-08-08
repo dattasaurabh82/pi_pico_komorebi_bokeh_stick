@@ -56,6 +56,11 @@ private:
   FadeState fadeState_ = FadeState::Idle;
   float fade_ = 1.0f;
   int lastWarmth_ = -1;         // rebuild palette only when needed
+  uint8_t palFrames_ = 2;       // frames left to (re)write the palette:
+                                // DVIGFX8 has one palette PER buffer, so
+                                // every change must be written twice —
+                                // once into each back buffer — or the
+                                // display strobes between palettes.
   Param announceParam_ = Param::Warmth;
   float announceT0_ = -1e9f;    // announcement start time (s)
 };

@@ -117,12 +117,16 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   float aU = (t - announceT0_) / ANNOUNCE_S;
   float aEnv = (aU >= 0.0f && aU < 1.0f) ? (1.0f - aU) : 0.0f;
 
-  // Palette: rebuild when warmth changed, or animate the warmth shimmer.
+  // Palette: DVIGFX8 keeps one palette per buffer, so any change must be
+  // written on TWO consecutive frames (once per back buffer) or the image
+  // strobes between the new palette and stale/garbage data.
   bool shimmering = (aEnv > 0.0f) && (announceParam_ == Param::Warmth);
-  if (params.warmth != lastWarmth_ || shimmering) {
+  if (params.warmth != lastWarmth_) { palFrames_ = 2; lastWarmth_ = params.warmth; }
+  if (shimmering) palFrames_ = 2;   // animating: keep writing (+2 to settle)
+  if (palFrames_ > 0) {
     float shimmer = shimmering ? sinf(aU * 6.283f * 1.5f) * aEnv : 0.0f;
     buildPalette(params.warmth / 100.0f, shimmer);
-    lastWarmth_ = params.warmth;
+    palFrames_--;
   }
 
   // Breeze scaling: one scalar drives amplitudes, wind, and breath rate.
