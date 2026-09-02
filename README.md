@@ -1,4 +1,4 @@
-# pi_pico_komorebi
+# Komorebi (木漏れ日) Bokeh (暈け / ボケ) Stick
 
 An ambient light installation: a Raspberry Pi Pico (RP2040) with an Adafruit
 DVI Sock feeds a small pico projector, casting slowly breathing komorebi-like
