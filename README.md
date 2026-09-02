@@ -131,3 +131,9 @@ assets/          diagrams (SVG sources + rendered PNGs)
 
 Variant history and comparisons: see commit log. A/C are kept diffable
 against `main/` on purpose.
+
+---
+
+## LICENSE
+
+[MIT](LICENSE)
