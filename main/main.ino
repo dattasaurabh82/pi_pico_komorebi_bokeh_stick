@@ -3,7 +3,7 @@
 //
 // Hardware: Pico 2 W + Pico DVI Sock (pico_sock_cfg, GP12-19).
 //   GP7 (pin 10): "surprise me" button, to GND (pin 8 or 13).
-//   GP6/8/9 (pins 9/11/12): KY-040 encoder A/B/SW, GND at pin 13, VCC 3V3.
+//   GP6/8/5 (pins 9/11/7): KY-040 encoder DT/CLK/SW, GND at pin 38, VCC 3V3.
 // WiFi: on boot, join the stored network or open the "komorebi" AP portal
 //   (wifi_portal.h). Everything WiFi that writes flash happens BEFORE
 //   display.begin(): a flash write with DVI live freezes the board.

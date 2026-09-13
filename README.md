@@ -98,8 +98,9 @@ easy future addition on the same engine.
 
 ## The encoder: warmth / breeze / density
 
-A KY-040 rotary encoder (A=GP6, B=GP8, SW=GP9, physical pins 9/11/12,
-GND at pin 13, VCC to **3V3, never 5V**) carries the three adjustable
+A KY-040 rotary encoder (DT=GP6, CLK=GP8, SW=GP5, physical pins 9/11/7,
+GND at pin 38, VCC to **3V3(OUT), never 5V, and not the 3V3_EN pad next
+to it**) carries the three adjustable
 parameters. Since the piece has no display, the interaction grammar is:
 
 - **Click** cycles the selected parameter: warmth, breeze, density.

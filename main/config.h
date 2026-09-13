@@ -15,7 +15,7 @@ constexpr uint8_t PIN_ENC_B        = 8; // (11) KY-040 CLK
 // swapping them only inverts the rotation direction. If clockwise turns
 // the values DOWN after wiring, negate the detents in main.ino
 // (params.adjust(selected, -det)) instead of resoldering.
-constexpr uint8_t PIN_ENC_SW       = 9; // (12) encoder push, to GND
+constexpr uint8_t PIN_ENC_SW       = 5; // (7)  encoder push, to GND (was GP9 on the RP2040 build)
 // A0 (GP26) stays free-floating: entropy source. DVI Sock owns GP12-19.
 
 // ---------- WiFi (boot-time portal, see wifi_portal.h) ----------
