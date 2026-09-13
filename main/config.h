@@ -18,6 +18,12 @@ constexpr uint8_t PIN_ENC_B        = 8; // (11) KY-040 CLK
 constexpr uint8_t PIN_ENC_SW       = 9; // (12) encoder push, to GND
 // A0 (GP26) stays free-floating: entropy source. DVI Sock owns GP12-19.
 
+// ---------- WiFi (boot-time portal, see wifi_portal.h) ----------
+constexpr const char* WIFI_AP_SSID = "komorebi";
+constexpr const char* WIFI_AP_PASS = "komorebi";  // WPA2, min 8 chars
+constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;  // stored network
+constexpr uint32_t WIFI_PORTAL_TIMEOUT_MS  = 180000; // then start offline
+
 // ---------- Dapple field ----------
 constexpr int N_MAX_DAPPLES = 28;   // hard ceiling (spiked: 36 saturates)
 constexpr int DENSITY_MIN   = 8;    // spiked: below this feels empty

@@ -45,7 +45,26 @@ static WebServer server(80);
 static DNSServer dns;
 static String    netList;      // <option>s from the scan
 static bool      saved = false;
+static bool      rescan = false;
 static WifiPortal::Creds* pending = nullptr;
+
+// Scan in STA mode (the proven path), newest list sorted by signal, deduped.
+static void buildNetList() {
+  WiFi.mode(WIFI_STA);
+  int n = WiFi.scanNetworks();
+  Serial.printf("[wifi] scan: %d networks\n", n);
+  int idx[32]; int m = 0;
+  for (int i = 0; i < n && m < 32; i++) if (WiFi.SSID(i) && WiFi.SSID(i)[0]) idx[m++] = i;
+  for (int a = 0; a < m; a++) for (int b = a + 1; b < m; b++)
+    if (WiFi.RSSI(idx[b]) > WiFi.RSSI(idx[a])) { int t = idx[a]; idx[a] = idx[b]; idx[b] = t; }
+  netList = "";
+  for (int k = 0; k < m; k++) {
+    String s = WiFi.SSID(idx[k]);
+    if (netList.indexOf("value='" + s + "'") >= 0) continue; // dedupe multi-AP SSIDs
+    netList += "<option value='" + s + "'>" + s + " (" + String(WiFi.RSSI(idx[k])) + " dBm)</option>";
+  }
+  if (netList.length() == 0) netList = "<option value=''>(no networks found)</option>";
+}
 
 static const char PAGE_HEAD[] =
   "<!doctype html><html><head><meta name=viewport content='width=device-width,initial-scale=1'>"
@@ -58,11 +77,22 @@ static void handleRoot() {
   h += "<h2>komorebi</h2><p>Choose the WiFi network this piece should join.</p>"
        "<form method=POST action=/save>"
        "<label>Network</label><select name=ssid>" + netList + "</select>"
-       "<label>Password</label><input type=password name=pass autocomplete=off>"
+       "<label>Password</label><input type=password name=pass id=p autocomplete=off>"
+       "<label style='display:block;margin:-.6em 0 1em'><input type=checkbox style='width:auto;margin:0 .4em 0 0' "
+       "onclick=\"document.getElementById('p').type=this.checked?'text':'password'\">show password</label>"
        "<button type=submit>Save and restart</button></form>"
-       "<p style='color:#888'>Nothing chosen within " + String(WIFI_PORTAL_TIMEOUT_MS / 60000) +
+       "<form method=GET action=/scan><button type=submit style='background:#888'>Rescan networks</button></form>"
+       "<p style='color:#888'>Rescan drops the komorebi network for a few seconds; rejoin it and reload.<br>"
+       "Nothing chosen within " + String(WIFI_PORTAL_TIMEOUT_MS / 60000) +
        " minutes: the light starts without WiFi.</p></body></html>";
   server.send(200, "text/html", h);
+}
+
+static void handleScan() {
+  server.send(200, "text/html", String(PAGE_HEAD) +
+    "<h2>Rescanning</h2><p>The komorebi network vanishes for a few seconds and comes back. "
+    "Rejoin it, then <a href=/>reload this page</a>.</p></body></html>");
+  rescan = true;
 }
 
 static void handleSave() {
@@ -89,27 +119,17 @@ static void handleNotFound() { // captive-portal redirect (iOS / Android probes 
 }
 
 bool WifiPortal::runPortal() {
-  // Scan while still in STA mode, build the option list sorted by signal.
-  WiFi.mode(WIFI_STA);
-  int n = WiFi.scanNetworks();
-  int idx[32]; int m = 0;
-  for (int i = 0; i < n && m < 32; i++) if (WiFi.SSID(i) && WiFi.SSID(i)[0]) idx[m++] = i;
-  for (int a = 0; a < m; a++) for (int b = a + 1; b < m; b++)
-    if (WiFi.RSSI(idx[b]) > WiFi.RSSI(idx[a])) { int t = idx[a]; idx[a] = idx[b]; idx[b] = t; }
-  netList = "";
-  for (int k = 0; k < m; k++) {
-    String s = WiFi.SSID(idx[k]);
-    if (netList.indexOf("value='" + s + "'") >= 0) continue; // dedupe multi-AP SSIDs
-    netList += "<option value='" + s + "'>" + s + " (" + String(WiFi.RSSI(idx[k])) + " dBm)</option>";
-  }
-  if (netList.length() == 0) netList = "<option value=''>(no networks found)</option>";
+  buildNetList();
 
   Creds c;
   pending = &c;
   saved = false;
+  rescan = false;
   WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASS);
+  Serial.printf("[wifi] portal AP '%s' at %s\n", WIFI_AP_SSID, WiFi.softAPIP().toString().c_str());
   dns.start(53, "*", WiFi.softAPIP());
   server.on("/", handleRoot);
+  server.on("/scan", HTTP_GET, handleScan);
   server.on("/save", HTTP_POST, handleSave);
   server.onNotFound(handleNotFound);
   server.begin();
@@ -118,6 +138,17 @@ bool WifiPortal::runPortal() {
   while (!saved && millis() - t0 < WIFI_PORTAL_TIMEOUT_MS) {
     dns.processNextRequest();
     server.handleClient();
+    if (rescan) {                // drop AP, scan in STA, bring AP back
+      delay(300);                // let the "Rescanning" page finish sending
+      server.stop(); dns.stop();
+      WiFi.softAPdisconnect(true);
+      buildNetList();
+      WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASS);
+      dns.start(53, "*", WiFi.softAPIP());
+      server.begin();
+      rescan = false;
+      t0 = millis();             // a person is clearly there: restart the clock
+    }
     delay(2);
   }
   server.stop();
@@ -135,19 +166,28 @@ bool WifiPortal::runPortal() {
 
 // ---------- entry points ----------
 bool WifiPortal::boot() {
+  Serial.begin(115200);
+  for (uint32_t t = millis(); !Serial && millis() - t < 2000;) delay(10); // host attached? then log
   EEPROM.begin(EEPROM_BYTES);
   bool forcePortal = (watchdog_hw->scratch[0] == PORTAL_FLAG);
   watchdog_hw->scratch[0] = 0;
 
   Creds c;
   bool have = load(c);
+  Serial.printf("[wifi] boot: stored=%s forcePortal=%d\n", have ? c.ssid : "(none)", forcePortal);
   if (forcePortal && have) {           // long-press: forget stored network
     Creds blank; memset(&blank, 0, sizeof(blank));
     save(blank);                       // pre-DVI: safe
     have = false;
   }
-  if (have && tryConnect(c)) { connected_ = true; return true; }
+  if (have && tryConnect(c)) {
+    connected_ = true;
+    Serial.printf("[wifi] connected to '%s', ip %s\n", c.ssid, WiFi.localIP().toString().c_str());
+    return true;
+  }
+  if (have) Serial.printf("[wifi] could not join '%s' (status %d), opening portal\n", c.ssid, WiFi.status());
   runPortal();                         // reboots on save, returns on timeout
+  Serial.println("[wifi] portal timed out, starting offline");
   connected_ = false;
   return false;
 }

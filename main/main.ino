@@ -1,18 +1,23 @@
 // pi_pico_komorebi — main.ino: thin orchestrator only.
 // All tuning lives in config.h; behavior in engine/render/controls/params.
 //
-// Hardware: Pico + Adafruit DVI Sock (pico_sock_cfg, GP12-19).
+// Hardware: Pico 2 W + Pico DVI Sock (pico_sock_cfg, GP12-19).
 //   GP7 (pin 10): "surprise me" button, to GND (pin 8 or 13).
 //   GP6/8/9 (pins 9/11/12): KY-040 encoder A/B/SW, GND at pin 13, VCC 3V3.
+// WiFi: on boot, join the stored network or open the "komorebi" AP portal
+//   (wifi_portal.h). Everything WiFi that writes flash happens BEFORE
+//   display.begin(): a flash write with DVI live freezes the board.
 // Interaction: encoder click cycles warmth -> breeze -> density (the
 // selected parameter announces itself visually); turning adjusts it.
 // Selection falls back to warmth after SELECT_TIMEOUT_MS of inactivity.
+// Encoder long-press: forget the WiFi network, reboot into the portal.
 
 #include <PicoDVI.h>
 #include "config.h"
 #include "params.h"
 #include "controls.h"
 #include "engine.h"
+#include "wifi_portal.h"
 
 DVIGFX8 display(DVI_RES_320x240p60, true, pico_sock_cfg);
 
@@ -21,11 +26,13 @@ RotaryEncoder  encoder;
 ClickButton    encoderBtn;
 ClickButton    surpriseBtn;
 Params         params;
+WifiPortal     wifi;
 
 Param    selected = Param::Warmth;
 uint32_t lastInteraction = 0;
 
 void setup() {
+  wifi.boot(); // connect, or portal, or time out. MUST precede display.begin().
   if (!display.begin()) { // RAM alloc failed -> blink LED forever
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
@@ -54,8 +61,9 @@ void loop() {
     selected = (Param)(((uint8_t)selected + 1) % PARAM_COUNT);
     engine.announce(selected, t);   // the param shows itself on the wall
     lastInteraction = now;
+  } else if (ev == ClickButton::LONG_PRESS) {
+    wifi.requestPortalAndReboot();  // forget network, come back in the portal
   }
-  // ev == LONG_PRESS: reserved (future: fade-to-off), deliberately unused.
 
   int det = encoder.consumeDetents();
   if (det != 0) {
