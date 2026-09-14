@@ -37,6 +37,7 @@ public:
   int effWarmth() const { return effWarmth_; }
   int effBreeze() const { return effBreeze_; }
   int effDensity() const { return effDensity_; }
+  int effContrast() const { return effContrast_; }
   float effExposure() const { return 1.0f + sky_.exposure; }
 
   // Advance and draw one frame into the display's back buffer.
@@ -56,7 +57,7 @@ private:
     int ow, oh;                 // rendered size; ow != oh = ellipticity
   };
 
-  void buildPalette(float warmth01, float shimmer, float gain);
+  void buildPalette(float warmth01, float shimmer, float gain, float contrast01);
   static float slew(float cur, float target, float maxStep);
   uint32_t entropySeed();
   float frand(float lo, float hi);
@@ -67,8 +68,9 @@ private:
   float fade_ = 1.0f;
   int lastWarmth_ = -1;         // rebuild palette only when needed (effective warmth)
   int lastGainQ_  = -1;         // quantised exposure gain, same purpose
+  int lastContrast_ = -1;       // effective contrast, same purpose
   sky::Offsets skyTarget_, sky_;// sky: where we're going, where we are
-  int effWarmth_ = WARMTH_DEFAULT, effBreeze_ = BREEZE_DEFAULT, effDensity_ = DENSITY_DEFAULT;
+  int effWarmth_ = WARMTH_DEFAULT, effBreeze_ = BREEZE_DEFAULT, effDensity_ = DENSITY_DEFAULT, effContrast_ = CONTRAST_DEFAULT;
   uint8_t palFrames_ = 2;       // frames left to (re)write the palette:
                                 // DVIGFX8 has one palette PER buffer, so
                                 // every change must be written twice —

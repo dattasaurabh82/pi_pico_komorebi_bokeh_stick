@@ -201,11 +201,11 @@ void SkyClient::dumpSnapshot(Print& out, const char* modeName, const sky::Offset
                wx_.cloud_pct, wx_.wind_kmh, wx_.gust_kmh, wx_.wind_dir_deg, wx_.precip_mm, wx_.temp_c, wx_.weather_code, weatherAgeHours());
   else
     out.printf("[sky]   weather  none\n");
-  out.printf("[sky]   model    light %.2f  warmth %.2f  motion %.2f  foliage %.2f  (0.5 = average day)%s\n",
-             v.light, v.warmth, v.motion, v.foliage, v.known ? "" : "  NEUTRAL");
+  out.printf("[sky]   model    light %.2f  warmth %.2f  motion %.2f  foliage %.2f  crisp %.2f  (0.5 = average day)%s\n",
+             v.light, v.warmth, v.motion, v.foliage, v.crisp, v.known ? "" : "  NEUTRAL");
   out.printf("[sky]   mode     %s, influence %.2f\n", modeName, SKY_INFLUENCE);
-  out.printf("[sky]   targets  warmth %+.0f pts, breeze %+.0f pts, density %+.1f dapples, exposure %+.0f%%  (reached over ~%.0f s)\n",
-             o.warmth, o.breeze, o.density, o.exposure * 100.0f, SKY_SLEW_S);
+  out.printf("[sky]   targets  warmth %+.0f pts, breeze %+.0f pts, density %+.1f dapples, exposure %+.0f%%, contrast %+.0f pts  (reached over ~%.0f s)\n",
+             o.warmth, o.breeze, o.density, o.exposure * 100.0f, o.contrast, SKY_SLEW_S);
   out.printf("[sky] --------------------\n");
 }
 

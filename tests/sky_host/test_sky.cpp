@@ -113,6 +113,10 @@ int main() {
   CHECK(v.known && v.light > 0.95f && v.warmth < 0.35f && v.motion < 0.1f && v.foliage > 0.9f, "clear summer noon: L%.2f W%.2f M%.2f F%.2f", v.light, v.warmth, v.motion, v.foliage);
   v = computeVector(high, 172, false, over, true, true);
   CHECK(v.light > 0.25f && v.light < 0.35f, "overcast noon light %.2f (~0.3)", v.light);
+  CHECK(v.crisp < 0.01f && v.warmth < 0.25f, "overcast noon: flat (%.2f) and cooler (%.2f)", v.crisp, v.warmth);
+  { Vector c = computeVector(high, 172, false, clear, true, true); CHECK(c.crisp > 0.99f, "clear: crisp %.2f", c.crisp); }
+  { Weather avg = clear; avg.cloud_pct = 30; Vector a = computeVector(high, 172, false, avg, true, true); NEAR(a.crisp, 0.5, 0.01, "30%% cloud = average crisp %.2f", a.crisp); }
+  { Weather rain = over; rain.precip_mm = 2; Vector rv = computeVector(high, 172, false, rain, true, true); CHECK(rv.crisp == 0.0f, "rain clamps flat"); }
   v = computeVector(low, 300, false, clear, true, true);
   CHECK(v.warmth > 0.85f && v.light < 0.6f && v.light > 0.1f, "golden hour: W%.2f L%.2f", v.warmth, v.light);
   v = computeVector(night, 20, false, clear, true, true);
@@ -136,7 +140,7 @@ int main() {
 
   // ---- offsets ----
   printf("offsets\n");
-  OffsetRanges R = {25, 25, 5, 0.30f};
+  OffsetRanges R = {25, 25, 5, 0.30f, 25};
   Vector nightV = computeVector(night, 20, false, clear, true, true);     // winter night, still
   Offsets oc = mapOffsets(nightV, -1, 1.0f, R), omr = mapOffsets(nightV, +1, 1.0f, R);
   CHECK(oc.exposure > 0.28f && oc.warmth > 24 && oc.density > 4.5f, "complement winter night: brighter +%.2f warmer +%.0f denser +%.1f", oc.exposure, oc.warmth, oc.density);
@@ -144,8 +148,12 @@ int main() {
   NEAR(oc.exposure, -omr.exposure, 1e-5, "modes are exact opposites");
   Offsets os = mapOffsets(computeVector(high, 172, false, storm, true, true), -1, 1.0f, R);
   CHECK(os.breeze < -20, "complement storm: calmer %.0f", os.breeze);
+  Offsets og = mapOffsets(computeVector(high, 172, false, over, true, true), -1, 1.0f, R);
+  CHECK(og.contrast > 24 && og.warmth > 5, "complement grey noon: crisper +%.0f, warmer +%.0f", og.contrast, og.warmth);
+  Offsets ogm = mapOffsets(computeVector(high, 172, false, over, true, true), +1, 1.0f, R);
+  CHECK(ogm.contrast < -24 && ogm.warmth < -5, "mirror grey noon: flatter %.0f, cooler %.0f", ogm.contrast, ogm.warmth);
   Offsets on = mapOffsets(computeVector(high, 172, false, clear, false, false), -1, 1.0f, R);
-  CHECK(on.exposure == 0 && on.warmth == 0 && on.breeze == 0 && on.density == 0, "neutral -> zero offsets");
+  CHECK(on.exposure == 0 && on.warmth == 0 && on.breeze == 0 && on.density == 0 && on.contrast == 0, "neutral -> zero offsets");
   Offsets oh = mapOffsets(nightV, -1, 0.5f, R);
   NEAR(oh.warmth, oc.warmth * 0.5f, 1e-4, "influence scales linearly");
 

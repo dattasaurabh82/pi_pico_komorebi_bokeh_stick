@@ -71,9 +71,12 @@ void KomorebiEngine::deal() {
 // parameter they just selected.
 // gain: exposure. 1.0 = as designed; 1.3 lifts the mid-tones 30% (whites
 // saturate a little earlier), 0.7 dims them. Black stays black.
-void KomorebiEngine::buildPalette(float warmth01, float shimmer, float gain) {
+// contrast01: 0 flattens the curve (gamma x0.8, lifted mids, overcast),
+// 1 steepens it (gamma x1.2, punchier). 0.5 = the original curve.
+void KomorebiEngine::buildPalette(float warmth01, float shimmer, float gain, float contrast01) {
   float w = warmth01 + shimmer * 0.20f;
   if (w < 0) w = 0; if (w > 1) w = 1;
+  float gm = 0.8f + 0.4f * contrast01;   // gamma multiplier
   // endpoints: cool (w=0) .. warm (w=1)
   float rG = 255.0f,                 rE = 0.82f + w * (0.55f - 0.82f);
   float gG = 250.0f + w * (205.0f - 250.0f), gE = 0.84f + w * (0.88f - 0.84f);
@@ -81,9 +84,9 @@ void KomorebiEngine::buildPalette(float warmth01, float shimmer, float gain) {
   for (int i = 0; i < 256; i++) {
     float t = i / 255.0f * gain;
     if (t > 1.0f) t = 1.0f;
-    disp_->setColor(i, (uint8_t)(rG * powf(t, rE)),
-                       (uint8_t)(gG * powf(t, gE)),
-                       (uint8_t)(bG * powf(t, bE)));
+    disp_->setColor(i, (uint8_t)(rG * powf(t, rE * gm)),
+                       (uint8_t)(gG * powf(t, gE * gm)),
+                       (uint8_t)(bG * powf(t, bE * gm)));
   }
 }
 
@@ -129,9 +132,16 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   sky_.breeze   = slew(sky_.breeze,   skyTarget_.breeze,   dt * SKY_RANGE_BREEZE   / SKY_SLEW_S);
   sky_.density  = slew(sky_.density,  skyTarget_.density,  dt * SKY_RANGE_DENSITY  / SKY_SLEW_S);
   sky_.exposure = slew(sky_.exposure, skyTarget_.exposure, dt * SKY_RANGE_EXPOSURE / SKY_SLEW_S);
+  sky_.contrast = slew(sky_.contrast, skyTarget_.contrast, dt * SKY_RANGE_CONTRAST / SKY_SLEW_S);
   effWarmth_  = (int)(params.warmth  + sky_.warmth  + 0.5f); if (effWarmth_  < 0) effWarmth_ = 0;  if (effWarmth_  > 100) effWarmth_  = 100;
   effBreeze_  = (int)(params.breeze  + sky_.breeze  + 0.5f); if (effBreeze_  < 0) effBreeze_ = 0;  if (effBreeze_  > 100) effBreeze_  = 100;
   effDensity_ = (int)(params.density + sky_.density + 0.5f); if (effDensity_ < DENSITY_MIN) effDensity_ = DENSITY_MIN; if (effDensity_ > DENSITY_MAX) effDensity_ = DENSITY_MAX;
+  effContrast_= (int)(params.contrast+ sky_.contrast + 0.5f); if (effContrast_ < 0) effContrast_ = 0; if (effContrast_ > 100) effContrast_ = 100;
+  float c01 = effContrast_ / 100.0f;
+  // Contrast on the pools: flat = bigger and dimmer (diffuse light),
+  // crisp = smaller and brighter. Area/brightness product stays roughly put.
+  float sizeM = 1.25f - 0.5f * c01;      // 1.25 .. 0.75
+  float briM  = 0.80f + 0.40f * c01;     // 0.80 .. 1.20
   float gain = 1.0f + sky_.exposure;
   int gainQ = (int)(gain * 100.0f);
 
@@ -143,11 +153,13 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   // written on TWO consecutive frames (once per back buffer) or the image
   // strobes between the new palette and stale/garbage data.
   bool shimmering = (aEnv > 0.0f) && (announceParam_ == Param::Warmth);
-  if (effWarmth_ != lastWarmth_ || gainQ != lastGainQ_) { palFrames_ = 2; lastWarmth_ = effWarmth_; lastGainQ_ = gainQ; }
+  if (effWarmth_ != lastWarmth_ || gainQ != lastGainQ_ || effContrast_ != lastContrast_) {
+    palFrames_ = 2; lastWarmth_ = effWarmth_; lastGainQ_ = gainQ; lastContrast_ = effContrast_;
+  }
   if (shimmering) palFrames_ = 2;   // animating: keep writing (+2 to settle)
   if (palFrames_ > 0) {
     float shimmer = shimmering ? sinf(aU * 6.283f * 1.5f) * aEnv : 0.0f;
-    buildPalette(effWarmth_ / 100.0f, shimmer, gain);
+    buildPalette(effWarmth_ / 100.0f, shimmer, gain, c01);
     palFrames_--;
   }
 
@@ -187,11 +199,17 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
       blink = 1.0f - sinf(aU * 3.14159f); // dip to 0 mid-announcement
     }
 
+    // Contrast announcement: every pool briefly tightens and brightens.
+    float sharpen = (announceParam_ == Param::Contrast && aEnv > 0.0f) ? sinf(aU * 3.14159f) : 0.0f;
+    float sM = sizeM * (1.0f - 0.25f * sharpen);
+    float bM = briM  * (1.0f + 0.30f * sharpen);
+
     // Shape breathing: slow area-preserving squash/stretch.
     float m = 1.0f + 0.06f * sinf(t * dp.sf * 6.283f + dp.sp);
-    fx::blitAddScaled(buf, (int)x, (int)y,
-                      (int)(br * fEased * dp.act * blink * 256),
-                      (int)(dp.ow * m), (int)(dp.oh / m));
+    int bs = (int)(br * bM * fEased * dp.act * blink * 256);
+    if (bs > 255) bs = 255;
+    fx::blitAddScaled(buf, (int)x, (int)y, bs,
+                      (int)(dp.ow * m * sM), (int)(dp.oh / m * sM));
   }
   fx::vignettePass(buf);
 }

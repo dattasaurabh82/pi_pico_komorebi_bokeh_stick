@@ -7,7 +7,7 @@
 // WiFi: on boot, join the stored network or open the "komorebi" AP portal
 //   (wifi_portal.h). Everything WiFi that writes flash happens BEFORE
 //   display.begin(): a flash write with DVI live freezes the board.
-// Interaction: encoder click cycles warmth -> breeze -> density (the
+// Interaction: encoder click cycles warmth -> breeze -> density -> contrast (the
 // selected parameter announces itself visually); turning adjusts it.
 // Selection falls back to warmth after SELECT_TIMEOUT_MS of inactivity.
 // Encoder long-press: forget the WiFi network, reboot into the portal.
@@ -38,14 +38,14 @@ uint32_t lastInteraction = 0;
 
 static const char* modeName() { return skyComplement ? "complement" : "mirror"; }
 static sky::Offsets skyOffsets() {
-  sky::OffsetRanges r = { SKY_RANGE_WARMTH, SKY_RANGE_BREEZE, SKY_RANGE_DENSITY, SKY_RANGE_EXPOSURE };
+  sky::OffsetRanges r = { SKY_RANGE_WARMTH, SKY_RANGE_BREEZE, SKY_RANGE_DENSITY, SKY_RANGE_EXPOSURE, SKY_RANGE_CONTRAST };
   return sky::mapOffsets(skyc.vector(), skyComplement ? -1 : +1, SKY_INFLUENCE, r);
 }
 static void pushSky(const char* why) {        // recompute targets, hand to engine, say so
   sky::Offsets o = skyOffsets();
   engine.setSkyTargets(o);
-  LOGV("[sky] targets (%s): warmth %+.0f breeze %+.0f density %+.1f exposure %+.0f%%\n",
-       why, o.warmth, o.breeze, o.density, o.exposure * 100.0f);
+  LOGV("[sky] targets (%s): warmth %+.0f breeze %+.0f density %+.1f exposure %+.0f%% contrast %+.0f\n",
+       why, o.warmth, o.breeze, o.density, o.exposure * 100.0f, o.contrast);
 }
 
 void setup() {
@@ -93,7 +93,7 @@ void loop() {
     lastInteraction = now;
   }
 
-  static const char* PNAME[3] = { "warmth", "breeze", "density" };
+  static const char* PNAME[4] = { "warmth", "breeze", "density", "contrast" };
   ClickButton::Event ev = encoderBtn.poll(now);
   if (ev == ClickButton::CLICK) {
     selected = (Param)(((uint8_t)selected + 1) % PARAM_COUNT);
@@ -108,8 +108,8 @@ void loop() {
   int det = encoder.consumeDetents();
   if (det != 0) {
     params.adjust(selected, det);
-    int v = selected == Param::Warmth ? params.warmth : selected == Param::Breeze ? params.breeze : params.density;
-    int e = selected == Param::Warmth ? engine.effWarmth() : selected == Param::Breeze ? engine.effBreeze() : engine.effDensity();
+    int v = selected == Param::Warmth ? params.warmth : selected == Param::Breeze ? params.breeze : selected == Param::Density ? params.density : params.contrast;
+    int e = selected == Param::Warmth ? engine.effWarmth() : selected == Param::Breeze ? engine.effBreeze() : selected == Param::Density ? engine.effDensity() : engine.effContrast();
     LOGV("[enc] turn %+d: %s set %d (on the wall %d incl. sky)\n", det, PNAME[(uint8_t)selected], v, e);
     lastInteraction = now;
   }
@@ -138,8 +138,8 @@ void loop() {
     lastSkyPush = now;
     pushSky("minute");
     const sky::Offsets& a = engine.skyApplied();
-    LOGV("[sky] applied: warmth %+.1f breeze %+.1f density %+.1f exposure %+.0f%% -> wall warmth %d breeze %d density %d\n",
-         a.warmth, a.breeze, a.density, a.exposure * 100.0f, engine.effWarmth(), engine.effBreeze(), engine.effDensity());
+    LOGV("[sky] applied: warmth %+.1f breeze %+.1f density %+.1f exposure %+.0f%% contrast %+.1f -> wall warmth %d breeze %d density %d contrast %d\n",
+         a.warmth, a.breeze, a.density, a.exposure * 100.0f, a.contrast, engine.effWarmth(), engine.effBreeze(), engine.effDensity(), engine.effContrast());
   }
   static uint32_t lastSkyLog = 0;
   if (now - lastSkyLog > 600000) { lastSkyLog = now; skyc.logStatus(Serial); }

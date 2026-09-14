@@ -210,13 +210,21 @@ Vector computeVector(const SunPos& sun, int doy, bool south,
   v.known = true;
 
   float cloud = haveWeather ? w.cloud_pct / 100.0f : 0.3f;   // 30% = average
+  if (haveWeather) {
+    // crispness of the outside light: 0.3 cloud = average (0.5); rain flattens further
+    v.crisp = cloud <= 0.3f ? 0.5f + (0.3f - cloud) / 0.3f * 0.5f
+                            : 0.5f - (cloud - 0.3f) / 0.7f * 0.5f;
+    if (w.precip_mm > 0.1f) v.crisp -= 0.15f;
+    v.crisp = clamp01(v.crisp);
+  }
   if (haveTime) {
     float e = sun.elevation_deg;
     // daylight 0 at civil dusk (-6), 1 from 30 deg up; clouds take up to 70%
     float day = smooth(-6.0f, 30.0f, e);
     v.light = clamp01(day * (1.0f - 0.7f * cloud));
-    // outside light warmth: absent at night, golden near horizon, neutral high
-    v.warmth = (e <= 0) ? 0.0f : 0.3f + 0.7f * (1.0f - smooth(0.0f, 35.0f, e));
+    // outside light warmth: absent at night, golden near horizon, neutral
+    // high; overcast light is bluish, so cloud takes up to 40% off
+    v.warmth = (e <= 0) ? 0.0f : (0.3f + 0.7f * (1.0f - smooth(0.0f, 35.0f, e))) * (1.0f - 0.4f * cloud);
     // foliage by season, min ~Jan 20, max ~Jul 20 (flipped south)
     float ph = (doy - 20) / 365.0f * 6.2831853f;
     v.foliage = 0.5f - 0.5f * cosf(ph);
@@ -242,6 +250,7 @@ Vector decay(const Vector& v, float ageHours, float maxFreshHours) {
   r.warmth  = 0.5f + (v.warmth  - 0.5f) * k;
   r.motion  = 0.5f + (v.motion  - 0.5f) * k;
   r.foliage = 0.5f + (v.foliage - 0.5f) * k;
+  r.crisp   = 0.5f + (v.crisp   - 0.5f) * k;
   return r;
 }
 
@@ -253,6 +262,7 @@ Offsets mapOffsets(const Vector& v, int sign, float influence, const OffsetRange
   o.warmth   = k * (v.warmth  - 0.5f) * r.warmth;
   o.breeze   = k * (v.motion  - 0.5f) * r.breeze;
   o.density  = k * (v.foliage - 0.5f) * r.density;
+  o.contrast = k * (v.crisp   - 0.5f) * r.contrast;
   return o;
 }
 

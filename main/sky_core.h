@@ -50,6 +50,7 @@ struct Vector {
   float warmth  = 0.5f;  // 0 cold/absent light .. 1 golden hour
   float motion  = 0.5f;  // 0 still .. 1 storm
   float foliage = 0.5f;  // 0 bare winter .. 1 dense summer
+  float crisp   = 0.5f;  // 0 flat overcast/rain .. 1 hard clear sun
   bool  known   = false; // true if anything above is not a default
 };
 // haveTime: sun and doy are real. haveWeather: w is real (valid).
@@ -67,8 +68,9 @@ struct Offsets {
   float breeze   = 0;   // points on the 0..100 breeze scale
   float density  = 0;   // dapples
   float exposure = 0;   // palette gain, +0.30 = 30% brighter mid-tones
+  float contrast = 0;   // points on the 0..100 contrast scale
 };
-struct OffsetRanges { float warmth, breeze, density, exposure; };  // full swing at |v-0.5| = 0.5
+struct OffsetRanges { float warmth, breeze, density, exposure, contrast; };  // full swing at |v-0.5| = 0.5
 Offsets mapOffsets(const Vector& v, int sign, float influence, const OffsetRanges& r);
 
 } // namespace sky

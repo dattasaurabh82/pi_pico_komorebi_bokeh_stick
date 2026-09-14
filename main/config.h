@@ -30,6 +30,7 @@ constexpr uint32_t WIFI_PORTAL_TIMEOUT_MS  = 180000; // then start offline
 constexpr float SKY_RANGE_WARMTH   = 25.0f;  // points on 0..100
 constexpr float SKY_RANGE_BREEZE   = 25.0f;  // points on 0..100
 constexpr float SKY_RANGE_DENSITY  = 5.0f;   // dapples
+constexpr float SKY_RANGE_CONTRAST = 25.0f;  // points on 0..100 (from cloud/rain: crispness)
 constexpr float SKY_RANGE_EXPOSURE = 0.30f;  // palette gain, +-30% mid-tones
 constexpr float SKY_INFLUENCE      = 1.0f;   // 0 = off, 1 = full swing. Tuning: start visible.
 constexpr float SKY_SLEW_S         = 180.0f; // seconds to travel a full swing (never pops)
@@ -51,6 +52,7 @@ constexpr int SPRITE_SIZE   = 96;   // soft radial sprite, px
 // ---------- User parameters (0..100 unless noted) ----------
 constexpr int WARMTH_DEFAULT = 50;  // 0 = cool daylight, 100 = low amber
 constexpr int BREEZE_DEFAULT = 40;  // 0 = near-still, 100 = lively
+constexpr int CONTRAST_DEFAULT = 50;// 0 = overcast flat (big, soft, dim pools), 100 = crisp sun
 constexpr int PARAM_STEP     = 4;   // warmth/breeze change per detent
 // density moves 1 per detent (its own scale)
 
