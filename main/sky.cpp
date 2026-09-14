@@ -86,17 +86,34 @@ void SkyClient::serviceJob() {
     if (job_ == Job::Weather) { sky::Weather w; ok = sky::parseWeather(body, blen, &w); if (ok) { wx_ = w; wxFetchedMs_ = millis(); } }
     else                      { sky::Location l; ok = sky::parseLocation(body, blen, &l); if (ok) loc_ = l; }
   }
+  if (!ok) {                                  // say what came back, first line only
+    char line[80]; size_t n = 0;
+    while (n < sizeof(line) - 1 && n < len_ && buf_[n] != '\r' && buf_[n] != '\n') { line[n] = buf_[n]; n++; }
+    line[n] = 0;
+    Serial.printf("[sky] reply: %s%s\n", line, timeout ? " (timeout)" : "");
+  }
   finishJob(ok);
 }
 
 void SkyClient::finishJob(bool ok) {
   st_ = ok ? St::Done : St::Failed;
-  if (job_ == Job::Weather) nextTryMs_ = millis() + (ok ? refreshMs_ : retryMs_);
+  if (job_ == Job::Weather) {
+    nextTryMs_ = millis() + (ok ? refreshMs_ : retryMs_);
+    consecFail_ = ok ? 0 : consecFail_ + 1;
+  }
   Serial.printf("[sky] %s %s (%u B, connect %lu ms)\n",
                 job_ == Job::Weather ? "weather" : "location", ok ? "ok" : "FAILED",
                 (unsigned)len_, (unsigned long)lastConnectMs_);
   job_ = Job::None;
   st_ = St::Idle;
+}
+
+void SkyClient::reassociate(const char* why) {
+  Serial.printf("[sky] wifi reassociate (%s)\n", why);
+  WiFi.disconnect();
+  delay(50);
+  WiFi.beginNoBlock(ssid_, pass_[0] ? pass_ : nullptr);   // never blocks the frame loop
+  consecFail_ = 0;
 }
 
 bool SkyClient::runBlocking(Job j, uint32_t capMs) {
@@ -108,6 +125,9 @@ bool SkyClient::runBlocking(Job j, uint32_t capMs) {
 }
 
 // ---------- public ----------
+extern "C" void cyw43_set_pio_clkdiv_int_frac8(uint32_t clock_div_int, uint8_t clock_div_frac8);
+void SkyClient::prepareRadioForDvi() { cyw43_set_pio_clkdiv_int_frac8(3, 0); }
+
 void SkyClient::setCredentials(const char* ssid, const char* pass) {
   strncpy(ssid_, ssid ? ssid : "", 32); strncpy(pass_, pass ? pass : "", 64);
 }
@@ -130,20 +150,24 @@ void SkyClient::tick() {
 
   // WiFi watchdog: the core does not auto-reconnect a dropped STA link.
   if (WiFi.status() != WL_CONNECTED) {
-    if (downSinceMs_ == 0) { downSinceMs_ = now; Serial.println("[sky] wifi down"); }
+    if (downSinceMs_ == 0) { downSinceMs_ = now; Serial.printf("[sky] wifi down (status %d)\n", WiFi.status()); }
     else if (now - downSinceMs_ > 30000 && ssid_[0]) {
-      Serial.println("[sky] wifi reconnect attempt");
-      WiFi.begin(ssid_, pass_[0] ? pass_ : nullptr);   // non-blocking-ish; status polled next ticks
-      downSinceMs_ = now;                              // try again in 30 s if still down
+      reassociate("link down");
+      downSinceMs_ = now;                              // next attempt in 30 s if still down
     }
     if (st_ == St::Reading) { client_.stop(); finishJob(false); }
     return;
   }
-  if (downSinceMs_) { downSinceMs_ = 0; Serial.println("[sky] wifi back"); due_ = true; }
+  if (downSinceMs_) { downSinceMs_ = 0; Serial.printf("[sky] wifi back, ip %s\n", WiFi.localIP().toString().c_str()); due_ = true; }
 
   if (st_ == St::Reading) { serviceJob(); return; }
   if (due_ || (int32_t)(now - nextTryMs_) >= 0) {
     due_ = false;
+    if (consecFail_ >= 2 && ssid_[0]) {               // associated but not routed: start over
+      reassociate("2 failed fetches while connected");
+      nextTryMs_ = now + 60000;
+      return;
+    }
     if (!loc_.valid) { startJob(Job::Location); nextTryMs_ = now + retryMs_; return; }
     startJob(Job::Weather);
   }

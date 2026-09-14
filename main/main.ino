@@ -18,6 +18,7 @@
 #include "controls.h"
 #include "engine.h"
 #include "wifi_portal.h"
+#include "sky.h"
 
 DVIGFX8 display(DVI_RES_320x240p60, true, pico_sock_cfg);
 
@@ -27,12 +28,18 @@ ClickButton    encoderBtn;
 ClickButton    surpriseBtn;
 Params         params;
 WifiPortal     wifi;
+SkyClient      skyc;       // sky data layer; LOG ONLY for now, engine untouched
 
 Param    selected = Param::Warmth;
 uint32_t lastInteraction = 0;
 
 void setup() {
+  SkyClient::prepareRadioForDvi();  // first: WiFi SPI divisor for the 252 MHz DVI clock
   wifi.boot(); // connect, or portal, or time out. MUST precede display.begin().
+  if (wifi.connected()) {
+    skyc.setCredentials(wifi.ssid(), wifi.pass());
+    skyc.bootSync(10000);            // location, clock, weather. Still pre-DVI.
+  }
   if (!display.begin()) { // RAM alloc failed -> blink LED forever
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
@@ -79,4 +86,9 @@ void loop() {
   // --- frame ---
   engine.renderFrame(t, dt, params);
   display.swap();
+
+  // --- sky (log only, stage 3): hourly refresh, reconnects, status line ---
+  skyc.tick();
+  static uint32_t lastSkyLog = 0;
+  if (now - lastSkyLog > 600000) { lastSkyLog = now; skyc.logStatus(Serial); }
 }

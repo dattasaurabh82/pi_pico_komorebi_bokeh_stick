@@ -40,10 +40,16 @@ public:
   void setCredentials(const char* ssid, const char* pass);
 
   // Test hooks (spike only): refresh interval, override host/path.
-  void setRefreshMs(uint32_t ms) { refreshMs_ = ms; }
+  void setRefreshMs(uint32_t ms) { refreshMs_ = ms; if (wx_.valid) nextTryMs_ = wxFetchedMs_ + ms; }
   void setWeatherHost(const char* h) { wxHost_ = h; }
   void setWeatherPathPrefix(const char* p) { wxPathPrefix_ = p; }
   void requestRefresh() { due_ = true; }
+
+  // Call FIRST in setup(), before any WiFi use (portal included). The CYW43
+  // SPI runs off a PIO divisor fixed at bus init; PicoDVI later raises sysclk
+  // to 252 MHz, which would push that SPI to 63 MHz (chip max 50). Divisor 3
+  // keeps it at 42 MHz with DVI live, 25 MHz at boot. Proven 2026-09-14.
+  static void prepareRadioForDvi();
 
 private:
   enum class Job : uint8_t { None, Location, Weather };
@@ -52,6 +58,7 @@ private:
   bool startJob(Job j);                          // DNS + connect + send (blocking part)
   void serviceJob();                             // read a slice, parse when complete
   void finishJob(bool ok);
+  void reassociate(const char* why);             // disconnect + non-blocking begin
   bool runBlocking(Job j, uint32_t capMs);       // boot helper: start + service until done
   void buildWeatherPath(char* out, size_t cap) const;
 
@@ -62,6 +69,7 @@ private:
   uint32_t refreshMs_   = 3600000;               // 1 h
   uint32_t retryMs_     = 300000;                // 5 min after a failure
   bool     due_         = false;
+  uint8_t  consecFail_  = 0;
 
   // in-flight job
   WiFiClient client_;

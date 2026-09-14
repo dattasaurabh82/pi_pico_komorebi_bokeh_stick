@@ -29,14 +29,8 @@ static uint32_t credsChecksum(const Creds& c) {
 
 static uint32_t maxGapMs = 0, lastLoopMs = 0, lastStatusMs = 0;
 
-// The CYW43 SPI runs off a PIO with a fixed divisor of 2, set at bus init
-// (sysclk 150 MHz). PicoDVI then raises sysclk to 252 MHz, so the SPI runs
-// 1.7x over spec: lossy link, slow/failed TCP connects. Halve it before
-// the first WiFi call. Driver is prebuilt with CYW43_PIO_CLOCK_DIV_DYNAMIC.
-extern "C" void cyw43_set_pio_clkdiv_int_frac8(uint32_t clock_div_int, uint8_t clock_div_frac8);
-
 void setup() {
-  cyw43_set_pio_clkdiv_int_frac8(3, 0);
+  SkyClient::prepareRadioForDvi();           // before any WiFi call (see sky.h)
   Serial.begin(115200);
   for (uint32_t t = millis(); !Serial && millis() - t < 3000;) delay(10);
 
@@ -52,10 +46,10 @@ void setup() {
     Serial.printf("[spike] wifi %s ip %s\n", WiFi.connected() ? "up" : "DOWN", WiFi.localIP().toString().c_str());
     skyc.setCredentials(c.ssid, c.pass);
   }
+  skyc.setRefreshMs(300000);                  // 5 min for the soak
   uint32_t t0 = millis();
   skyc.bootSync(10000);                       // pre-DVI, blocking, capped
   Serial.printf("[spike] bootSync took %lu ms\n", millis() - t0);
-  skyc.setRefreshMs(120000);                  // 2 min for the test
 
   if (!display.begin()) { pinMode(LED_BUILTIN, OUTPUT); for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1); }
   for (int i = 0; i < 256; i++) display.setColor(i, i, i, i);

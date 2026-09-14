@@ -21,6 +21,8 @@ public:
   void requestPortalAndReboot();
 
   bool connected() const { return connected_; }
+  const char* ssid() const { return creds_.ssid; }   // stored network (empty if none)
+  const char* pass() const { return creds_.pass; }
 
   // Stored record (EEPROM, last 4 KB flash sector). Public because the
   // portal's HTTP handlers (file-static) fill it in.
@@ -33,4 +35,5 @@ private:
   bool tryConnect(const Creds& c);
   bool runPortal();                    // true = saved (then reboots), false = timeout
   bool connected_ = false;
+  Creds creds_ = {};
 };

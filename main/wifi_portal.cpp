@@ -174,6 +174,7 @@ bool WifiPortal::boot() {
 
   Creds c;
   bool have = load(c);
+  if (have) creds_ = c;
   Serial.printf("[wifi] boot: stored=%s forcePortal=%d\n", have ? c.ssid : "(none)", forcePortal);
   if (forcePortal && have) {           // long-press: forget stored network
     Creds blank; memset(&blank, 0, sizeof(blank));
