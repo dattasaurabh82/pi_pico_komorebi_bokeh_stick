@@ -33,8 +33,12 @@ public:
   sky::SunPos sun() const;                       // from clock + location
   float weatherAgeHours() const;
   time_t localNow() const;                       // epoch + utc offset (0 offset if unknown)
-  void logStatus(Print& out) const;
+  void logStatus(Print& out) const;               // one line, for the periodic log
+  // Multi-line, human-readable: what was fetched and what the light will
+  // do with it. o = the offsets computed for the current mode.
+  void dumpSnapshot(Print& out, const char* modeName, const sky::Offsets& o) const;
   uint32_t lastConnectMs() const { return lastConnectMs_; }
+  uint32_t fetchCount() const { return fetchCount_; }   // successful weather fetches
 
   // WiFi reconnect needs the credentials; give them once at boot.
   void setCredentials(const char* ssid, const char* pass);
@@ -70,6 +74,7 @@ private:
   uint32_t retryMs_     = 300000;                // 5 min after a failure
   bool     due_         = false;
   uint8_t  consecFail_  = 0;
+  uint32_t fetchCount_  = 0;
 
   // in-flight job
   WiFiClient client_;

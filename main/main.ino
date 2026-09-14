@@ -19,6 +19,7 @@
 #include "engine.h"
 #include "wifi_portal.h"
 #include "sky.h"
+#include "log.h"
 
 DVIGFX8 display(DVI_RES_320x240p60, true, pico_sock_cfg);
 
@@ -28,10 +29,24 @@ ClickButton    encoderBtn;
 ClickButton    surpriseBtn;
 Params         params;
 WifiPortal     wifi;
-SkyClient      skyc;       // sky data layer; LOG ONLY for now, engine untouched
+SkyClient      skyc;       // sky data layer
+bool           skyComplement = SKY_DEFAULT_COMPLEMENT;   // false = mirror
+uint32_t       lastSurpriseClick = 0;
 
 Param    selected = Param::Warmth;
 uint32_t lastInteraction = 0;
+
+static const char* modeName() { return skyComplement ? "complement" : "mirror"; }
+static sky::Offsets skyOffsets() {
+  sky::OffsetRanges r = { SKY_RANGE_WARMTH, SKY_RANGE_BREEZE, SKY_RANGE_DENSITY, SKY_RANGE_EXPOSURE };
+  return sky::mapOffsets(skyc.vector(), skyComplement ? -1 : +1, SKY_INFLUENCE, r);
+}
+static void pushSky(const char* why) {        // recompute targets, hand to engine, say so
+  sky::Offsets o = skyOffsets();
+  engine.setSkyTargets(o);
+  LOGV("[sky] targets (%s): warmth %+.0f breeze %+.0f density %+.1f exposure %+.0f%%\n",
+       why, o.warmth, o.breeze, o.density, o.exposure * 100.0f);
+}
 
 void setup() {
   SkyClient::prepareRadioForDvi();  // first: WiFi SPI divisor for the 252 MHz DVI clock
@@ -40,6 +55,8 @@ void setup() {
     skyc.setCredentials(wifi.ssid(), wifi.pass());
     skyc.bootSync(10000);            // location, clock, weather. Still pre-DVI.
   }
+  skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+  pushSky("boot");                   // engine slides from baseline to these over SKY_SLEW_S
   if (!display.begin()) { // RAM alloc failed -> blink LED forever
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
@@ -60,35 +77,70 @@ void loop() {
   float t = now / 1000.0f;
 
   // --- inputs ---
-  if (surpriseBtn.poll(now) == ClickButton::CLICK && !engine.surpriseBusy())
-    engine.startSurprise();
+  if (surpriseBtn.poll(now) == ClickButton::CLICK) {
+    if (now - lastSurpriseClick < DOUBLE_CLICK_MS) {   // 2nd click: flip the world
+      skyComplement = !skyComplement;
+      LOGE("[btn] double-click: mode -> %s\n", modeName());
+      pushSky("mode flip");
+      skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+    } else if (!engine.surpriseBusy()) {
+      LOGV("[btn] surprise: breathe out, re-deal, breathe in\n");
+      engine.startSurprise();
+    } else {
+      LOGV("[btn] surprise click ignored (fade running)\n");
+    }
+    lastSurpriseClick = now;
+    lastInteraction = now;
+  }
 
+  static const char* PNAME[3] = { "warmth", "breeze", "density" };
   ClickButton::Event ev = encoderBtn.poll(now);
   if (ev == ClickButton::CLICK) {
     selected = (Param)(((uint8_t)selected + 1) % PARAM_COUNT);
     engine.announce(selected, t);   // the param shows itself on the wall
+    LOGV("[enc] click: selected %s (announcing)\n", PNAME[(uint8_t)selected]);
     lastInteraction = now;
   } else if (ev == ClickButton::LONG_PRESS) {
+    LOGE("[enc] long-press: forget WiFi, reboot into portal\n");
     wifi.requestPortalAndReboot();  // forget network, come back in the portal
   }
 
   int det = encoder.consumeDetents();
   if (det != 0) {
     params.adjust(selected, det);
+    int v = selected == Param::Warmth ? params.warmth : selected == Param::Breeze ? params.breeze : params.density;
+    int e = selected == Param::Warmth ? engine.effWarmth() : selected == Param::Breeze ? engine.effBreeze() : engine.effDensity();
+    LOGV("[enc] turn %+d: %s set %d (on the wall %d incl. sky)\n", det, PNAME[(uint8_t)selected], v, e);
     lastInteraction = now;
   }
 
   // Idle fallback: after a while, turning means warmth again (the most
   // lamp-like expectation for someone approaching the object cold).
-  if (selected != Param::Warmth && (now - lastInteraction) > SELECT_TIMEOUT_MS)
+  if (selected != Param::Warmth && (now - lastInteraction) > SELECT_TIMEOUT_MS) {
     selected = Param::Warmth;
+    LOGV("[enc] idle %lu s: selection back to warmth\n", SELECT_TIMEOUT_MS / 1000);
+  }
 
   // --- frame ---
   engine.renderFrame(t, dt, params);
   display.swap();
 
-  // --- sky (log only, stage 3): hourly refresh, reconnects, status line ---
+  // --- sky: hourly refresh, reconnects; targets re-pushed every minute
+  //     (the sun moves) and right after a successful fetch ---
+  uint32_t fetchesBefore = skyc.fetchCount();
   skyc.tick();
+  static uint32_t lastSkyPush = 0;
+  if (skyc.fetchCount() != fetchesBefore) {
+    pushSky("fetch");
+    skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+    lastSkyPush = now;
+  } else if (now - lastSkyPush > 60000) {
+    lastSkyPush = now;
+    pushSky("minute");
+    const sky::Offsets& a = engine.skyApplied();
+    LOGV("[sky] applied: warmth %+.1f breeze %+.1f density %+.1f exposure %+.0f%% -> wall warmth %d breeze %d density %d\n",
+         a.warmth, a.breeze, a.density, a.exposure * 100.0f, engine.effWarmth(), engine.effBreeze(), engine.effDensity());
+  }
   static uint32_t lastSkyLog = 0;
   if (now - lastSkyLog > 600000) { lastSkyLog = now; skyc.logStatus(Serial); }
 }

@@ -245,4 +245,15 @@ Vector decay(const Vector& v, float ageHours, float maxFreshHours) {
   return r;
 }
 
+Offsets mapOffsets(const Vector& v, int sign, float influence, const OffsetRanges& r) {
+  Offsets o;
+  if (!v.known) return o;
+  float k = (sign < 0 ? -1.0f : 1.0f) * influence * 2.0f;   // (v-0.5) spans -0.5..0.5
+  o.exposure = k * (v.light   - 0.5f) * r.exposure;
+  o.warmth   = k * (v.warmth  - 0.5f) * r.warmth;
+  o.breeze   = k * (v.motion  - 0.5f) * r.breeze;
+  o.density  = k * (v.foliage - 0.5f) * r.density;
+  return o;
+}
+
 } // namespace sky

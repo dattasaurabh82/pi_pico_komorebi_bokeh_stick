@@ -134,6 +134,21 @@ int main() {
   NEAR(d9.light, 0.5 + (fresh.light - 0.5) * 0.5, 0.001, "half decayed at 9 h: %.3f", d9.light);
   CHECK(!d12.known && d12.light == 0.5f && !d20.known, "neutral at 12 h and beyond");
 
+  // ---- offsets ----
+  printf("offsets\n");
+  OffsetRanges R = {25, 25, 5, 0.30f};
+  Vector nightV = computeVector(night, 20, false, clear, true, true);     // winter night, still
+  Offsets oc = mapOffsets(nightV, -1, 1.0f, R), omr = mapOffsets(nightV, +1, 1.0f, R);
+  CHECK(oc.exposure > 0.28f && oc.warmth > 24 && oc.density > 4.5f, "complement winter night: brighter +%.2f warmer +%.0f denser +%.1f", oc.exposure, oc.warmth, oc.density);
+  CHECK(omr.exposure < -0.28f && omr.warmth < -24 && omr.density < -4.5f, "mirror winter night: dimmer, cooler, sparser");
+  NEAR(oc.exposure, -omr.exposure, 1e-5, "modes are exact opposites");
+  Offsets os = mapOffsets(computeVector(high, 172, false, storm, true, true), -1, 1.0f, R);
+  CHECK(os.breeze < -20, "complement storm: calmer %.0f", os.breeze);
+  Offsets on = mapOffsets(computeVector(high, 172, false, clear, false, false), -1, 1.0f, R);
+  CHECK(on.exposure == 0 && on.warmth == 0 && on.breeze == 0 && on.density == 0, "neutral -> zero offsets");
+  Offsets oh = mapOffsets(nightV, -1, 0.5f, R);
+  NEAR(oh.warmth, oc.warmth * 0.5f, 1e-4, "influence scales linearly");
+
   printf("\n%d checks, %d failed\n", checks, fails);
   return fails ? 1 : 0;
 }

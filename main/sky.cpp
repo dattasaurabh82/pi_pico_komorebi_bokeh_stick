@@ -1,5 +1,6 @@
 // sky.cpp — see sky.h.
 #include "sky.h"
+#include "log.h"
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <time.h>
@@ -84,7 +85,7 @@ void SkyClient::serviceJob() {
   if (body && strncmp(buf_, "HTTP/1.", 7) == 0 && strstr(buf_, " 200 ") && strstr(buf_, " 200 ") < body) {
     body += 4;
     size_t blen = len_ - (body - buf_);
-    if (job_ == Job::Weather) { sky::Weather w; ok = sky::parseWeather(body, blen, &w); if (ok) { wx_ = w; wxFetchedMs_ = millis(); } }
+    if (job_ == Job::Weather) { sky::Weather w; ok = sky::parseWeather(body, blen, &w); if (ok) { wx_ = w; wxFetchedMs_ = millis(); fetchCount_++; } }
     else                      { sky::Location l; ok = sky::parseLocation(body, blen, &l); if (ok) loc_ = l; }
   }
   if (!ok) {                                  // say what came back, first line only
@@ -181,7 +182,37 @@ void SkyClient::tick() {
   }
 }
 
+void SkyClient::dumpSnapshot(Print& out, const char* modeName, const sky::Offsets& o) const {
+  sky::Vector v = vector();
+  sky::SunPos s = sun();
+  time_t ln = localNow(); struct tm t; gmtime_r(&ln, &t);
+  int off = wx_.valid ? wx_.utc_offset_s : (loc_.valid ? loc_.utc_offset_s : 0);
+  out.printf("[sky] ---- snapshot ----\n");
+  if (haveTime()) out.printf("[sky]   time     %04d-%02d-%02d %02d:%02d local (UTC%+d), day %d of year\n",
+                     t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, off / 3600, t.tm_yday + 1);
+  else            out.printf("[sky]   time     unknown (no NTP)\n");
+  if (loc_.valid) out.printf("[sky]   place    %s  %.3f, %.3f\n", loc_.city, loc_.lat, loc_.lon);
+  else            out.printf("[sky]   place    unknown\n");
+  if (haveTime() && loc_.valid)
+    out.printf("[sky]   sun      elevation %.1f deg, azimuth %.0f deg (%s)\n", s.elevation_deg, s.azimuth_deg,
+               s.elevation_deg > 0 ? "up" : (s.elevation_deg > -6 ? "twilight" : "down"));
+  if (wx_.valid)
+    out.printf("[sky]   weather  cloud %.0f%%, wind %.0f km/h gusts %.0f from %.0f deg, rain %.1f mm, %.1f C, code %d, fetched %.1f h ago\n",
+               wx_.cloud_pct, wx_.wind_kmh, wx_.gust_kmh, wx_.wind_dir_deg, wx_.precip_mm, wx_.temp_c, wx_.weather_code, weatherAgeHours());
+  else
+    out.printf("[sky]   weather  none\n");
+  out.printf("[sky]   model    light %.2f  warmth %.2f  motion %.2f  foliage %.2f  (0.5 = average day)%s\n",
+             v.light, v.warmth, v.motion, v.foliage, v.known ? "" : "  NEUTRAL");
+  out.printf("[sky]   mode     %s, influence %.2f\n", modeName, SKY_INFLUENCE);
+  out.printf("[sky]   targets  warmth %+.0f pts, breeze %+.0f pts, density %+.1f dapples, exposure %+.0f%%  (reached over ~%.0f s)\n",
+             o.warmth, o.breeze, o.density, o.exposure * 100.0f, SKY_SLEW_S);
+  out.printf("[sky] --------------------\n");
+}
+
 void SkyClient::logStatus(Print& out) const {
+#if !LOG_VERBOSE
+  (void)out; return;
+#endif
   sky::Vector v = vector();
   sky::SunPos s = sun();
   time_t ln = localNow(); struct tm t; gmtime_r(&ln, &t);

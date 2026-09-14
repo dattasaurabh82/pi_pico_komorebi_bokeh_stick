@@ -58,4 +58,17 @@ Vector computeVector(const SunPos& sun, int doy, bool southernHemisphere,
 // Past maxFreshHours, blend toward 0.5; fully neutral at 2x maxFreshHours.
 Vector decay(const Vector& v, float ageHours, float maxFreshHours);
 
+// ---------- what the light does with it ----------
+// Signed offsets around the user's encoder values. sign = -1 complement
+// (push away from the sky), +1 mirror (follow it). influence scales all.
+// Neutral vector (0.5 everywhere) gives all-zero offsets in both modes.
+struct Offsets {
+  float warmth   = 0;   // points on the 0..100 warmth scale
+  float breeze   = 0;   // points on the 0..100 breeze scale
+  float density  = 0;   // dapples
+  float exposure = 0;   // palette gain, +0.30 = 30% brighter mid-tones
+};
+struct OffsetRanges { float warmth, breeze, density, exposure; };  // full swing at |v-0.5| = 0.5
+Offsets mapOffsets(const Vector& v, int sign, float influence, const OffsetRanges& r);
+
 } // namespace sky

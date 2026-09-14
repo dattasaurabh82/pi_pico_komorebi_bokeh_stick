@@ -15,6 +15,7 @@
 #include <PicoDVI.h>
 #include "config.h"
 #include "params.h"
+#include "sky_core.h"
 
 class KomorebiEngine {
 public:
@@ -29,6 +30,14 @@ public:
 
   // Param selected via encoder click: play its announcement.
   void announce(Param p, float now_s);
+
+  // Sky offsets to approach (slewed over SKY_SLEW_S, never applied at once).
+  void setSkyTargets(const sky::Offsets& o) { skyTarget_ = o; }
+  const sky::Offsets& skyApplied() const { return sky_; }   // what the frame used
+  int effWarmth() const { return effWarmth_; }
+  int effBreeze() const { return effBreeze_; }
+  int effDensity() const { return effDensity_; }
+  float effExposure() const { return 1.0f + sky_.exposure; }
 
   // Advance and draw one frame into the display's back buffer.
   // Call display->swap() afterwards (main owns the cadence).
@@ -47,7 +56,8 @@ private:
     int ow, oh;                 // rendered size; ow != oh = ellipticity
   };
 
-  void buildPalette(float warmth01, float shimmer);
+  void buildPalette(float warmth01, float shimmer, float gain);
+  static float slew(float cur, float target, float maxStep);
   uint32_t entropySeed();
   float frand(float lo, float hi);
 
@@ -55,7 +65,10 @@ private:
   Dapple d_[N_MAX_DAPPLES];
   FadeState fadeState_ = FadeState::Idle;
   float fade_ = 1.0f;
-  int lastWarmth_ = -1;         // rebuild palette only when needed
+  int lastWarmth_ = -1;         // rebuild palette only when needed (effective warmth)
+  int lastGainQ_  = -1;         // quantised exposure gain, same purpose
+  sky::Offsets skyTarget_, sky_;// sky: where we're going, where we are
+  int effWarmth_ = WARMTH_DEFAULT, effBreeze_ = BREEZE_DEFAULT, effDensity_ = DENSITY_DEFAULT;
   uint8_t palFrames_ = 2;       // frames left to (re)write the palette:
                                 // DVIGFX8 has one palette PER buffer, so
                                 // every change must be written twice —

@@ -69,7 +69,9 @@ void KomorebiEngine::deal() {
 // the per-channel gain and gamma. shimmer (-1..+1) is the announcement:
 // it briefly pushes warmth around its set point so the user SEES which
 // parameter they just selected.
-void KomorebiEngine::buildPalette(float warmth01, float shimmer) {
+// gain: exposure. 1.0 = as designed; 1.3 lifts the mid-tones 30% (whites
+// saturate a little earlier), 0.7 dims them. Black stays black.
+void KomorebiEngine::buildPalette(float warmth01, float shimmer, float gain) {
   float w = warmth01 + shimmer * 0.20f;
   if (w < 0) w = 0; if (w > 1) w = 1;
   // endpoints: cool (w=0) .. warm (w=1)
@@ -77,7 +79,8 @@ void KomorebiEngine::buildPalette(float warmth01, float shimmer) {
   float gG = 250.0f + w * (205.0f - 250.0f), gE = 0.84f + w * (0.88f - 0.84f);
   float bG = 240.0f + w * (110.0f - 240.0f), bE = 0.92f + w * (1.70f - 0.92f);
   for (int i = 0; i < 256; i++) {
-    float t = i / 255.0f;
+    float t = i / 255.0f * gain;
+    if (t > 1.0f) t = 1.0f;
     disp_->setColor(i, (uint8_t)(rG * powf(t, rE)),
                        (uint8_t)(gG * powf(t, gE)),
                        (uint8_t)(bG * powf(t, bE)));
@@ -93,6 +96,13 @@ void KomorebiEngine::startSurprise() {
 void KomorebiEngine::announce(Param p, float now_s) {
   announceParam_ = p;
   announceT0_ = now_s;
+}
+
+float KomorebiEngine::slew(float cur, float target, float maxStep) {
+  float d = target - cur;
+  if (d >  maxStep) d =  maxStep;
+  if (d < -maxStep) d = -maxStep;
+  return cur + d;
 }
 
 // ---------- per-frame ----------
@@ -113,6 +123,18 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   }
   float fEased = fade_ * fade_ * (3.0f - 2.0f * fade_); // smooth breathe
 
+  // Sky: slide the applied offsets toward their targets (full swing over
+  // SKY_SLEW_S), then form the effective parameters the frame will use.
+  sky_.warmth   = slew(sky_.warmth,   skyTarget_.warmth,   dt * SKY_RANGE_WARMTH   / SKY_SLEW_S);
+  sky_.breeze   = slew(sky_.breeze,   skyTarget_.breeze,   dt * SKY_RANGE_BREEZE   / SKY_SLEW_S);
+  sky_.density  = slew(sky_.density,  skyTarget_.density,  dt * SKY_RANGE_DENSITY  / SKY_SLEW_S);
+  sky_.exposure = slew(sky_.exposure, skyTarget_.exposure, dt * SKY_RANGE_EXPOSURE / SKY_SLEW_S);
+  effWarmth_  = (int)(params.warmth  + sky_.warmth  + 0.5f); if (effWarmth_  < 0) effWarmth_ = 0;  if (effWarmth_  > 100) effWarmth_  = 100;
+  effBreeze_  = (int)(params.breeze  + sky_.breeze  + 0.5f); if (effBreeze_  < 0) effBreeze_ = 0;  if (effBreeze_  > 100) effBreeze_  = 100;
+  effDensity_ = (int)(params.density + sky_.density + 0.5f); if (effDensity_ < DENSITY_MIN) effDensity_ = DENSITY_MIN; if (effDensity_ > DENSITY_MAX) effDensity_ = DENSITY_MAX;
+  float gain = 1.0f + sky_.exposure;
+  int gainQ = (int)(gain * 100.0f);
+
   // Announcement envelope: 1 at click, decaying to 0 over ANNOUNCE_S.
   float aU = (t - announceT0_) / ANNOUNCE_S;
   float aEnv = (aU >= 0.0f && aU < 1.0f) ? (1.0f - aU) : 0.0f;
@@ -121,16 +143,16 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   // written on TWO consecutive frames (once per back buffer) or the image
   // strobes between the new palette and stale/garbage data.
   bool shimmering = (aEnv > 0.0f) && (announceParam_ == Param::Warmth);
-  if (params.warmth != lastWarmth_) { palFrames_ = 2; lastWarmth_ = params.warmth; }
+  if (effWarmth_ != lastWarmth_ || gainQ != lastGainQ_) { palFrames_ = 2; lastWarmth_ = effWarmth_; lastGainQ_ = gainQ; }
   if (shimmering) palFrames_ = 2;   // animating: keep writing (+2 to settle)
   if (palFrames_ > 0) {
     float shimmer = shimmering ? sinf(aU * 6.283f * 1.5f) * aEnv : 0.0f;
-    buildPalette(params.warmth / 100.0f, shimmer);
+    buildPalette(effWarmth_ / 100.0f, shimmer, gain);
     palFrames_--;
   }
 
   // Breeze scaling: one scalar drives amplitudes, wind, and breath rate.
-  float b01 = params.breeze / 100.0f;
+  float b01 = effBreeze_ / 100.0f;
   float amp = 0.3f + 2.2f * b01;      // positional sway multiplier
   float rate = 0.6f + 1.2f * b01;     // breathing tempo multiplier
   // Breeze announcement = one extra gust pushed through the wind term.
@@ -144,7 +166,7 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   for (int i = 0; i < N_MAX_DAPPLES; i++) {
     Dapple& dp = d_[i];
     // Density melt: ramp activation toward shown/hidden, render if lit.
-    float target = (i < params.density) ? 1.0f : 0.0f;
+    float target = (i < effDensity_) ? 1.0f : 0.0f;
     if (dp.act < target)      { dp.act += dt * ACT_RAMP_PER_S; if (dp.act > 1) dp.act = 1; }
     else if (dp.act > target) { dp.act -= dt * ACT_RAMP_PER_S; if (dp.act < 0) dp.act = 0; }
     if (dp.act <= 0.01f) continue;

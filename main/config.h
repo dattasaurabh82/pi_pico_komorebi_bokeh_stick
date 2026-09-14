@@ -24,6 +24,23 @@ constexpr const char* WIFI_AP_PASS = "komorebi";  // WPA2, min 8 chars
 constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;  // stored network
 constexpr uint32_t WIFI_PORTAL_TIMEOUT_MS  = 180000; // then start offline
 
+// ---------- Sky-driven light (see README "A lamp that answers the sky") ----------
+// The sky pushes each parameter away from (complement) or toward (mirror)
+// the encoder setting. Full swing per parameter when the sky is extreme:
+constexpr float SKY_RANGE_WARMTH   = 25.0f;  // points on 0..100
+constexpr float SKY_RANGE_BREEZE   = 25.0f;  // points on 0..100
+constexpr float SKY_RANGE_DENSITY  = 5.0f;   // dapples
+constexpr float SKY_RANGE_EXPOSURE = 0.30f;  // palette gain, +-30% mid-tones
+constexpr float SKY_INFLUENCE      = 1.0f;   // 0 = off, 1 = full swing. Tuning: start visible.
+constexpr float SKY_SLEW_S         = 180.0f; // seconds to travel a full swing (never pops)
+constexpr uint32_t DOUBLE_CLICK_MS = 350;    // surprise button: 2nd click flips complement/mirror
+constexpr bool     SKY_DEFAULT_COMPLEMENT = true;
+
+// ---------- Serial logging ----------
+// 1: every interaction and step (clicks, detents, values, 60 s sky line).
+// 0: essentials only (boot, fetches, mode flips, errors). Never per-frame.
+#define LOG_VERBOSE 1
+
 // ---------- Dapple field ----------
 constexpr int N_MAX_DAPPLES = 28;   // hard ceiling (spiked: 36 saturates)
 constexpr int DENSITY_MIN   = 8;    // spiked: below this feels empty
