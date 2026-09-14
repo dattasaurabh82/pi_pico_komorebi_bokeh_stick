@@ -196,9 +196,11 @@ piece slowly returns to neutral. Nothing about the sky is ever written
 to flash (see the flash rule), so a cold offline boot is simply the
 piece you already have.
 
-Status: the data layer is built, tested and running on the wall in
-log-only mode (it fetches and computes, changes nothing visible yet).
-The mapping into the light is the next step.
+Status: live on the wall since 14 Sept 2026, in tuning. `SKY_INFLUENCE`
+in config.h sets how much the sky may push (1.0 while tuning, 0.3 is
+the intended "you'd notice side by side" level). To see it work with a
+serial console, follow the step-by-step script in
+[tests/README.md](tests/README.md#manual-test-script-for-the-wall-build-main).
 
 ## Two hard-won facts about WiFi and video on one Pico
 

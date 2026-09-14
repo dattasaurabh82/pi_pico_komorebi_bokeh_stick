@@ -83,6 +83,44 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
   `O_NONBLOCK`) is safer; the main sketch waits 2 s for a host so the first
   lines are not lost.
 
+## Manual test script for the wall build (main/)
+
+Open the serial port at 115200 (the board waits 2 s for a host at boot),
+`LOG_VERBOSE 1` in config.h. Each step: what to do, what the wall does,
+what the log says.
+
+1. **Boot with the Mac attached.** Replug the board. Within ~3 s: the
+   `[wifi] connected` line, three fetch lines (location, ntp, weather),
+   the `[sky] ---- snapshot ----` block (time, place, sun, weather, model,
+   mode, targets), then `[sky] targets (boot): ...`. Over the next 3 min
+   the light slides from the encoder baseline to the sky targets; the
+   `[sky] applied: ... -> wall ...` line every minute shows the creep.
+2. **Surprise, single click.** Wall: breathe out, new constellation,
+   breathe in. Log: `[btn] surprise: breathe out, re-deal, breathe in`.
+   A click during the fade logs `ignored (fade running)`.
+3. **Double-click** (second press within 350 ms). The first press still
+   breathes. Log: `[btn] double-click: mode -> mirror` and a fresh snapshot
+   whose targets have flipped sign (warmth +10 becomes -10, etc.). The
+   wall does not jump: the offsets slide over 3 min, so only the direction
+   of drift changes. Double-click again flips back to complement.
+4. **Encoder click.** Log: `[enc] click: selected breeze (announcing)`,
+   wall: one gust. Density: one pool blinks. Warmth: a palette shimmer.
+5. **Encoder turn.** Per detent: `[enc] turn +1: warmth set 54 (on the
+   wall 64 incl. sky)`. "set" is the encoder value, "on the wall" adds the
+   sky offset: what the palette is actually built from.
+6. **Idle 30 s** with breeze or density selected: `[enc] idle 30 s:
+   selection back to warmth`.
+7. **Long-press the encoder** (0.6 s): `[enc] long-press: forget WiFi,
+   reboot into portal`, then the portal as in the README.
+8. **Hourly fetch.** `[sky] weather ok (... B, connect NN ms)`, a new
+   snapshot, `[sky] targets (fetch): ...`. On failure: `[sky] reply: <HTTP
+   status line>` and a retry after 5 min; after two failures in a row,
+   `[sky] wifi reassociate`.
+
+Knobs while testing (config.h): `SKY_INFLUENCE` (1.0 = full swing for
+tuning, 0.3 = subtle), `SKY_SLEW_S` (180; set 20 to watch the slide),
+`LOG_VERBOSE` (0 = boot, fetches, mode flips, long-press, errors only).
+
 ## Fallback plan: the hourly "sigh"
 
 Status: designed, not implemented. Use only if the WiFi keepalive approach
