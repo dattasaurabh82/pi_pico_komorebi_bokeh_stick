@@ -3,7 +3,9 @@
 An ambient light installation: a Raspberry Pi Pico 2 W with a Pico DVI Sock
 feeds a small pico projector, casting slowly breathing komorebi-like light
 dapples (sunlight through foliage) onto a wall. Everything is generated
-procedurally on the microcontroller: no video files, no computer.
+procedurally on the microcontroller: no video files, no computer. With
+WiFi it quietly learns what the sky outside is doing and, by default,
+gives back what the day withholds (see "A lamp that answers the sky").
 
 Best viewed with the projector slightly defocused: the optical blur turns the
 rendered falloffs into true soft penumbra.
@@ -155,6 +157,51 @@ in `tests/eeprom_dvi_spike` and `tests/core1reset_flash_spike`). So the
 portal, and every EEPROM write, runs strictly before `display.begin()`,
 and "reconfigure later" is implemented as a flag in a watchdog scratch
 register plus a reboot, never as a live write.
+
+## A lamp that answers the sky (in progress)
+
+Once the piece is online it learns, roughly, what the sky is doing
+outside: where the sun is, how cloudy it is, how windy, what season. It
+then uses that knowledge the way a good lamp would, not the way a window
+would. On a grey November afternoon it grows brighter, warmer and denser,
+like a summer canopy that isn't there. At night it becomes the light the
+day withheld. On a sunny June noon it mostly leaves you alone, because
+nothing needs compensating. We call this **complement** mode, and it is
+the default.
+
+The other mode, **mirror**, does the opposite: the wall shows the sky as
+it is. Night is dim and cool, a storm is lively, winter is sparse. Same
+model, sign flipped.
+
+Switching between the two is part of the "surprise me" gesture: press
+once and the light breathes out and back in with a fresh constellation,
+as always. Press twice quickly and it breathes back in as the other
+world. The breath is the announcement; there is no other indicator.
+
+What the data changes is deliberately small and slow. Your encoder
+settings for warmth, breeze and density are the intent; the sky only
+nudges around them, and every nudge fades in over minutes, so an hourly
+update never pops. One constant sets how much the sky is allowed to
+nudge at all.
+
+Where the knowledge comes from, all free, no accounts, no keys:
+
+- **Open-Meteo** for cloud cover, wind, precipitation, sunrise and sunset,
+  and the local time offset. One small request per hour.
+- **NTP** (the same time servers every computer uses) for the clock.
+- **ip-api.com** for a city-level location from the network the piece is
+  on, so it still knows where it is after moving house. The sun's height
+  and direction are then computed on the board itself, no service needed.
+
+And when it doesn't know? It behaves exactly as it does today. No WiFi,
+no data: neutral, both modes identical, the surprise button still works.
+Weather fetch failed: the last values are kept for a few hours, then the
+piece slowly returns to neutral. Nothing about the sky is ever written
+to flash (see the flash rule), so a cold offline boot is simply the
+piece you already have.
+
+Status: designed, not yet implemented. The data layer (sky model, fetches,
+fallbacks) comes first, the mapping into the light second.
 
 ## Code layout (main/)
 
