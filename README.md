@@ -232,7 +232,7 @@ What the sky layer does about it, all in `main/sky.cpp`:
 >[!Important]
 > **Option 1**: A stronger signal at the piece (a mesh node nearby, or the router closer) makes this robust rather than merely held together.
 > 
-> **Option 2**: If it still fails, the documented fallback is an hourly "sigh": the light fades out, the board reboots, fetches before video starts, fades back in. Everything the sky layer needs is fetched at boot anyway.
+> **Option 2**: If it still fails, the documented fallback is an hourly "sigh" ([plan in tests/README.md](tests/README.md#fallback-plan-the-hourly-sigh)): the light fades out, the board reboots, fetches before video starts, fades back in. Everything the sky layer needs is fetched at boot anyway.
 
 How this was found: `tests/sky_spike` with a `SPIKE_MODE` switch (no
 video / no video at 252 MHz / video live), a Mac-side log pinging the
