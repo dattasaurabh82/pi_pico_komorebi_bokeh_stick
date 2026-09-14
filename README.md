@@ -151,12 +151,8 @@ To move the piece to another network, long-press the encoder: the board
 reboots into step 3. If a Mac is attached, the boot log is on the USB
 serial port at 115200 (`[wifi]` lines; the board waits 2 s for a host).
 
-**The flash rule.** Writing the Pico's flash while PicoDVI is running
-freezes the whole board, even with the video core stopped first (proven
-in `tests/eeprom_dvi_spike` and `tests/core1reset_flash_spike`). So the
-portal, and every EEPROM write, runs strictly before `display.begin()`,
-and "reconfigure later" is implemented as a flag in a watchdog scratch
-register plus a reboot, never as a live write.
+**The flash rule** (why all of this happens before the video starts) is
+explained under "Two hard-won facts" below.
 
 ## A lamp that answers the sky (in progress)
 
@@ -200,8 +196,49 @@ piece slowly returns to neutral. Nothing about the sky is ever written
 to flash (see the flash rule), so a cold offline boot is simply the
 piece you already have.
 
-Status: designed, not yet implemented. The data layer (sky model, fetches,
-fallbacks) comes first, the mapping into the light second.
+Status: the data layer is built, tested and running on the wall in
+log-only mode (it fetches and computes, changes nothing visible yet).
+The mapping into the light is the next step.
+
+## Two hard-won facts about WiFi and video on one Pico
+
+If you build something like this, these two cost us the most time. Both
+are handled in the code, and both are worth knowing before you change it.
+
+**1. Flash writes and video do not mix.** Writing the Pico's flash while
+the DVI output runs freezes the whole board, even with the video core
+stopped first (`tests/eeprom_dvi_spike`, `tests/core1reset_flash_spike`).
+So the WiFi portal, and every EEPROM write, runs strictly before
+`display.begin()`, and "reconfigure later" is a flag in a watchdog
+scratch register plus a reboot, never a live write.
+
+**2. WiFi degrades while video runs.** With DVI live, the WiFi link goes
+deaf after a few minutes of idle: the board still reports "connected",
+but it can't be pinged and every lookup or connection times out. It is
+not the clock (running the chip at DVI's 252 MHz without video is
+perfect) and not power saving. It is the video itself: four fast
+differential pairs on the DVI Sock, a few centimetres from the antenna,
+on a signal that is already weak where the piece hangs (about -70 dBm).
+What the sky layer does about it, all in `main/sky.cpp`:
+
+- Sets the WiFi chip's SPI divider to 3 before the first WiFi call,
+  because DVI raises the system clock and the default divider would run
+  that link over its rated speed (`SkyClient::prepareRadioForDvi()`).
+- Sends one UDP byte to the router every 15 s. That alone keeps the link
+  usable: fetches after idle succeed, the board answers pings again.
+- Reconnects without blocking the animation, and starts the association
+  over after two failed fetches in a row.
+
+A stronger signal at the piece (a mesh node nearby, or the router closer)
+makes this robust rather than merely held together. If it still fails on
+your network, the documented fallback is an hourly "sigh": the light
+fades out, the board reboots, fetches before video starts, fades back
+in. Everything the sky layer needs is fetched at boot anyway.
+
+How this was found: `tests/sky_spike` with a `SPIKE_MODE` switch (no
+video / no video at 252 MHz / video live), a Mac-side log pinging the
+router and the weather API in parallel, and `tests/flash.sh` for
+reliable flashing on macOS.
 
 ## Code layout (main/)
 
@@ -213,6 +250,8 @@ render.*        fx:: sprite/vignette tables, additive scaled blit
 controls.*      RotaryEncoder (ISR quadrature) + ClickButton grammar
 params.h        the three user values + capped adjustment
 wifi_portal.*   boot-time connect / captive portal / forget-and-reboot
+sky_core.*      pure sky maths: JSON scan, sun position, model, decay (host-tested)
+sky.*           SkyClient: fetches, clock, keepalive, reconnects, staleness
 ```
 
 ## Repo layout

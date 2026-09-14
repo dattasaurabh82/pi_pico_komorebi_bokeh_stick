@@ -42,6 +42,17 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
   stopping core1 (v1 `multicore_reset_core1`, v2 PSM hold): the whole board
   freezes inside the commit, USB dead. Recovery: BOOTSEL replug. This is why
   every flash write in `main/` happens before `display.begin()`.
+- `sky_host` host-side tests for `main/sky_core` (`./run.sh`, clang, no
+  hardware): 54 checks against real Open-Meteo / ip-api responses, broken
+  inputs, sun position vs sunrise/sunset and solstices.
+- `sky_spike` (Pico 2 W) the real `main/sky.*` via symlinks, DVI live,
+  frame-stall meter, serial commands for failure injection, `SPIKE_MODE`
+  switch (0 no DVI, 1 no DVI at 252 MHz, 2 DVI live). Found that DVI
+  activity degrades the STA link and that a 15 s UDP keepalive holds it.
+  See the main README, "Two hard-won facts".
+- `flash.sh <sketch_dir>` compile + 1200-baud reset + wait for the RP2350
+  volume + copy. Use this; arduino-cli's own upload scan gives up before
+  the volume mounts on macOS.
 
 ## Failure signals
 
