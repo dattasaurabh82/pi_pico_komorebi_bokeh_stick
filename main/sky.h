@@ -1,0 +1,84 @@
+// sky.h — the Arduino side of the sky layer: fetches, clock, staleness.
+// Pure math lives in sky_core.h. This file talks to the network.
+//
+// Usage: after WiFi is up and BEFORE display.begin(): sky.bootSync().
+// Then sky.tick() every frame. sky.vector() is always safe to read: with
+// no data it is 0.5 everywhere (neutral), so the light stays as it is.
+//
+// Network calls are plain HTTP/1.0 with Connection: close (no TLS, no
+// chunking). The only blocking call in tick() is the TCP connect, a few
+// hundred ms once per refresh. The body is read a little per frame.
+#pragma once
+#include <Arduino.h>
+#include <WiFi.h>
+#include "sky_core.h"
+
+class SkyClient {
+public:
+  // Blocking boot sequence, capped: location (ip-api), NTP, first weather.
+  // Returns true if at least the clock is set.
+  bool bootSync(uint32_t capMs = 10000);
+
+  // Per-frame service: hourly refresh, WiFi reconnect, NTP background.
+  void tick();
+
+  // The model, already decayed for staleness. Never blocks.
+  sky::Vector vector() const;
+
+  bool haveTime() const;
+  bool haveLocation() const { return loc_.valid; }
+  bool haveWeather() const { return wx_.valid; }
+  const sky::Location& location() const { return loc_; }
+  const sky::Weather&  weather()  const { return wx_; }
+  sky::SunPos sun() const;                       // from clock + location
+  float weatherAgeHours() const;
+  time_t localNow() const;                       // epoch + utc offset (0 offset if unknown)
+  void logStatus(Print& out) const;
+  uint32_t lastConnectMs() const { return lastConnectMs_; }
+
+  // WiFi reconnect needs the credentials; give them once at boot.
+  void setCredentials(const char* ssid, const char* pass);
+
+  // Test hooks (spike only): refresh interval, override host/path.
+  void setRefreshMs(uint32_t ms) { refreshMs_ = ms; }
+  void setWeatherHost(const char* h) { wxHost_ = h; }
+  void setWeatherPathPrefix(const char* p) { wxPathPrefix_ = p; }
+  void requestRefresh() { due_ = true; }
+
+private:
+  enum class Job : uint8_t { None, Location, Weather };
+  enum class St  : uint8_t { Idle, Reading, Done, Failed };
+
+  bool startJob(Job j);                          // DNS + connect + send (blocking part)
+  void serviceJob();                             // read a slice, parse when complete
+  void finishJob(bool ok);
+  bool runBlocking(Job j, uint32_t capMs);       // boot helper: start + service until done
+  void buildWeatherPath(char* out, size_t cap) const;
+
+  sky::Location loc_;
+  sky::Weather  wx_;
+  uint32_t wxFetchedMs_ = 0;                     // millis() of last good weather
+  uint32_t nextTryMs_   = 0;
+  uint32_t refreshMs_   = 3600000;               // 1 h
+  uint32_t retryMs_     = 300000;                // 5 min after a failure
+  bool     due_         = false;
+
+  // in-flight job
+  WiFiClient client_;
+  Job  job_ = Job::None;
+  St   st_  = St::Idle;
+  uint32_t jobStartMs_ = 0;
+  uint32_t lastConnectMs_ = 0;                   // how long the last connect() blocked
+  static constexpr size_t BUF = 2048;
+  char   buf_[BUF];
+  size_t len_ = 0;
+
+  // wifi
+  char ssid_[33] = {0}, pass_[65] = {0};
+  uint32_t downSinceMs_ = 0;
+
+  const char* wxHost_ = "api.open-meteo.com";
+  const char* wxPathPrefix_ = "/v1/forecast";
+  const char* ipHost_ = "ip-api.com";
+  const char* ipPath_ = "/json/?fields=status,message,lat,lon,city,timezone,offset";
+};
