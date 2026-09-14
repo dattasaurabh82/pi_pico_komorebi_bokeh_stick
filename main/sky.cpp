@@ -1,6 +1,7 @@
 // sky.cpp — see sky.h.
 #include "sky.h"
 #include <WiFi.h>
+#include <WiFiUdp.h>
 #include <time.h>
 
 static constexpr uint32_t JOB_TIMEOUT_MS = 8000;
@@ -113,6 +114,7 @@ void SkyClient::reassociate(const char* why) {
   WiFi.disconnect();
   delay(50);
   WiFi.beginNoBlock(ssid_, pass_[0] ? pass_ : nullptr);   // never blocks the frame loop
+  WiFi.noLowPowerMode();
   consecFail_ = 0;
 }
 
@@ -135,6 +137,7 @@ void SkyClient::setCredentials(const char* ssid, const char* pass) {
 bool SkyClient::bootSync(uint32_t capMs) {
   uint32_t t0 = millis();
   if (WiFi.status() != WL_CONNECTED) { Serial.println("[sky] no wifi, neutral"); return false; }
+  WiFi.noLowPowerMode();   // CYW43 power save between packets breaks outbound connects with DVI live
   NTP.begin("pool.ntp.org", "time.nist.gov");
   runBlocking(Job::Location, capMs / 3);
   NTP.waitSet(capMs - (millis() - t0) > 2000 ? capMs - (millis() - t0) : 2000);
@@ -160,6 +163,11 @@ void SkyClient::tick() {
   }
   if (downSinceMs_) { downSinceMs_ = 0; Serial.printf("[sky] wifi back, ip %s\n", WiFi.localIP().toString().c_str()); due_ = true; }
 
+  if (now - lastKeepMs_ > KEEPALIVE_MS) {              // see sky.h
+    lastKeepMs_ = now;
+    keep_.beginPacket(WiFi.gatewayIP(), 9); keep_.write((const uint8_t*)"k", 1); keep_.endPacket();
+  }
+
   if (st_ == St::Reading) { serviceJob(); return; }
   if (due_ || (int32_t)(now - nextTryMs_) >= 0) {
     due_ = false;
@@ -183,4 +191,5 @@ void SkyClient::logStatus(Print& out) const {
     wx_.valid ? "ok" : "none", wx_.valid ? weatherAgeHours() : 0.0f, wx_.cloud_pct, wx_.wind_kmh, wx_.gust_kmh, wx_.wind_dir_deg,
     s.elevation_deg, s.azimuth_deg, v.light, v.warmth, v.motion, v.foliage, v.known ? "" : " (neutral)",
     rp2040.getFreeHeap());
+  out.printf("[sky] wifi status %d rssi %ld\n", WiFi.status(), (long)WiFi.RSSI());
 }

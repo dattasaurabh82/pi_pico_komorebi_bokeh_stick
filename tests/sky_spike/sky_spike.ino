@@ -11,8 +11,14 @@
 // Refresh interval accelerated to 2 min. Frame-stall meter prints the
 // longest gap between loop() iterations at each status line.
 #include <PicoDVI.h>
+// Experiment switch: 0 = no DVI, default clock; 1 = no DVI, sysclk forced to 252 MHz; 2 = DVI live
+#ifndef SPIKE_MODE
+#define SPIKE_MODE 2
+#endif
 #include <WiFi.h>
 #include <EEPROM.h>
+#include <WiFiUdp.h>
+#include "hardware/clocks.h"
 #include "sky_core.h"
 #include "sky.h"
 
@@ -27,7 +33,9 @@ static uint32_t credsChecksum(const Creds& c) {
   return h;
 }
 
-static uint32_t maxGapMs = 0, lastLoopMs = 0, lastStatusMs = 0;
+static uint32_t maxGapMs = 0, lastLoopMs = 0, lastStatusMs = 0, lastKeepMs = 0;
+static WiFiUDP keep;
+#define KEEPALIVE_MS 15000   // 0 = off. UDP to gateway:9 (discard) to keep the STA link busy
 
 void setup() {
   SkyClient::prepareRadioForDvi();           // before any WiFi call (see sky.h)
@@ -46,14 +54,19 @@ void setup() {
     Serial.printf("[spike] wifi %s ip %s\n", WiFi.connected() ? "up" : "DOWN", WiFi.localIP().toString().c_str());
     skyc.setCredentials(c.ssid, c.pass);
   }
-  skyc.setRefreshMs(300000);                  // 5 min for the soak
+  skyc.setRefreshMs(180000);                  // 3 min for the power-save check
   uint32_t t0 = millis();
   skyc.bootSync(10000);                       // pre-DVI, blocking, capped
   Serial.printf("[spike] bootSync took %lu ms\n", millis() - t0);
 
+#if SPIKE_MODE == 2
   if (!display.begin()) { pinMode(LED_BUILTIN, OUTPUT); for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1); }
   for (int i = 0; i < 256; i++) display.setColor(i, i, i, i);
   display.swap(false, true);
+#elif SPIKE_MODE == 1
+  set_sys_clock_khz(252000, true);
+#endif
+  Serial.printf("[spike] MODE %d, sysclk %lu\n", SPIKE_MODE, clock_get_hz(clk_sys));
   lastLoopMs = millis();
 }
 
@@ -78,8 +91,8 @@ void loop() {
     }
     if (ch == 'i') {                        // TCP connect by IP only (no DNS)
       WiFiClient c; uint32_t t0 = millis();
-      int r = c.connect(IPAddress(8, 8, 8, 8), 53);   // any TCP listener; google dns speaks tcp/53
-      Serial.printf("[probe] tcp 8.8.8.8:53 r=%d in %lu ms\n", r, millis() - t0);
+      int r = c.connect(IPAddress(94,130,142,35), 80); // open-meteo by IP, no DNS
+      Serial.printf("[probe] tcp open-meteo:80 by ip r=%d in %lu ms\n", r, millis() - t0);
       c.stop();
     }
     if (ch == 's') {                        // raw status
@@ -88,15 +101,22 @@ void loop() {
     }
   }
 
+  if (KEEPALIVE_MS && WiFi.status() == WL_CONNECTED && now - lastKeepMs > KEEPALIVE_MS) {
+    lastKeepMs = now;
+    keep.beginPacket(WiFi.gatewayIP(), 9); keep.write((const uint8_t*)"k", 1); keep.endPacket();
+  }
   if (now - lastStatusMs > 60000) {
     lastStatusMs = now;
     skyc.logStatus(Serial);
-    Serial.printf("[spike] max loop gap %lu ms, wifi %d\n", maxGapMs, WiFi.status());
+    Serial.printf("[spike] max loop gap %lu ms, wifi %d, rssi %ld\n", maxGapMs, WiFi.status(), (long)WiFi.RSSI());
     maxGapMs = 0;
   }
 
   float t = now / 1000.0f;
   sky::Vector v = skyc.vector();
+#if SPIKE_MODE != 2
+  delay(16); return;                        // no DVI: just pace the loop
+#endif
   display.fillScreen(0);
   int cx = 160 + (int)(100 * sinf(t * 1.3f));
   display.fillCircle(cx, 140, 30, 200);

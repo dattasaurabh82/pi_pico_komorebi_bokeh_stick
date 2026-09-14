@@ -84,6 +84,12 @@ private:
   // wifi
   char ssid_[33] = {0}, pass_[65] = {0};
   uint32_t downSinceMs_ = 0;
+  // Keepalive: with DVI live the STA link goes deaf after minutes of idle
+  // (RF noise from the TMDS pairs next to the antenna, RSSI ~ -70 dBm here).
+  // One UDP byte to the gateway every 15 s keeps it usable. Proven 2026-09-14.
+  WiFiUDP  keep_;
+  uint32_t lastKeepMs_ = 0;
+  static constexpr uint32_t KEEPALIVE_MS = 15000;
 
   const char* wxHost_ = "api.open-meteo.com";
   const char* wxPathPrefix_ = "/v1/forecast";
