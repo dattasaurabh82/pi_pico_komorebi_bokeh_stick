@@ -217,7 +217,7 @@ deaf after a few minutes of idle: the board still reports "connected",
 but it can't be pinged and every lookup or connection times out. It is
 not the clock (running the chip at DVI's 252 MHz without video is
 perfect) and not power saving. It is the video itself: four fast
-differential pairs on the DVI Sock, a few centimetres from the antenna,
+differential pairs on the DVI Sock, a few centimeters from the antenna,
 on a signal that is already weak where the piece hangs (about -70 dBm).
 What the sky layer does about it, all in `main/sky.cpp`:
 
@@ -229,11 +229,10 @@ What the sky layer does about it, all in `main/sky.cpp`:
 - Reconnects without blocking the animation, and starts the association
   over after two failed fetches in a row.
 
-A stronger signal at the piece (a mesh node nearby, or the router closer)
-makes this robust rather than merely held together. If it still fails on
-your network, the documented fallback is an hourly "sigh": the light
-fades out, the board reboots, fetches before video starts, fades back
-in. Everything the sky layer needs is fetched at boot anyway.
+>[!Important]
+> **Option 1**: A stronger signal at the piece (a mesh node nearby, or the router closer) makes this robust rather than merely held together.
+> 
+> **Option 2**: If it still fails, the documented fallback is an hourly "sigh": the light fades out, the board reboots, fetches before video starts, fades back in. Everything the sky layer needs is fetched at boot anyway.
 
 How this was found: `tests/sky_spike` with a `SPIKE_MODE` switch (no
 video / no video at 252 MHz / video live), a Mac-side log pinging the
@@ -261,6 +260,7 @@ main/            current installation sketch (build this)
 komorebi/        variant A, first anchored-dapple baseline (frozen)
 komorebi_noise/  variant C, morphing noise-field style (frozen reference)
 tests/           proven hardware/library experiments + setup notes
+docs/            design notes that are not yet code (fallbacks, plans)
 assets/          diagrams (SVG sources + rendered PNGs)
 ```
 
