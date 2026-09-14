@@ -259,8 +259,7 @@ sky.*           SkyClient: fetches, clock, keepalive, reconnects, staleness
 main/            current installation sketch (build this)
 komorebi/        variant A, first anchored-dapple baseline (frozen)
 komorebi_noise/  variant C, morphing noise-field style (frozen reference)
-tests/           proven hardware/library experiments + setup notes
-docs/            design notes that are not yet code (fallbacks, plans)
+tests/           proven experiments, setup notes, troubleshooting, fallback plans
 assets/          diagrams (SVG sources + rendered PNGs)
 ```
 
