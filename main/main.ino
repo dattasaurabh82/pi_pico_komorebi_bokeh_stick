@@ -21,7 +21,12 @@
 #include "sky.h"
 #include "log.h"
 
-DVIGFX8 display(DVI_RES_320x240p60, true, pico_sock_cfg);
+// Subclass only to read the video core's late-scanline counter (protected).
+struct DVIGFX8Probe : public DVIGFX8 {
+  using DVIGFX8::DVIGFX8;
+  unsigned lateScanlines() const { return dvi0.late_scanline_ctr; }
+};
+DVIGFX8Probe display(DVI_RES_320x240p60, true, pico_sock_cfg);
 
 KomorebiEngine engine;
 RotaryEncoder  encoder;
@@ -64,6 +69,9 @@ void setup() {
   STAGE(10); skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
   STAGE(11); pushSky("boot");        // engine slides from baseline to these over SKY_SLEW_S
   STAGE(0);
+#if !SKY_LIVE_NET
+  if (wifi.connected()) { WiFi.disconnect(); WiFi.mode(WIFI_OFF); LOGE("[sky] radio off (SKY_LIVE_NET 0): boot data only\n"); }
+#endif
   if (!display.begin()) { // RAM alloc failed -> blink LED forever
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
@@ -134,13 +142,16 @@ void loop() {
   // --- frame ---
   STAGE(12);
   engine.renderFrame(t, dt, params);
+  STAGE(14);
   display.swap();
   STAGE(0);
 
   // --- sky: hourly refresh, reconnects; targets re-pushed every minute
   //     (the sun moves) and right after a successful fetch ---
   uint32_t fetchesBefore = skyc.fetchCount();
+#if SKY_LIVE_NET
   skyc.tick();
+#endif
   static uint32_t lastSkyPush = 0;
   if (skyc.fetchCount() != fetchesBefore) {
     pushSky("fetch");
@@ -150,8 +161,9 @@ void loop() {
     lastSkyPush = now;
     pushSky("minute");
     const sky::Offsets& a = engine.skyApplied();
-    LOGV("[sky] applied: warmth %+.1f breeze %+.1f density %+.1f exposure %+.0f%% contrast %+.1f -> wall warmth %d breeze %d density %d contrast %d\n",
-         a.warmth, a.breeze, a.density, a.exposure * 100.0f, a.contrast, engine.effWarmth(), engine.effBreeze(), engine.effDensity(), engine.effContrast());
+    LOGV("[sky] applied: warmth %+.1f breeze %+.1f density %+.1f exposure %+.0f%% contrast %+.1f -> wall warmth %d breeze %d density %d contrast %d | dvi late %u\n",
+         a.warmth, a.breeze, a.density, a.exposure * 100.0f, a.contrast, engine.effWarmth(), engine.effBreeze(), engine.effDensity(), engine.effContrast(),
+         display.lateScanlines());
   }
   static uint32_t lastSkyLog = 0;
   if (now - lastSkyLog > 600000) { lastSkyLog = now; skyc.logStatus(Serial); }

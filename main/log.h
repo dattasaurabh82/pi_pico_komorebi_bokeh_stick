@@ -14,6 +14,6 @@
 // watchdog reboot, touches no flash). Set before risky steps; read at boot.
 // 0 idle, 1 fetch connect, 2 fetch send, 3 fetch reading, 4 fetch parse,
 // 5 reassociate disconnect, 6 reassociate begin, 7 keepalive,
-// 10 snapshot dump, 11 push targets, 12 render, 13 inputs.
+// 10 snapshot dump, 11 push targets, 12 render, 13 inputs, 14 swap.
 #include "hardware/watchdog.h"
 #define STAGE(n) (watchdog_hw->scratch[3] = (n))

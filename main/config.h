@@ -37,6 +37,12 @@ constexpr float SKY_SLEW_S         = 180.0f; // seconds to travel a full swing (
 constexpr uint32_t DOUBLE_CLICK_MS = 350;    // surprise button: 2nd click flips complement/mirror
 constexpr bool     SKY_DEFAULT_COMPLEMENT = true;
 
+// Live network while the video runs? 1 = keepalive + hourly fetch (WiFi
+// traffic under DVI, suspected of killing the video core, see tests/README).
+// 0 = fetch at boot only, then radio off; sun/season stay live from the
+// clock, weather ages (fresh 6 h, neutral by 12 h). Bisect setting.
+#define SKY_LIVE_NET 0
+
 // ---------- Serial logging ----------
 // 1: every interaction and step (clicks, detents, values, 60 s sky line).
 // 0: essentials only (boot, fetches, mode flips, errors). Never per-frame.
