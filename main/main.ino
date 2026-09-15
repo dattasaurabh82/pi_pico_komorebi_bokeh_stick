@@ -42,6 +42,7 @@ static sky::Offsets skyOffsets() {
   return sky::mapOffsets(skyc.vector(), skyComplement ? -1 : +1, SKY_INFLUENCE, r);
 }
 static void pushSky(const char* why) {        // recompute targets, hand to engine, say so
+  STAGE(11);
   sky::Offsets o = skyOffsets();
   engine.setSkyTargets(o);
   LOGV("[sky] targets (%s): warmth %+.0f breeze %+.0f density %+.1f exposure %+.0f%% contrast %+.0f\n",
@@ -50,25 +51,33 @@ static void pushSky(const char* why) {        // recompute targets, hand to engi
 
 void setup() {
   SkyClient::prepareRadioForDvi();  // first: WiFi SPI divisor for the 252 MHz DVI clock
+  bool wdReboot = watchdog_caused_reboot();
+  uint32_t lastStage = watchdog_hw->scratch[3];
+  STAGE(0);
   wifi.boot(); // connect, or portal, or time out. MUST precede display.begin().
+  if (wdReboot) LOGE("[boot] WATCHDOG REBOOT: the loop stalled >8 s, last stage %lu (see log.h)\n", (unsigned long)lastStage);
+  else          LOGE("[boot] power-on / normal reset\n");
   if (wifi.connected()) {
     skyc.setCredentials(wifi.ssid(), wifi.pass());
     skyc.bootSync(10000);            // location, clock, weather. Still pre-DVI.
   }
-  skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
-  pushSky("boot");                   // engine slides from baseline to these over SKY_SLEW_S
+  STAGE(10); skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+  STAGE(11); pushSky("boot");        // engine slides from baseline to these over SKY_SLEW_S
+  STAGE(0);
   if (!display.begin()) { // RAM alloc failed -> blink LED forever
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
   }
   engine.begin(&display);
   display.swap(false, true); // palette into both buffers
+  rp2040.wdt_begin(8000);    // from here on: a loop stall > 8 s reboots the board
   surpriseBtn.begin(PIN_BTN_SURPRISE);
   encoderBtn.begin(PIN_ENC_SW);
   encoder.begin(PIN_ENC_A, PIN_ENC_B);
 }
 
 void loop() {
+  rp2040.wdt_reset();
   static uint32_t lastMs = 0;
   uint32_t now = millis();
   float dt = (now - lastMs) / 1000.0f;
@@ -77,12 +86,13 @@ void loop() {
   float t = now / 1000.0f;
 
   // --- inputs ---
+  STAGE(13);
   if (surpriseBtn.poll(now) == ClickButton::CLICK) {
     if (now - lastSurpriseClick < DOUBLE_CLICK_MS) {   // 2nd click: flip the world
       skyComplement = !skyComplement;
       LOGE("[btn] double-click: mode -> %s\n", modeName());
       pushSky("mode flip");
-      skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+      STAGE(10); skyc.dumpSnapshot(Serial, modeName(), skyOffsets()); STAGE(0);
     } else if (!engine.surpriseBusy()) {
       LOGV("[btn] surprise: breathe out, re-deal, breathe in\n");
       engine.startSurprise();
@@ -122,8 +132,10 @@ void loop() {
   }
 
   // --- frame ---
+  STAGE(12);
   engine.renderFrame(t, dt, params);
   display.swap();
+  STAGE(0);
 
   // --- sky: hourly refresh, reconnects; targets re-pushed every minute
   //     (the sun moves) and right after a successful fetch ---
@@ -132,7 +144,7 @@ void loop() {
   static uint32_t lastSkyPush = 0;
   if (skyc.fetchCount() != fetchesBefore) {
     pushSky("fetch");
-    skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
+    STAGE(10); skyc.dumpSnapshot(Serial, modeName(), skyOffsets()); STAGE(0);
     lastSkyPush = now;
   } else if (now - lastSkyPush > 60000) {
     lastSkyPush = now;

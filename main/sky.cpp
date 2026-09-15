@@ -52,17 +52,21 @@ bool SkyClient::startJob(Job j) {
 
   uint32_t t0 = millis();
   len_ = 0;
+  STAGE(1);
   bool ok = client_.connect(host, 80);       // the one blocking call
   lastConnectMs_ = millis() - t0;
-  if (!ok) { job_ = j; finishJob(false); return false; }
+  if (!ok) { job_ = j; finishJob(false); STAGE(0); return false; }
+  STAGE(2);
   client_.printf("GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: pi_pico_komorebi\r\nConnection: close\r\n\r\n",
                  path, host);
   job_ = j; st_ = St::Reading; len_ = 0; jobStartMs_ = millis();
+  STAGE(0);
   return true;
 }
 
 void SkyClient::serviceJob() {
   if (st_ != St::Reading) return;
+  STAGE(3);
   // read a slice per frame
   int n;
   while ((n = client_.available()) > 0 && len_ < BUF - 1) {
@@ -74,7 +78,8 @@ void SkyClient::serviceJob() {
   }
   bool closed = !client_.connected() && client_.available() == 0;
   bool timeout = millis() - jobStartMs_ > JOB_TIMEOUT_MS;
-  if (!closed && !timeout && len_ < BUF - 1) return;
+  if (!closed && !timeout && len_ < BUF - 1) { STAGE(0); return; }
+  STAGE(4);
   client_.stop();
   buf_[len_] = 0;
   if (timeout && len_ == 0) { finishJob(false); return; }
@@ -108,15 +113,19 @@ void SkyClient::finishJob(bool ok) {
                 (unsigned)len_, (unsigned long)lastConnectMs_);
   job_ = Job::None;
   st_ = St::Idle;
+  STAGE(0);
 }
 
 void SkyClient::reassociate(const char* why) {
   Serial.printf("[sky] wifi reassociate (%s)\n", why);
+  STAGE(5);
   WiFi.disconnect();
   delay(50);
+  STAGE(6);
   WiFi.beginNoBlock(ssid_, pass_[0] ? pass_ : nullptr);   // never blocks the frame loop
   WiFi.noLowPowerMode();
   consecFail_ = 0;
+  STAGE(0);
 }
 
 bool SkyClient::runBlocking(Job j, uint32_t capMs) {
@@ -166,7 +175,9 @@ void SkyClient::tick() {
 
   if (now - lastKeepMs_ > KEEPALIVE_MS) {              // see sky.h
     lastKeepMs_ = now;
+    STAGE(7);
     keep_.beginPacket(WiFi.gatewayIP(), 9); keep_.write((const uint8_t*)"k", 1); keep_.endPacket();
+    STAGE(0);
   }
 
   if (st_ == St::Reading) { serviceJob(); return; }
