@@ -98,20 +98,23 @@ fade is already running.
 Mood *presets* (palette temperature + parameter ranges as data) remain an
 easy future addition on the same engine.
 
-## The encoder: warmth / breeze / density
+## The encoder: warmth / breeze / density / contrast
 
 A KY-040 rotary encoder (DT=GP6, CLK=GP8, SW=GP5, physical pins 9/11/7,
 GND at pin 38, VCC to **3V3(OUT), never 5V, and not the 3V3_EN pad next
 to it**) carries the three adjustable
 parameters. Since the piece has no display, the interaction grammar is:
 
-- **Click** cycles the selected parameter: warmth, breeze, density.
-  The selected parameter *announces itself* on the wall in its own
-  language. Warmth: a brief palette shimmer. Breeze: a single gust.
-  Density: one dapple blinks out and back.
+- **Click** cycles the selected parameter: warmth, breeze, density,
+  contrast. The selected parameter *announces itself* on the wall in its
+  own language. Warmth: a brief palette shimmer. Breeze: a single gust.
+  Density: one dapple blinks out and back. Contrast: every pool tightens
+  and brightens for a moment.
 - **Turn** adjusts the selected parameter, hard-capped to safe ranges
-  (warmth 0 to 100, breeze 0 to 100, density 8 to 28; limits chosen by
-  visual spike tests, see `tests/density_spike`).
+  (warmth, breeze and contrast 0 to 100, density 8 to 28; limits chosen
+  by visual spike tests, see `tests/density_spike`). Contrast is the
+  "kind of light" dial: at 0 the pools are big, soft and dim like an
+  overcast day, at 100 small, bright and hard-edged like full sun.
 - After 30 s without interaction, selection falls back to warmth (the
   most lamp-like expectation).
 - **Long-press** (0.6 s) forgets the stored WiFi network and reboots into
@@ -120,10 +123,13 @@ parameters. Since the piece has no display, the interaction grammar is:
 Density changes never re-deal the field: all 28 dapples always exist and
 melt in/out of visibility, so turning the knob feels continuous.
 
+The four dials set the baseline. When the piece is online, the sky adds
+its own offset on top (next section); the serial log shows both numbers
+per detent, "set" and "on the wall".
+
 The encoder is read via **pin-change interrupts** (full quadrature
 table), not polling: the render loop runs at 60 Hz (vsync-locked), far
-too slow to poll a fast twirl. Warmth/breeze/density are session-only by
-design; see the flash rule below.
+too slow to poll a fast twirl. The four parameters are session-only by design; see the flash rule below.
 
 ## WiFi: boot-time setup portal
 
@@ -157,7 +163,8 @@ explained under "Two hard-won facts" below.
 ## A lamp that answers the sky (in progress)
 
 Once the piece is online it learns, roughly, what the sky is doing
-outside: where the sun is, how cloudy it is, how windy, what season. It
+outside: where the sun is, how cloudy or rainy it is, how windy, what
+season. It
 then uses that knowledge the way a good lamp would, not the way a window
 would. On a grey November afternoon it grows brighter, warmer and denser,
 like a summer canopy that isn't there. At night it becomes the light the
@@ -175,10 +182,12 @@ as always. Press twice quickly and it breathes back in as the other
 world. The breath is the announcement; there is no other indicator.
 
 What the data changes is deliberately small and slow. Your encoder
-settings for warmth, breeze and density are the intent; the sky only
-nudges around them, and every nudge fades in over minutes, so an hourly
-update never pops. One constant sets how much the sky is allowed to
-nudge at all.
+settings for warmth, breeze, density and contrast are the intent; the
+sky only nudges around them, and every nudge fades in over minutes, so
+an hourly update never pops. One constant sets how much the sky is
+allowed to nudge at all. Five things are nudged: warmth (sun height,
+cooled by cloud), breeze (wind), density (season), brightness (sun and
+cloud), contrast (cloud and rain: overcast light is flat, sun is crisp).
 
 Where the knowledge comes from, all free, no accounts, no keys:
 

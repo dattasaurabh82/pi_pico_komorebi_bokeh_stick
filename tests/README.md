@@ -100,11 +100,14 @@ what the log says.
    A click during the fade logs `ignored (fade running)`.
 3. **Double-click** (second press within 350 ms). The first press still
    breathes. Log: `[btn] double-click: mode -> mirror` and a fresh snapshot
-   whose targets have flipped sign (warmth +10 becomes -10, etc.). The
+   whose targets have flipped sign (warmth +10 becomes -10, contrast +14
+   becomes -14, etc.). The
    wall does not jump: the offsets slide over 3 min, so only the direction
    of drift changes. Double-click again flips back to complement.
 4. **Encoder click.** Log: `[enc] click: selected breeze (announcing)`,
    wall: one gust. Density: one pool blinks. Warmth: a palette shimmer.
+   Contrast: all pools tighten and brighten for a moment. Four clicks
+   bring you back to warmth.
 5. **Encoder turn.** Per detent: `[enc] turn +1: warmth set 54 (on the
    wall 64 incl. sky)`. "set" is the encoder value, "on the wall" adds the
    sky offset: what the palette is actually built from.
@@ -118,8 +121,14 @@ what the log says.
    `[sky] wifi reassociate`.
 
 Knobs while testing (config.h): `SKY_INFLUENCE` (1.0 = full swing for
-tuning, 0.3 = subtle), `SKY_SLEW_S` (180; set 20 to watch the slide),
-`LOG_VERBOSE` (0 = boot, fetches, mode flips, long-press, errors only).
+tuning, 0.3 = subtle), `SKY_RANGE_*` per parameter, `SKY_SLEW_S` (180;
+set 20 to watch the slide), `LOG_VERBOSE` (0 = boot, fetches, mode
+flips, long-press, errors only). The look of "flat" vs "crisp" lives in
+`engine.cpp` (`sizeM`, `briM`, the palette gamma multiplier).
+
+Reading the model line: `light warmth motion foliage crisp`, each 0..1
+with 0.5 = an average day. Complement pushes every offset away from the
+value, mirror toward it; a 0.5 gives a zero offset in both modes.
 
 ## Fallback plan: the hourly "sigh"
 
