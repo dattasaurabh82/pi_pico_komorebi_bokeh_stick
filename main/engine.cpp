@@ -31,6 +31,7 @@ void KomorebiEngine::begin(DVIGFX8* display) {
   deal();
   // Every dapple starts fully melted-in; density gating happens per frame.
   for (int i = 0; i < N_MAX_DAPPLES; i++) d_[i].act = 1.0f;
+  fade_ = 0.0f; fadeState_ = FadeState::In;   // every boot breathes in
 }
 
 // Deal all N_MAX dapples in three size classes (proportions from the
@@ -123,6 +124,9 @@ void KomorebiEngine::renderFrame(float t, float dt, const Params& params) {
   } else if (fadeState_ == FadeState::In) {
     fade_ += dt / FADE_IN_S;
     if (fade_ >= 1.0f) { fade_ = 1.0f; fadeState_ = FadeState::Idle; }
+  } else if (fadeState_ == FadeState::SighOut) {
+    fade_ -= dt / FADE_OUT_S;
+    if (fade_ <= 0.0f) { fade_ = 0.0f; fadeState_ = FadeState::Dark; }
   }
   float fEased = fade_ * fade_ * (3.0f - 2.0f * fade_); // smooth breathe
 

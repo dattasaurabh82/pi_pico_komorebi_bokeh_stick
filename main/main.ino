@@ -41,6 +41,24 @@ uint32_t       lastSurpriseClick = 0;
 Param    selected = Param::Warmth;
 uint32_t lastInteraction = 0;
 
+// Dials and mode survive a sigh reboot in watchdog scratch registers
+// ([0] portal flag, [3] stage recorder; [1] dials, [2] magic + mode).
+static constexpr uint32_t SIGH_MAGIC = 0x53494700;   // "SIG" + mode bit
+static void saveStateForReboot() {
+  watchdog_hw->scratch[1] = ((uint32_t)params.warmth << 24) | ((uint32_t)params.breeze << 16) |
+                            ((uint32_t)params.density << 8) | (uint32_t)params.contrast;
+  watchdog_hw->scratch[2] = SIGH_MAGIC | (skyComplement ? 1 : 0);
+}
+static bool restoreStateAfterReboot() {
+  if ((watchdog_hw->scratch[2] & 0xFFFFFF00) != SIGH_MAGIC) return false;
+  uint32_t d = watchdog_hw->scratch[1];
+  params.warmth = (d >> 24) & 0xFF; params.breeze = (d >> 16) & 0xFF;
+  params.density = (d >> 8) & 0xFF; params.contrast = d & 0xFF;
+  skyComplement = watchdog_hw->scratch[2] & 1;
+  watchdog_hw->scratch[2] = 0;
+  return true;
+}
+
 static const char* modeName() { return skyComplement ? "complement" : "mirror"; }
 static sky::Offsets skyOffsets() {
   sky::OffsetRanges r = { SKY_RANGE_WARMTH, SKY_RANGE_BREEZE, SKY_RANGE_DENSITY, SKY_RANGE_EXPOSURE, SKY_RANGE_CONTRAST };
@@ -60,14 +78,18 @@ void setup() {
   uint32_t lastStage = watchdog_hw->scratch[3];
   STAGE(0);
   wifi.boot(); // connect, or portal, or time out. MUST precede display.begin().
-  if (wdReboot) LOGE("[boot] WATCHDOG REBOOT: the loop stalled >8 s, last stage %lu (see log.h)\n", (unsigned long)lastStage);
-  else          LOGE("[boot] power-on / normal reset\n");
+  bool sighReboot = restoreStateAfterReboot();
+  if (sighReboot)   LOGE("[boot] sigh reboot: dials restored (warmth %d breeze %d density %d contrast %d, %s)\n",
+                         params.warmth, params.breeze, params.density, params.contrast, modeName());
+  else if (wdReboot) LOGE("[boot] WATCHDOG REBOOT: the loop stalled >8 s, last stage %lu (see log.h)\n", (unsigned long)lastStage);
+  else               LOGE("[boot] power-on / normal reset\n");
   if (wifi.connected()) {
     skyc.setCredentials(wifi.ssid(), wifi.pass());
     skyc.bootSync(10000);            // location, clock, weather. Still pre-DVI.
   }
   STAGE(10); skyc.dumpSnapshot(Serial, modeName(), skyOffsets());
   STAGE(11); pushSky("boot");        // engine slides from baseline to these over SKY_SLEW_S
+  if (sighReboot) engine.snapSkyToTargets();   // it was dark anyway: no 3-min drift after a sigh
   STAGE(0);
 #if !SKY_LIVE_NET
   if (wifi.connected()) { WiFi.disconnect(); WiFi.mode(WIFI_OFF); LOGE("[sky] radio off (SKY_LIVE_NET 0): boot data only\n"); }
@@ -167,4 +189,16 @@ void loop() {
   }
   static uint32_t lastSkyLog = 0;
   if (now - lastSkyLog > 600000) { lastSkyLog = now; skyc.logStatus(Serial); }
+
+  // --- the sigh: breathe out, reboot with dials kept, fetch fresh sky pre-DVI ---
+  if (SKY_SIGH_MINUTES && now > SKY_SIGH_MINUTES * 60000UL && !engine.surpriseBusy() && !engine.sighDone()) {
+    LOGE("[sigh] %lu min up: breathing out, will reboot to refresh the sky\n", now / 60000UL);
+    engine.startSigh();
+  }
+  if (engine.sighDone()) {
+    saveStateForReboot();
+    Serial.flush();
+    delay(100);
+    rp2040.reboot();
+  }
 }

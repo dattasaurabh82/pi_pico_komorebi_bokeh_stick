@@ -37,11 +37,15 @@ constexpr float SKY_SLEW_S         = 180.0f; // seconds to travel a full swing (
 constexpr uint32_t DOUBLE_CLICK_MS = 350;    // surprise button: 2nd click flips complement/mirror
 constexpr bool     SKY_DEFAULT_COMPLEMENT = true;
 
-// Live network while the video runs? 1 = keepalive + hourly fetch (WiFi
-// traffic under DVI, suspected of killing the video core, see tests/README).
-// 0 = fetch at boot only, then radio off; sun/season stay live from the
-// clock, weather ages (fresh 6 h, neutral by 12 h). Bisect setting.
+// Live network while the video runs? PROVEN 15/16 Sept 2026: WiFi traffic
+// under DVI kills the video core within hours; radio off = 16.5 h flawless.
+// Keep 0. The weather is refreshed by the "sigh" below instead.
 #define SKY_LIVE_NET 0
+// The sigh: every SKY_SIGH_MINUTES the light breathes out, the board reboots
+// (dials and mode preserved in watchdog scratch registers), fetches fresh
+// sky data before the video starts, and breathes back in. ~6 s of dark.
+// 0 = never. Sun and season stay live from the clock regardless.
+constexpr uint32_t SKY_SIGH_MINUTES = 180;
 
 // ---------- Serial logging ----------
 // 1: every interaction and step (clicks, detents, values, 60 s sky line).

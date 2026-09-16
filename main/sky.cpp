@@ -29,8 +29,23 @@ sky::Vector SkyClient::vector() const {
   bool ht = haveTime() && loc_.valid;
   int doy = 172;
   if (ht) { time_t ln = localNow(); struct tm t; gmtime_r(&ln, &t); doy = t.tm_yday + 1; }
-  sky::Vector v = sky::computeVector(sun(), doy, loc_.valid && loc_.lat < 0, wx_, ht, wx_.valid);
-  return sky::decay(v, wx_.valid ? weatherAgeHours() : 0, MAX_FRESH_H);
+  // Sun and season come from the clock and never go stale; only the weather
+  // ages. Blend the with-weather vector toward the without-weather one.
+  sky::Vector with    = sky::computeVector(sun(), doy, loc_.valid && loc_.lat < 0, wx_, ht, wx_.valid);
+  if (!wx_.valid) return with;
+  float age = weatherAgeHours();
+  if (age <= MAX_FRESH_H) return with;
+  sky::Vector without = sky::computeVector(sun(), doy, loc_.valid && loc_.lat < 0, wx_, ht, false);
+  float k = 1.0f - (age - MAX_FRESH_H) / MAX_FRESH_H;          // 1 at 6 h -> 0 at 12 h
+  if (k <= 0) return without;
+  sky::Vector r = without;
+  r.light   = without.light   + (with.light   - without.light)   * k;
+  r.warmth  = without.warmth  + (with.warmth  - without.warmth)  * k;
+  r.motion  = without.motion  + (with.motion  - without.motion)  * k;
+  r.foliage = without.foliage + (with.foliage - without.foliage) * k;
+  r.crisp   = without.crisp   + (with.crisp   - without.crisp)   * k;
+  r.known   = with.known || without.known;
+  return r;
 }
 
 // ---------- jobs ----------

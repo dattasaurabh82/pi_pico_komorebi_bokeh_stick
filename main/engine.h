@@ -27,6 +27,11 @@ public:
   // "Surprise me": breathe out, deal(), breathe in. Ignored mid-fade.
   void startSurprise();
   bool surpriseBusy() const { return fadeState_ != FadeState::Idle; }
+  // The sigh: breathe out and stay dark; main reboots when sighDone().
+  void startSigh() { if (fadeState_ == FadeState::Idle) fadeState_ = FadeState::SighOut; }
+  bool sighDone() const { return fadeState_ == FadeState::Dark; }
+  // After a sigh reboot the light was dark anyway: start at the targets.
+  void snapSkyToTargets() { sky_ = skyTarget_; }
 
   // Param selected via encoder click: play its announcement.
   void announce(Param p, float now_s);
@@ -45,7 +50,7 @@ public:
   void renderFrame(float now_s, float dt_s, const Params& params);
 
 private:
-  enum class FadeState : uint8_t { Idle, Out, In };
+  enum class FadeState : uint8_t { Idle, Out, In, SighOut, Dark };
 
   struct Dapple {
     float bx, by;               // anchor
