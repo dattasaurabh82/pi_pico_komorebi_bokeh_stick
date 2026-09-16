@@ -115,10 +115,14 @@ what the log says.
    selection back to warmth`.
 7. **Long-press the encoder** (0.6 s): `[enc] long-press: forget WiFi,
    reboot into portal`, then the portal as in the README.
-8. **Hourly fetch.** `[sky] weather ok (... B, connect NN ms)`, a new
-   snapshot, `[sky] targets (fetch): ...`. On failure: `[sky] reply: <HTTP
-   status line>` and a retry after 5 min; after two failures in a row,
-   `[sky] wifi reassociate`.
+8. **The sigh.** After `SKY_SIGH_MINUTES` (set it to 3 for a test):
+   `[sigh] N min up: breathing out, will reboot to refresh the sky`, the
+   port drops for a second, then `[boot] sigh reboot: dials restored
+   (...)`, the three fetch lines, a snapshot, `radio off`. Dials, mode
+   and the picture must all be back.
+9. **Watchdog.** If the loop ever stalls 8 s the board reboots itself and
+   the boot line says `WATCHDOG REBOOT ... last stage N` (stages listed in
+   `log.h`). Seeing this line is a bug report; save the log.
 
 Knobs while testing (config.h): `SKY_INFLUENCE` (1.0 = full swing for
 tuning, 0.3 = subtle), `SKY_RANGE_*` per parameter, `SKY_SLEW_S` (180;
@@ -130,10 +134,13 @@ Reading the model line: `light warmth motion foliage crisp`, each 0..1
 with 0.5 = an average day. Complement pushes every offset away from the
 value, mirror toward it; a 0.5 gives a zero offset in both modes.
 
-## Fallback plan: the hourly "sigh"
+## The "sigh": implemented (16 Sept 2026)
 
-Status: designed, not implemented. Use only if the WiFi keepalive approach
-(see the main README, "Two hard-won facts") proves unreliable on the wall.
+Status: this is the shipped design, not a fallback. The keepalive approach
+was tried and lost the bisect (see the main README, "Two hard-won facts").
+Interval `SKY_SIGH_MINUTES` in config.h (180). Tested 4 of 4 cycles at a
+3-minute interval with the user watching: dials and mode restored, fresh
+fetch each time, monitor re-synced after every dark gap.
 
 ### The problem it sidesteps
 
@@ -145,18 +152,19 @@ starts, and simply start over once an hour.
 
 ### What it looks like on the wall
 
-Once an hour (interval in `config.h`), the light breathes out over about
-a second, the wall is dark for three to five seconds, and the light
-breathes back in with a fresh constellation. The same gesture as the
+Every three hours (interval in `config.h`), the light breathes out over
+about a second, the wall is dark for about ten seconds (boot, WiFi join,
+three fetches), and the light breathes back in with a fresh constellation. The same gesture as the
 "surprise me" button, on a slow clock. On a piece that changes over
 minutes, one absence per hour is part of the character, not a glitch.
 
 ### What happens underneath
 
 1. The engine fades to black (the existing surprise fade-out).
-2. Warmth, breeze, density and the complement/mirror mode are written to
-   watchdog scratch registers 1 to 3. These survive `rp2040.reboot()`
-   and touch no flash. Register 0 stays reserved for the portal flag.
+2. Warmth, breeze, density, contrast and the complement/mirror mode are
+   written to watchdog scratch registers 1 and 2. These survive
+   `rp2040.reboot()` and touch no flash. Register 0 is the portal flag,
+   register 3 the stage recorder.
 3. `rp2040.reboot()`.
 4. Boot as today: WiFi joins the stored network, the sky layer fetches
    location, clock and weather (about 1.5 s, all before the video),
@@ -175,8 +183,9 @@ the next sigh, exactly like an offline boot today.
 - Nothing else: no keepalive, no reconnect logic, no live fetch code path
   needs to be exercised at all.
 
-### Why it is not the default
+### Why it is the default
 
-The keepalive approach keeps the light continuous, and on a network with
-a decent signal at the piece it holds. The sigh is the honest answer if
-it doesn't.
+Live traffic under video killed the video core four times in two days;
+the radio-off run went 16.5 hours without a dropped frame. Ten seconds of
+dark three times a day is the price of a board that never needs a plug
+pulled.

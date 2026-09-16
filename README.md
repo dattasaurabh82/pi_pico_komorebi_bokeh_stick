@@ -192,7 +192,7 @@ cloud), contrast (cloud and rain: overcast light is flat, sun is crisp).
 Where the knowledge comes from, all free, no accounts, no keys:
 
 - **Open-Meteo** for cloud cover, wind, precipitation, sunrise and sunset,
-  and the local time offset. One small request per hour.
+  and the local time offset. One small request at every boot and sigh.
 - **NTP** (the same time servers every computer uses) for the clock.
 - **ip-api.com** for a city-level location from the network the piece is
   on, so it still knows where it is after moving house. The sun's height
@@ -223,32 +223,34 @@ So the WiFi portal, and every EEPROM write, runs strictly before
 `display.begin()`, and "reconfigure later" is a flag in a watchdog
 scratch register plus a reboot, never a live write.
 
-**2. WiFi degrades while video runs.** With DVI live, the WiFi link goes
-deaf after a few minutes of idle: the board still reports "connected",
-but it can't be pinged and every lookup or connection times out. It is
-not the clock (running the chip at DVI's 252 MHz without video is
-perfect) and not power saving. It is the video itself: four fast
-differential pairs on the DVI Sock, a few centimeters from the antenna,
-on a signal that is already weak where the piece hangs (about -70 dBm).
-What the sky layer does about it, all in `main/sky.cpp`:
+**2. WiFi traffic and video do not mix either.** With DVI live, any
+network traffic degrades the station link within minutes (the board
+stays "connected" but can't be reached) and, worse, within hours the
+video core stops producing frames: the wall goes black and the board
+needs a power cycle. Ruled out by experiment: the 252 MHz clock (perfect
+without video), power saving, the render code. Left standing: DVI's DMA
+and PIO activity against the WiFi chip's SPI DMA. With the radio switched
+off after the boot fetch the board ran 16.5 hours without a single
+dropped frame; with traffic it died four times in two days.
 
-- Sets the WiFi chip's SPI divider to 3 before the first WiFi call,
-  because DVI raises the system clock and the default divider would run
-  that link over its rated speed (`SkyClient::prepareRadioForDvi()`).
-- Sends one UDP byte to the router every 15 s. That alone keeps the link
-  usable: fetches after idle succeed, the board answers pings again.
-- Reconnects without blocking the animation, and starts the association
-  over after two failed fetches in a row.
+So the piece does all its networking in the few seconds before the video
+starts, and refreshes the sky with a **sigh**: every three hours the
+light breathes out, the board reboots with your dials and mode preserved
+in watchdog scratch registers, joins WiFi, fetches, and breathes back in.
+About ten seconds of dark, three times a day. Sun position and season
+stay live from the clock in between; only the weather ages, and it is
+kept for six hours before fading toward neutral.
 
->[!Important]
-> **Option 1**: A stronger signal at the piece (a mesh node nearby, or the router closer) makes this robust rather than merely held together.
-> 
-> **Option 2**: If it still fails, the documented fallback is an hourly "sigh" ([plan in tests/README.md](tests/README.md#fallback-plan-the-hourly-sigh)): the light fades out, the board reboots, fetches before video starts, fades back in. Everything the sky layer needs is fetched at boot anyway.
+The reboot also resets the video output, so a monitor that lost sync
+during the dark gap re-syncs by itself (tested).
 
 How this was found: `tests/sky_spike` with a `SPIKE_MODE` switch (no
 video / no video at 252 MHz / video live), a Mac-side log pinging the
-router and the weather API in parallel, and `tests/flash.sh` for
-reliable flashing on macOS.
+router and the weather API in parallel, a hardware watchdog with a
+"last stage" recorder in a scratch register, an overnight bisect with the
+radio off, and `tests/flash.sh` for reliable flashing on macOS. The
+live-traffic code path (keepalive, hourly fetch, reconnects) is still in
+`sky.cpp` behind `SKY_LIVE_NET`, off.
 
 ## Code layout (main/)
 
