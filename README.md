@@ -21,7 +21,22 @@ rendered falloffs into true soft penumbra.
 - One momentary button (GP7 to GND) and a KY-040 rotary encoder
   (GP6/8/9), see below.
 
-## Build and flash
+### Wiring
+
+![alt text](assets/wiring.png)
+
+### Enclosure
+
+![alt text](<assets/3d Enclosure exploded.png>)
+
+>[!Tip]
+> The 3D printing enclosure items can be found here: [3D_files/draft](3D_files/draft)
+
+---
+
+## Firmware
+
+### Build and flash
 
 Requires arduino-cli with the Raspberry Pi Pico/RP2040/RP2350 (Earle
 Philhower) core, NOT the Mbed core, and the "PicoDVI - Adafruit Fork"
