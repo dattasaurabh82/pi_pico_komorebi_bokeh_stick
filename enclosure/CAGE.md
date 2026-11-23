@@ -13,19 +13,20 @@ Fusion files, in the project `AA`, folder `smartProjector / prototyping`:
 
 ![Cage from the back, controls on the rear frame](assets/cage-02-rear-left.png)
 
-More views are in [assets](assets): the underside with the two modules, the top, the bay without the top plate, the port end.
+More views are in [assets](assets): the underside with the two modules, the top, the bay without the top plate, the port end with the DC plug, the buck converter in its snap tray.
 
 ---
 
 ## Steps
 
-1. [x] **Read `komorebi-box` and measure the parts.** Done `2026-11-23`. Eleven linked parts, nothing missing.
+1. [x] **Read `komorebi-box` and measure the parts.** Done `2026-11-23`.
 2. [x] **Decide the layout.** Done `2026-11-23`, with Saurabh: rear bay, with a top plate.
-3. [x] **Rough cage, parts placed on it.** Done `2026-11-23`. Seven printed parts, no fastener holes yet.
-4. [ ] **Review by Saurabh.** Open. Nothing gets fine tuned before it.
-5. [ ] **Fine tuning:** sizes against the real projector, window shapes, the holders.
-6. [ ] **Fasteners:** heat-set inserts, screws, nuts. Saurabh brings the models in once the places are named.
-7. [ ] **Test prints**, then the assembly notes.
+3. [x] **Rough cage, parts placed on it.** Done `2026-11-23`.
+4. [x] **First review by Saurabh.** Done `2026-11-23`, see [Review, first round](#review-first-round).
+5. [x] **Fastener holes cut, fasteners counted.** Done `2026-11-23`, see [Fasteners](#fasteners).
+6. [ ] **Fastener models placed.** Saurabh brings one model of each kind into `komorebi-box`. They get copied and placed from [cad/fasteners.json](cad/fasteners.json).
+7. [ ] **Sizes against the real projector**, then the lips.
+8. [ ] **Test prints**, then the assembly notes.
 
 ---
 
@@ -40,9 +41,10 @@ From Saurabh on `2026-11-23`:
 - **Wires are not planned yet.** Not between button, converter, encoder and light sensor either.
 - **The light sensor has its own module.** It fits on the bottom or on the top.
 - **The magic arm adapter fits on the bottom or on the top too.** The cage stands on a tripod or hangs from a ceiling. Its thread is printed and tested, it must point away from the cage.
-- **Fasteners come later.** No heat-set inserts, screws or nuts in this round.
+- **Saurabh brings the fastener models in.** The holes get designed, the fasteners get counted, then the models get copied and placed.
 - **Every part prints on the Prusa Mini bed,** 180 x 180 mm.
 - **Enough room, not too much.** Tighter than the solar server cage.
+- **The look follows Doscher.** Open trusses, chamfered edges, screws that show.
 - **No assembly documents yet.** Design first.
 
 ---
@@ -61,16 +63,16 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
     "own_tripod_thread": [-32.3, 20.3]
   },
   "cage": {
-    "inner_x": [-103.1, 56.9],
+    "inner_x": [-120.1, 50.4],
     "inner_z_rear": -80.0,
     "front_edge_z": 40.0,
     "floor_top_y": 1.8,
     "top_plate_bottom_y": 52.8,
-    "outside": [168.0, 61.0, 124.0]
+    "outside": [178.5, 61.0, 124.0]
   },
   "gaps": {
-    "port_end": 17.0,
-    "lever_end": 17.0,
+    "port_end": 34.0,
+    "lever_end": 10.5,
     "rear_bay": 36.2,
     "above_projector": 2.0,
     "lens_face_to_front_edge": 3.8
@@ -90,9 +92,14 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
   },
   "controls": {
     "height_y": 27.3,
-    "jack_x": -91.0,
-    "button_x": -75.0,
-    "encoder_x": -45.0
+    "jack_x": -98.0,
+    "button_x": -76.0,
+    "encoder_x": -50.0
+  },
+  "holes": {
+    "m3_insert": 4.0,
+    "m3_clearance": 3.4,
+    "m2_insert": 3.2
   }
 }
 ```
@@ -108,16 +115,17 @@ Sizes are measured in `komorebi-box`. Use `root.allOccurrences` for that, see [F
 
 | Part | Fusion file | Size | Where it sits | Held by |
 | --- | --- | --- | --- | --- |
-| Projector | `YG300 LCD Projector` | 126 x 47 x 80, feet 2 | On its feet on the floor plate, lens to +Z | Four corner lips, later a 1/4 inch screw into its own tripod thread |
-| Pico with DVI sock and HDMI plug | `PiPico2AndDVISock` | 74.3 x 22.9 x 16.1 | Upright on the rear frame, parts toward the projector, USB toward the +X end | `Pico holder: base`, four posts |
+| Projector | `YG300 LCD Projector` | 126 x 47 x 80, feet 2 | On its feet on the floor plate, lens to +Z | Corner lips and the flange of the +X end frame, plus a 1/4 inch screw into its own tripod thread |
+| Pico with DVI sock and HDMI plug | `PiPico2AndDVISock` | 74.3 x 22.9 x 16.1 | Upright on the rear frame, parts toward the projector, USB toward the +X end | `Pico holder: base`, four posts, four M2 screws |
 | HDMI plug at the projector | `HDMI-CY-17-UP` | 16.2 x 14.5, sticks out 9 | In the projector's port on the -X end | The port |
 | Second HDMI plug | `HDMI-CY-17-DN` | same | Not used, switched off in the browser | Nothing |
+| DC plug adapter | `Male DC-Power-to-Screw-Terminals-Adapter-AP214` | 41 long, 30 of it outside the jack, 12.2 x 14 | In the projector's round jack on the -X end | The jack |
 | Rotary encoder with knob | `RotaryEncoderAndGuiterMetalKnob` | knob 25 across, 19.5 high | Rear frame, pins toward the Pico | Its own nut, 7.2 hole |
 | Button | `Switch Assembly` | 9.6 x 27 | Rear frame | Its own nut, 7.2 hole, panel 2 thick there |
-| DC socket | `Socket Panel (1)` | 21 across the nut | Rear frame, at the -X end | Its own nut, 11.2 hole |
-| Buck converter | `DC-DC 4.5-28V to 0.8-20V Output 3A MP1584EN Step Down Buck Converter` | 22.4 x 17.1 x 4.6 | Flat on the bay floor under the socket | `Buck converter holder: tray` |
+| DC socket | `Socket Panel (1)` | 21 across the nut | Rear frame, toward the -X end | Its own nut, 11.2 hole |
+| Buck converter | `DC-DC 4.5-28V to 0.8-20V Output 3A MP1584EN Step Down Buck Converter` | 22.4 x 17.1 x 4.6 | On the bay floor, lifted 5 | `Buck converter holder: tray`, snap fit |
 | Light sensor | `BH1750` | flange 28 across, dome 25.5 | In its module, now on the floor, dome down | `Light sensor module: plate` |
-| Tripod adapter | `Bottom Adapter for Magic Arm Nut` | 60 x 60 x 10 | On the floor's tripod port, turned 45 degrees | Four M3 from outside, later |
+| Tripod adapter | `Bottom Adapter for Magic Arm Nut` | 60 x 60 x 10 | On the floor's tripod port, turned 45 degrees | Four M3 from outside |
 
 The models say `Raspberry_Pi_Pico_W` and `Adafruit DVI Sock`. The real boards are the Pico 2 W and the pi3g sock. Same footprint.
 
@@ -129,35 +137,95 @@ In `komorebi-cage`. Every part lies flat on the bed and needs no supports.
 
 | Part | Component | Copies | Size | What it is |
 | --- | --- | --- | --- | --- |
-| Floor plate | `Cage: floor plate` | 1 | 159.6 x 119.8 x 12 | 5 thick. Four corner lips, 7 high, locate the projector. Two module ports. Three windows and an obround for the 1/4 inch screw |
-| Top plate | `Cage: top plate` | 1 | 159.6 x 119.8 x 5 | Same outline and the same two ports. Open over the projector's buttons, a diagonal in each rear window |
-| End frame | `Cage: end frame` | 2 | 120 x 61 x 14 | Web 4 thick with a bay window and a projector window, a flange at the bottom and at the top. The +X one is the same part turned half round |
-| Rear frame | `Cage: rear frame` | 1 | 168 x 61 x 14 | Web 4 thick, two rows of slot vents, the three control holes, two flanges |
-| Pico holder | `Pico holder: base` | 1 | 61.5 x 24 x 7.9 | Plate on the inside of the rear frame with four posts under the mounting holes |
-| Buck tray | `Buck converter holder: tray` | 1 | 26.4 x 21.1 x 4.8 | Flat tray with four corner walls |
+| Floor plate | `Cage: floor plate` | 1 | 170.1 x 119.8 x 12 | 5 thick. Corner lips, 7 high, locate the projector. Two module ports. Windows between the feet, under the vent slot, under the port bay and under the Pico |
+| Top plate | `Cage: top plate` | 1 | 170.1 x 119.8 x 5 | Same outline and the same two ports. Three windows in front: port bay, the projector's buttons, the lens end. Two truss windows at the back |
+| End frame | `Cage: end frame` | 1 | 120 x 61 x 14 | The +X end. Web 4 thick with a bay window and a projector window, a flange at the bottom and at the top. Its bottom flange is the projector's end stop |
+| End frame, port | `Cage: end frame, port` | 1 | 120 x 61 x 14 | The -X end. Same, but the top flange stops before the DC plug and the window steps up in front of it |
+| Rear frame | `Cage: rear frame` | 1 | 178.5 x 61 x 14 | Web 4 thick, two rows of slot vents, the three control holes, a window behind the Pico, two flanges |
+| Pico holder | `Pico holder: base` | 1 | 61.5 x 24 x 7.9 | Plate on the inside of the rear frame. Four posts with M2 inserts, two bosses with M3 inserts |
+| Buck tray | `Buck converter holder: tray` | 1 | 43.4 x 21.1 x 10.2 | Snap tray, see [Buck tray](#buck-tray) |
 | Sensor module | `Light sensor module: plate` | 1 | 44 x 44 x 4 | Plate with the dome hole and a seat for the sensor's flange |
 
 How it is built:
 
 - **Two plates and three upright frames make the box.** The front stays open.
-- **A frame is a web with two flanges.** The flanges lie on the inside of the plates. Later they carry the heat-set inserts, and the screws go in from outside through the plates. So the plates stay plain.
+- **A frame is a web with two flanges.** The flanges lie on the inside of the plates and carry the heat-set inserts. The screws go in from outside through the plates. So the plates stay plain, and every screw head shows.
 - **The plates sit inside the frames.** The webs cover their edges.
-- **The projector is centred between the two end frames,** 17 mm of room at each end. That is where the HDMI plug, the power plug and the folded ribbon go on one end, and a finger for the focus lever on the other.
+- **The projector is not centred.** The -X end has 34 mm: the HDMI plug, the DC plug adapter with its 30 mm, and the folded ribbon. The +X end has 10.5 mm, enough for a finger on the focus lever through the window.
 - **The rear bay is 36 mm deep.** Controls and Pico share the rear frame side by side, so air stays between the Pico and the projector's back vents: 14 mm at the HDMI plug, 24 mm along the board.
 - **The control field is thinned to 3 mm on the inside,** 2 mm at the button. The models of the socket and the encoder are drawn for a 3.2 panel, and the button thread is short.
+- **The knob sits on a mullion of the slot rows.** The slots are laid out from the encoder position.
 - **The bay window of the +X end frame is where a USB cable reaches the Pico.**
 - **The floor is closed where the feet stand.** The feet are 14.8 square at the four corners.
+- **Outer edges are chamfered 1.5,** the two rear corners 3.
 
 ### Module ports
 
-A port is a 24 mm opening with four M3 holes on a 31.82 mm square. That is the hole pattern of the magic arm adapter, turned 45 degrees.
+A port is a 24 mm opening with four M3 inserts on a 31.82 mm square. That is the hole pattern of the magic arm adapter, turned 45 degrees.
 
-- **Both plates have the same two ports,** at the same place: one near the centre of gravity, one in the bay.
+- **Both plates have the same two ports,** at the same place: one under the projector, one in the bay.
 - **Both modules fit both ports.** So the tripod adapter and the light sensor each go on the bottom or on the top.
 - **The sensor's flange is trapped** between its module plate and the cage plate. The dome looks out, the connector reaches through the opening into the bay.
-- **The sensor belongs on the bay port.** On the centre port its connector would hit the projector.
+- **The sensor belongs on the bay port.** On the other port its connector would hit the projector.
 
 ![Underside with the sensor module and the tripod adapter](assets/cage-03-underside.png)
+
+### Buck tray
+
+The board has no mounting holes. Its six holes are solder pads for the wires, three on each short end.
+
+- **The board drops between four corner posts onto two rails.** The rails keep it 5 mm above the tray, so solder joints and wire ends have room under the pads.
+- **Two snap arms hook over the long edges,** 0.6 mm each. The arms are 6.7 mm long, so they bend without breaking.
+- **Each arm is set off to one side.** The trimmer sits 0.4 mm from one long edge, the diode 0.7 mm from the other. The hooks land where the edge is free.
+- **The short ends stay open** for the wires. The posts end at the top of the board.
+- **Two ears with one M3 each hold the tray on the floor.**
+
+![Buck converter in its snap tray](assets/cage-07-buck-snap-tray.png)
+
+---
+
+## Fasteners
+
+The holes are in the model. The list is written by the build script into [cad/fasteners.json](cad/fasteners.json): one row per fastener with its seat point and the direction it goes in.
+
+| Fastener | Count | Where |
+| --- | --- | --- |
+| **M3 heat-set insert**, 4.0 hole | 39 | 19 in the frame flanges, 16 in the four module ports, 2 in the Pico holder, 2 in the floor for the buck tray |
+| **M3 x 8**, cap head | 25 | 19 plate to frame, 4 sensor module, 2 Pico holder |
+| **M3 x 6**, cap head | 6 | 4 tripod adapter, 2 buck tray |
+| **M2 heat-set insert**, 3.2 hole | 4 | Pico holder posts |
+| **M2 x 5** | 4 | Pico and DVI sock onto the posts |
+| **1/4-20 x 10**, camera screw | 1 | Through the floor into the projector's own tripod thread |
+
+Models to bring into `komorebi-box`, one of each: the M3 insert, M3 x 8, M3 x 6, the M2 insert, M2 x 5, the 1/4 inch screw.
+
+Where the 19 frame screws are:
+
+| Joint | Floor | Top |
+| --- | --- | --- |
+| End frame, +X | 3 | 3 |
+| End frame, port | 3 | 2 |
+| Rear frame | 4 | 4 |
+
+- **The port frame has one screw less on top.** Its top flange stops at Z 12 to clear the DC plug.
+- **The rear frame has no screw in the middle 58 mm.** A module on the bay port covers the plate there, on whichever plate it sits.
+- **No countersinks.** The cap heads stand proud, as on the solar server cage.
+- **Not counted:** the nuts of the encoder, the button and the socket, and the tripod bushing in the magic arm adapter.
+
+> [!Note]
+> **The M2 insert hole is a start value.** 3.2 mm fits the common M2 x 3 inserts. Tell the size of the ones bought and the posts follow.
+
+---
+
+## Review, first round
+
+Saurabh on `2026-11-23`, after the rough cage:
+
+- **How is the buck converter held, snap fit? Its holes are for wires.** It was only located. Now it is a snap tray, see [Buck tray](#buck-tray).
+- **Not enough room for the DC jack.** He added the DC plug adapter to `komorebi-box`. The -X end went from 17 to 34 mm, the +X end from 17 to 10.5 mm. The cage grew 10.5 mm in length.
+- **Encoder a bit to the right, seen from behind.** It moved 5 mm and now sits on the mullion between two slots. Button and socket moved with it.
+- **Check it against the Doscher images.** Done: truss windows in the floor, chamfered outer edges and rear corners, a window behind the Pico, screws that show on both plates and on the rear frame.
+- **Then the fasteners:** edit the design, count, he brings the models.
 
 ---
 
@@ -165,36 +233,33 @@ A port is a 24 mm opening with four M3 holes on a 31.82 mm square. That is the h
 
 Done on `2026-11-23` in `komorebi-box` with the interference tool, hidden parts left out.
 
-- **No part cuts into another.** Two touches under 0.1 mm stay: the socket's flange on the panel, and the HDMI plug inside the projector's port.
-- **Every printed part is inside 180 x 180.** The rear frame is the longest at 168.
+- **No part cuts into another.** Three touches stay, all between bought models: the socket's flange on the panel (under 0.1 mm), the HDMI plug inside the projector's port, the DC plug's barrel inside the projector's jack.
+- **Every printed part is inside 180 x 180.** The plates are 170.1 long. The rear frame is 178.5 and goes on the bed at 45 degrees, it needs 169.4 that way.
 - **The projector's buttons, focus lever, ports and vents are all open.**
 
 ---
 
 ## Open points
 
-For the review:
-
 - [ ] **Real size of the projector,** width, depth, height, and how far the lens ring stands out.
-- [ ] **Which plug goes into the projector.** `HDMI-CY-17-UP` is plugged in now. Both CY models are 10.5 wide, which is mini HDMI size.
-- [ ] **Order of the controls.** From behind, left to right: knob, button, socket.
-- [ ] **Rear frame at 168 mm.** It fits the bed with 6 mm to spare on each side. I aimed for 170 at most.
-- [ ] **Top plate: keep it, or lighter.** It carries the ports for hanging.
-- [ ] **Floor plate is rather closed.** It could get slot vents in the bay.
 - [ ] **Lips or loose stops.** The lips are printed onto the floor. Loose stops with slots would follow the real projector without a new floor.
-- [ ] **A place to fold the spare ribbon.** The -X end has 17 mm.
-- [ ] **How the rear frame is stiffened** between its ends. It is held by its two flanges only.
+- [ ] **Plates at 170.1 mm.** 5 mm of bed left on each side. A test print in ASA will show if the ends lift.
+- [ ] **Which plug goes into the projector.** `HDMI-CY-17-UP` is plugged in now. Both CY models are 10.5 wide, which is mini HDMI size.
+- [ ] **Snap hooks against the real board.** The hook places come from the model's trimmer and diode.
+- [ ] **Size of the M2 inserts.**
 
 ---
 
 ## Fusion traps
 
 > [!Warning]
-> **Run the build script only in the cage's own tab.** `komorebi-box` keeps its own copy of `komorebi-cage` open. `documents.item(i).activate()` can land on that copy. A change made there shows in the assembly but is never saved. Pick the document that is not modified, check `isModified` after the save, then get the latest version in `komorebi-box`.
+> **Run the build script only in the cage's own tab.** `komorebi-box` keeps its own copies of `komorebi-cage` open. `documents.item(i).activate()` can land on one of them. A change made there shows in the assembly but is never saved. The cage's own tab is the one where `isUpToDate` does not raise. The script checks that now. After the save, get the latest version in `komorebi-box`.
 
 - **Measure nested parts with `root.allOccurrences`.** Walking `occurrence.childOccurrences` gives boxes in the wrong frame. It made the buck converter look flat when it stood on edge.
+- **Run the interference tool in small groups.** All bodies in one call gave no result at all. One bought part against the cage and the projector works.
 - **A camera set by script keeps perspective.** The zoom is the distance from eye to target, `viewExtents` is ignored. About 45 cm shows the whole cage.
 - **The cage parts are plain bodies in base features.** The script builds them from boxes and cylinders and swaps the body in place, so the links stay valid. They have no sketches. A part Saurabh wants to edit by hand gets rebuilt with sketches then.
+- **Hiding a cage part from `komorebi-box` marks that copy of the cage as changed.** Fusion may ask to save it on closing. Discard it.
 
 ---
 
@@ -204,6 +269,8 @@ For the review:
 
 - Read `komorebi-box` version 15. Eleven linked parts, no joints.
 - Asked four things. Answers: rear bay with a top plate, the sensor and the tripod adapter as modules for top or bottom, ribbon 30 cm or longer, nothing missing.
-- New Fusion file `komorebi-cage`, hybrid design, saved as version 3. Seven components, eight occurrences, one rigid group.
-- Cage linked into `komorebi-box`, parts placed, `HDMI-CY-17-DN` switched off. Saved as version 17.
+- New Fusion file `komorebi-cage`, hybrid design. Rough cage saved as version 3, linked into `komorebi-box` version 17.
 - Found on the way: the second `HDMI-CY-17-UP` was parked beside the projector, not plugged in. The buck converter stood on edge. Both are placed now.
+- First review by Saurabh, see [Review, first round](#review-first-round). He added the DC plug adapter, `komorebi-box` version 19.
+- Second build: port bay 34 mm, snap tray, encoder on the mullion, Doscher pass, fastener holes. The two end frames are two components now. `komorebi-cage` version 6, `komorebi-box` version 20.
+- The Amazon page of the buck converter could not be opened from the agent's side. The tray follows Saurabh's note and the model: six pads, no mounting holes.

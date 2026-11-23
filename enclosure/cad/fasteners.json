@@ -1,0 +1,1118 @@
+{
+  "counts": {
+    "M3 insert": 39,
+    "M3 x 8": 25,
+    "M3 x 6": 6,
+    "M2 insert": 4,
+    "M2 x 5": 4,
+    "1/4-20 x 10": 1
+  },
+  "fasteners": [
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        -115.1,
+        1.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        -115.1,
+        -3.2,
+        -66.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        45.4,
+        1.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        45.4,
+        -3.2,
+        -66.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        -115.1,
+        1.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        -115.1,
+        -3.2,
+        -16.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        45.4,
+        1.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        45.4,
+        -3.2,
+        -16.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        -115.1,
+        1.8,
+        32.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        -115.1,
+        -3.2,
+        32.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        45.4,
+        1.8,
+        32.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        45.4,
+        -3.2,
+        32.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        -100.1,
+        1.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        -100.1,
+        -3.2,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        -52.1,
+        1.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        -52.1,
+        -3.2,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        5.9,
+        1.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        5.9,
+        -3.2,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, floor",
+      "seat": [
+        33.9,
+        1.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, floor",
+      "seat": [
+        33.9,
+        -3.2,
+        -75.0
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -39.01,
+        -3.2,
+        -23.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -39.01,
+        -3.2,
+        7.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -7.19,
+        -3.2,
+        -23.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -7.19,
+        -3.2,
+        7.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -39.01,
+        -3.2,
+        -73.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -39.01,
+        -3.2,
+        -42.09
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -7.19,
+        -3.2,
+        -73.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, floor",
+      "seat": [
+        -7.19,
+        -3.2,
+        -42.09
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        -115.1,
+        52.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        -115.1,
+        57.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        45.4,
+        52.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        45.4,
+        57.8,
+        -66.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        -115.1,
+        52.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        -115.1,
+        57.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        45.4,
+        52.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        45.4,
+        57.8,
+        -16.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        45.4,
+        52.8,
+        32.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        45.4,
+        57.8,
+        32.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        -100.1,
+        52.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        -100.1,
+        57.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        -52.1,
+        52.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        -52.1,
+        57.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        5.9,
+        52.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        5.9,
+        57.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        33.9,
+        52.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        33.9,
+        57.8,
+        -75.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -39.01,
+        57.8,
+        -23.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -39.01,
+        57.8,
+        7.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -7.19,
+        57.8,
+        -23.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -7.19,
+        57.8,
+        7.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -39.01,
+        57.8,
+        -73.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -39.01,
+        57.8,
+        -42.09
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -7.19,
+        57.8,
+        -73.91
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "module port, top",
+      "seat": [
+        -7.19,
+        57.8,
+        -42.09
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "tripod adapter",
+      "seat": [
+        -39.01,
+        -5.4,
+        -23.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "sensor module",
+      "seat": [
+        -39.01,
+        -7.2,
+        -73.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "tripod adapter",
+      "seat": [
+        -39.01,
+        -5.4,
+        7.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "sensor module",
+      "seat": [
+        -39.01,
+        -7.2,
+        -42.09
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "tripod adapter",
+      "seat": [
+        -7.19,
+        -5.4,
+        -23.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "sensor module",
+      "seat": [
+        -7.19,
+        -7.2,
+        -73.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "tripod adapter",
+      "seat": [
+        -7.19,
+        -5.4,
+        7.91
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "sensor module",
+      "seat": [
+        -7.19,
+        -7.2,
+        -42.09
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "pico holder",
+      "seat": [
+        -8.8,
+        27.3,
+        -80.0
+      ],
+      "into": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "pico holder",
+      "seat": [
+        -8.8,
+        27.3,
+        -84.0
+      ],
+      "into": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "pico holder",
+      "seat": [
+        37.0,
+        27.3,
+        -80.0
+      ],
+      "into": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "pico holder",
+      "seat": [
+        37.0,
+        27.3,
+        -84.0
+      ],
+      "into": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "kind": "M2 insert",
+      "group": "pico post",
+      "seat": [
+        43.2,
+        21.6,
+        -72.1
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 x 5",
+      "group": "pico",
+      "seat": [
+        43.2,
+        21.6,
+        -70.5
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 insert",
+      "group": "pico post",
+      "seat": [
+        43.2,
+        33.0,
+        -72.1
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 x 5",
+      "group": "pico",
+      "seat": [
+        43.2,
+        33.0,
+        -70.5
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 insert",
+      "group": "pico post",
+      "seat": [
+        -8.8,
+        18.4,
+        -73.8
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 x 5",
+      "group": "pico",
+      "seat": [
+        -8.8,
+        18.4,
+        -72.2
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 insert",
+      "group": "pico post",
+      "seat": [
+        -8.8,
+        36.2,
+        -73.8
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M2 x 5",
+      "group": "pico",
+      "seat": [
+        -8.8,
+        36.2,
+        -72.2
+      ],
+      "into": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "buck tray, in the floor",
+      "seat": [
+        -91.6,
+        1.8,
+        -58.95
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "buck tray",
+      "seat": [
+        -91.6,
+        3.8,
+        -58.95
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "buck tray, in the floor",
+      "seat": [
+        -57.2,
+        1.8,
+        -58.95
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 6",
+      "group": "buck tray",
+      "seat": [
+        -57.2,
+        3.8,
+        -58.95
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "1/4-20 x 10",
+      "group": "projector",
+      "seat": [
+        -32.3,
+        -3.2,
+        20.3
+      ],
+      "into": [
+        0,
+        1,
+        0
+      ]
+    }
+  ]
+}

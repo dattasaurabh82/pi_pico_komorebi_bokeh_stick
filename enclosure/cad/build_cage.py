@@ -1,29 +1,35 @@
 """Build the printed parts of the komorebi cage in the Fusion file `komorebi-cage`.
 
-Run it with `komorebi-cage` as the active tab. It builds every part again from the
+Run it with the cage's own tab active. It builds every part again from the
 numbers in P and swaps the body inside each component, so the links in
 `komorebi-box` stay valid. All numbers are mm, in the coordinates of `komorebi-box`
 (projector where it stands there, Y up, lens face +Z, ports on the -X end).
+
+It also writes fasteners.json next to this file: one row per insert and screw,
+with its seat point and the direction it goes in.
 
 Loader for the Fusion script runner:
 
     def run(_context):
         p = '/Users/saurabhdatta/Documents/Projects/pi_pico_komorebi/enclosure/cad/build_cage.py'
-        g = {}
+        g = {'__file__': p}
         exec(compile(open(p).read(), p, 'exec'), g)
         g['main']()
 """
+import json
 import math
+import os
 
 import adsk.core
 import adsk.fusion
 
 P = {
-    # projector, as measured in komorebi-box
+    # ---- projector, as measured in komorebi-box
     'proj_x0': -86.1, 'proj_x1': 39.9, 'proj_z0': -43.8, 'proj_z1': 36.2,
     'proj_tripod_x': -32.3, 'proj_tripod_z': 20.3,
-    # cage envelope
-    'half_inner_x': 80.0,      # inner half width, centred on the projector
+    # ---- cage envelope
+    'gap_port': 34.0,          # projector to the -X frame: HDMI plug, DC plug adapter, folded ribbon
+    'gap_lever': 10.5,         # projector to the +X frame: the flange there is the end stop
     'z_rear': -80.0,           # inner face of the rear frame
     'z_front': 40.0,           # front edge of the plates
     'web': 4.0,                # thickness of the upright frames
@@ -34,18 +40,29 @@ P = {
     'gap': 0.2,                # between printed parts
     'proj_clear': 0.5,         # lips to projector
     'lip_h': 7.0,
-    # module ports, same on the floor and on the top
+    'edge_chamfer': 1.5,       # outer edges
+    'corner_chamfer': 3.0,     # the two rear corners
+    # ---- module ports, same on the floor and on the top
     'port_tripod_z': -8.0, 'port_sensor_z': -58.0,
     'port_pitch': 31.82,       # square of the four M3 holes, the magic arm adapter turned 45 degrees
-    'port_open_d': 24.0, 'insert_d': 4.0, 'm3_clear_d': 3.4,
-    # controls on the rear frame
-    'ctrl_y': 27.3, 'jack_x': -91.0, 'button_x': -75.0, 'encoder_x': -45.0,
+    'port_open_d': 24.0,
+    # ---- controls on the rear frame
+    'ctrl_y': 27.3, 'jack_x': -98.0, 'button_x': -76.0, 'encoder_x': -50.0,
     'jack_d': 11.2, 'button_d': 7.2, 'encoder_d': 7.2,
     'ctrl_panel_t': 3.0,       # panel left behind the jack and the encoder, their models are drawn for 3.2
-    # pico group, see CAGE.md
-    'pico_holes': [(49.7, 21.6, -72.1), (49.7, 33.0, -72.1), (-2.3, 18.4, -73.8), (-2.3, 36.2, -73.8)],
-    # buck converter footprint on the floor
-    'buck_x0': -90.6, 'buck_x1': -68.2, 'buck_z0': -67.5, 'buck_z1': -50.4,
+    # ---- pico group: its four mounting holes as x, y, z of the board underside
+    'pico_holes': [(43.2, 21.6, -72.1), (43.2, 33.0, -72.1), (-8.8, 18.4, -73.8), (-8.8, 36.2, -73.8)],
+    'pico_boss_x': [-8.8, 37.0],
+    # ---- buck converter footprint on the floor, held by a snap tray
+    'buck_x0': -85.6, 'buck_x1': -63.2, 'buck_z0': -67.5, 'buck_z1': -50.4,
+    'buck_lift': 5.0,          # board underside above the tray base, room for solder joints and for the snap arms
+    'buck_pcb_t': 1.6,
+    # ---- the DC plug adapter in the projector's jack, top of it
+    'dc_plug_z0': 21.8, 'dc_plug_top': 49.8,
+    # ---- fasteners
+    'm3_insert_d': 4.0, 'm3_clear_d': 3.4, 'm2_insert_d': 3.2,
+    'end_screw_z': [-66.0, -16.0, 32.0],
+    'rear_screw_u': [-77.0, -29.0, 29.0, 57.0],   # from the projector centre, clear of a module on the bay port
     'colour': (81, 81, 81),
 }
 
@@ -118,143 +135,285 @@ def join(target, tool):
     tm().booleanOperation(target, tool, adsk.fusion.BooleanTypes.UnionBooleanType)
 
 
+def chamfer_edge(body, axis, a, b, sa, sb, c, n0, n1):
+    """45 degree chamfer, legs c, on the edge that runs along the normal axis through a, b.
+
+    sa, sb say on which side of the edge there is no material: +1 or -1 along a and b.
+    """
+    ang = math.degrees(math.atan2(sb, sa)) + 90.0
+    cut(body, rot_rect(axis, a, b, ang, 6 * c + 10, c * math.sqrt(2.0), n0, n1))
+
+
+def truss_window(axis, a0, a1, b0, b1, n0, n1, c, rib, rising):
+    """Octagon window with one diagonal rib left standing. rising: the rib goes from a0, b0 to a1, b1."""
+    w = octa(axis, a0, a1, b0, b1, n0, n1, c)
+    da, db = (a1 - a0), (b1 - b0)
+    ang = math.degrees(math.atan2(db, da if rising else -da))
+    cut(w, rot_rect(axis, (a0 + a1) / 2.0, (b0 + b1) / 2.0, ang, math.hypot(da, db) + 20, rib, n0 - 1, n1 + 1))
+    return w
+
+
 def derived():
     d = dict(P)
     d['xc'] = (P['proj_x0'] + P['proj_x1']) / 2.0
-    d['xil'] = d['xc'] - P['half_inner_x']
-    d['xir'] = d['xc'] + P['half_inner_x']
+    d['proj_half'] = (P['proj_x1'] - P['proj_x0']) / 2.0
+    d['xil'] = P['proj_x0'] - P['gap_port']
+    d['xir'] = P['proj_x1'] + P['gap_lever']
     d['xol'] = d['xil'] - P['web']
     d['xor'] = d['xir'] + P['web']
     d['zro'] = P['z_rear'] - P['web']
     d['yb'] = P['floor_top'] - P['plate_t']
     d['yt'] = P['top_bottom'] + P['plate_t']
-    d['proj_half'] = (P['proj_x1'] - P['proj_x0']) / 2.0
+    d['x_end_port'] = d['xil'] + P['flange_w'] / 2.0     # screw line of the -X frame
+    d['x_end_lever'] = d['xir'] - P['flange_w'] / 2.0    # screw line of the +X frame
+    d['z_rear_screw'] = P['z_rear'] + P['flange_w'] / 2.0
+    d['rear_screw_x'] = [d['xc'] + u for u in P['rear_screw_u']]
+    d['port_top_flange_z1'] = P['dc_plug_z0'] - 9.8      # the top flange of the -X frame stops before the DC plug
+    d['buck_pcb_y0'] = P['floor_top'] + 2.0 + P['buck_lift']
+    d['buck_zc'] = (P['buck_z0'] + P['buck_z1']) / 2.0
+    d['buck_ear_x'] = [P['buck_x0'] - 6.0, P['buck_x1'] + 6.0]
     return d
 
 
-def cut_ports(body, d, y0, y1, hole_d):
+def frame_screws(d, top):
+    """x, z of every screw that ties a frame flange to a plate."""
+    pts = []
+    for z in d['end_screw_z']:
+        if not (top and z > d['port_top_flange_z1'] - 4):
+            pts.append((d['x_end_port'], z))
+        pts.append((d['x_end_lever'], z))
+    for x in d['rear_screw_x']:
+        pts.append((x, d['z_rear_screw']))
+    return pts
+
+
+def port_holes(d):
     h = d['port_pitch'] / 2.0
+    pts = []
     for z in (d['port_tripod_z'], d['port_sensor_z']):
-        cut(body, cyl('y', d['xc'], z, d['port_open_d'] / 2.0, y0 - 1, y1 + 1))
         for sx in (-1, 1):
             for sz in (-1, 1):
-                cut(body, cyl('y', d['xc'] + sx * h, z + sz * h, hole_d / 2.0, y0 - 1, y1 + 1))
+                pts.append((d['xc'] + sx * h, z + sz * h))
+    return pts
+
+
+def cut_ports(body, d, y0, y1):
+    for z in (d['port_tripod_z'], d['port_sensor_z']):
+        cut(body, cyl('y', d['xc'], z, d['port_open_d'] / 2.0, y0 - 1, y1 + 1))
+    for (x, z) in port_holes(d):
+        cut(body, cyl('y', x, z, d['m3_insert_d'] / 2.0, y0 - 1, y1 + 1))
+
+
+def plate_blank(d, y0, y1, top):
+    g = d['gap']
+    b = rect('y', d['xil'] + g, d['xir'] - g, d['z_rear'] + g, d['z_front'], y0, y1)
+    cut_ports(b, d, y0, y1)
+    for (x, z) in frame_screws(d, top):
+        cut(b, cyl('y', x, z, d['m3_clear_d'] / 2.0, y0 - 1, y1 + 1))
+    c = d['edge_chamfer']
+    chamfer_edge(b, 'x', d['z_front'], y1, 1, 1, c, d['xil'] - 1, d['xir'] + 1)
+    chamfer_edge(b, 'x', d['z_front'], y0, 1, -1, c, d['xil'] - 1, d['xir'] + 1)
+    return b
 
 
 def floor_plate(d):
-    g, xc = d['gap'], d['xc']
+    xc = d['xc']
     y0, y1 = d['yb'], d['floor_top']
-    b = rect('y', d['xil'] + g, d['xir'] - g, d['z_rear'] + g, d['z_front'], y0, y1)
-    cut_ports(b, d, y0, y1, d['insert_d'])
+    n0, n1 = y0 - 1, y1 + 1
+    b = plate_blank(d, y0, y1, False)
     # obround for a 1/4 inch screw into the projector's own tripod thread
     px, pz = d['proj_tripod_x'], d['proj_tripod_z']
-    slot = rect('y', px - 4, px + 4, pz - 3.5, pz + 3.5, y0 - 1, y1 + 1)
-    join(slot, cyl('y', px - 4, pz, 3.5, y0 - 1, y1 + 1))
-    join(slot, cyl('y', px + 4, pz, 3.5, y0 - 1, y1 + 1))
+    slot = rect('y', px - 4, px + 4, pz - 3.5, pz + 3.5, n0, n1)
+    join(slot, cyl('y', px - 4, pz, 3.5, n0, n1))
+    join(slot, cyl('y', px + 4, pz, 3.5, n0, n1))
     cut(b, slot)
     # window under the projector's bottom vent slot
-    cut(b, octa('y', xc - 27, xc + 27, -37.0, -29.5, y0 - 1, y1 + 1, 2))
+    cut(b, octa('y', xc - 27, xc + 27, -37.0, -29.5, n0, n1, 2))
+    # under the projector, between the feet
+    cut(b, octa('y', d['proj_x0'] - 6, xc - 25, -18.0, 10.0, n0, n1, 5))
+    cut(b, octa('y', xc + 25, d['xir'] - 12, -18.0, 10.0, n0, n1, 5))
+    # row of four under the port bay
+    sx0, sx1 = d['xil'] + d['flange_w'], d['proj_x0'] - 11
+    cell = (100.0 - 3 * 6.0) / 4.0
+    for i in range(4):
+        z0 = -68.0 + i * (cell + 6.0)
+        cut(b, octa('y', sx0, sx1, z0, z0 + cell, n0, n1, 3))
+    # under the pico
+    cut(b, octa('y', xc + 25, d['xir'] - 12, -68.0, -52.0, n0, n1, 3))
+    # inserts for the buck tray
+    for x in d['buck_ear_x']:
+        cut(b, cyl('y', x, d['buck_zc'], d['m3_insert_d'] / 2.0, n0, n1))
+    # corner lips. The +X pair has no return: the flange of the end frame is the stop there
     c = d['proj_clear']
-    ph = d['proj_half']
     lip_top = y1 + d['lip_h']
-    for s in (-1, 1):
-        a0, a1 = sorted((xc + s * 25, xc + s * 62))
-        cut(b, octa('y', a0, a1, -18.0, 10.0, y0 - 1, y1 + 1, 5))
-        # corner lips, front and rear, each with a return along the end face
-        u0, u1 = sorted((xc + s * (ph - 13.5), xc + s * (ph + c + 3)))
-        r0, r1 = sorted((xc + s * (ph + c), xc + s * (ph + c + 3)))
-        zf = d['proj_z1'] + c
-        zr = d['proj_z0'] - c
-        join(b, rect('y', u0, u1, zf, d['z_front'], y1 - 0.5, lip_top))
-        join(b, rect('y', r0, r1, zf - 10.5, d['z_front'], y1 - 0.5, lip_top))
-        join(b, rect('y', u0, u1, zr - 3, zr, y1 - 0.5, lip_top))
-        join(b, rect('y', r0, r1, zr - 3, zr + 14, y1 - 0.5, lip_top))
+    zf = d['proj_z1'] + c
+    zr = d['proj_z0'] - c
+    lx0, lx1 = d['proj_x0'] - c - 3, d['proj_x0'] + 13.5
+    join(b, rect('y', lx0, lx1, zf, d['z_front'], y1 - 0.5, lip_top))
+    join(b, rect('y', lx0, lx0 + 3, zf - 10.5, d['z_front'], y1 - 0.5, lip_top))
+    join(b, rect('y', lx0, lx1, zr - 3, zr, y1 - 0.5, lip_top))
+    join(b, rect('y', lx0, lx0 + 3, zr - 3, zr + 14, y1 - 0.5, lip_top))
+    rx0, rx1 = d['proj_x1'] - 13.5, d['xir'] - d['flange_w'] - d['gap']
+    join(b, rect('y', rx0, rx1, zf, d['z_front'], y1 - 0.5, lip_top))
+    join(b, rect('y', rx0, rx1, zr - 3, zr, y1 - 0.5, lip_top))
     return b
 
 
 def top_plate(d):
-    g, xc = d['gap'], d['xc']
+    xc = d['xc']
     y0, y1 = d['top_bottom'], d['yt']
-    b = rect('y', d['xil'] + g, d['xir'] - g, d['z_rear'] + g, d['z_front'], y0, y1)
-    cut_ports(b, d, y0, y1, d['insert_d'])
-    for s in (-1, 1):
-        a0, a1 = sorted((xc + s * 21, xc + s * 70))
-        # front window, over the projector buttons
-        cut(b, octa('y', a0, a1, -22.0, 32.0, y0 - 1, y1 + 1, 6))
-        # rear window with one diagonal
-        w = octa('y', a0, a1, -70.0, -30.0, y0 - 1, y1 + 1, 4)
-        ang = math.degrees(math.atan2(40.0, s * 49.0))
-        cut(w, rot_rect('y', (a0 + a1) / 2.0, -50.0, ang, 90, 6, y0 - 2, y1 + 2))
-        cut(b, w)
+    n0, n1 = y0 - 1, y1 + 1
+    b = plate_blank(d, y0, y1, True)
+    lx0, lx1 = d['xil'] + d['flange_w'], xc - 21
+    rx0, rx1 = xc + 21, d['xir'] - d['flange_w']
+    # front row: over the port bay, over the projector's buttons, over the lens end
+    rib0, rib1 = d['proj_x0'] - 4, d['proj_x0'] + 4
+    cut(b, octa('y', lx0, rib0, -22.0, 32.0, n0, n1, 4))
+    cut(b, octa('y', rib1, lx1, -22.0, 32.0, n0, n1, 6))
+    cut(b, octa('y', rx0, rx1, -22.0, 32.0, n0, n1, 6))
+    # rear row: one diagonal each, they open toward the front
+    cut(b, truss_window('y', lx0, lx1, -70.0, -30.0, n0, n1, 4, 6, False))
+    cut(b, truss_window('y', rx0, rx1, -70.0, -30.0, n0, n1, 4, 6, True))
     return b
 
 
-def end_frame(d):
-    """The frame on the -X end. The +X end is the same part turned half round."""
-    x0, x1 = d['xol'], d['xil']
+def end_frame(d, port):
+    """Upright frame on one end. port: the -X end, where the top flange stops before the DC plug."""
+    if port:
+        x_out, x_in, s = d['xol'], d['xil'], -1
+    else:
+        x_out, x_in, s = d['xor'], d['xir'], 1
+    x0, x1 = min(x_out, x_in), max(x_out, x_in)
     b = rect('x', d['z_rear'], d['z_front'], d['yb'], d['yt'], x0, x1)
     cut(b, octa('x', -74.0, -50.0, 8.8, 45.8, x0 - 1, x1 + 1, 5))
-    cut(b, octa('x', -42.0, 32.0, 8.8, 45.8, x0 - 1, x1 + 1, 6))
+    cut(b, octa('x', -42.0, 32.0, 8.8, 45.8, x0 - 1, x1 + 1, 8))
+    if port:
+        # the window steps up in front of the DC plug, so its wires and its screws can be reached
+        cut(b, octa('x', d['dc_plug_z0'] - 8, d['dc_plug_z0'] + 11.5, 30.0, d['dc_plug_top'] + 0.5, x0 - 1, x1 + 1, 3))
     ft, fw = d['flange_t'], d['flange_w']
-    join(b, rect('x', d['z_rear'], d['z_front'], d['floor_top'], d['floor_top'] + ft, x1 - 0.5, x1 + fw))
-    join(b, rect('x', d['z_rear'], d['z_front'], d['top_bottom'] - ft, d['top_bottom'], x1 - 0.5, x1 + fw))
+    fa, fb = sorted((x_in + s * 0.5, x_in - s * fw))
+    ztop = d['port_top_flange_z1'] if port else d['z_front']
+    join(b, rect('x', d['z_rear'], d['z_front'], d['floor_top'], d['floor_top'] + ft, fa, fb))
+    join(b, rect('x', d['z_rear'], ztop, d['top_bottom'] - ft, d['top_bottom'], fa, fb))
+    xs = d['x_end_port'] if port else d['x_end_lever']
+    for z in d['end_screw_z']:
+        cut(b, cyl('y', xs, z, d['m3_insert_d'] / 2.0, d['floor_top'] - 1, d['floor_top'] + ft + 1))
+        if z < ztop - 4:
+            cut(b, cyl('y', xs, z, d['m3_insert_d'] / 2.0, d['top_bottom'] - ft - 1, d['top_bottom'] + 1))
+    c = d['edge_chamfer']
+    chamfer_edge(b, 'z', x_out, d['yt'], s, 1, c, d['z_rear'] - 1, d['z_front'] + 1)
+    chamfer_edge(b, 'z', x_out, d['yb'], s, -1, c, d['z_rear'] - 1, d['z_front'] + 1)
+    chamfer_edge(b, 'y', x_out, d['z_front'], s, 1, c, d['yb'] - 1, d['yt'] + 1)
     return b
+
+
+def rear_slots(d):
+    """x ranges of the slot vents. One mullion is centred on the encoder."""
+    s0, s1 = d['xil'] + 4, d['xir'] - 4
+    m = 3.0
+    e = d['encoder_x']
+    mid = (e + m + s1) / 2.0
+    return [(s0, e - m), (e + m, mid - m), (mid + m, s1)]
 
 
 def rear_frame(d):
     z0, z1 = d['zro'], d['z_rear']
+    n0, n1 = z0 - 1, z1 + 1
     b = rect('z', d['xol'], d['xor'], d['yb'], d['yt'], z0, z1)
-    # two rows of slot vents
-    span0, span1 = d['xil'] + 4, d['xir'] - 4
-    mull = 6.0
-    seg = (span1 - span0 - 2 * mull) / 3.0
     for (y0, y1) in ((8.0, 14.5), (40.1, 46.6)):
-        for i in range(3):
-            a0 = span0 + i * (seg + mull)
-            cut(b, octa('z', a0, a0 + seg, y0, y1, z0 - 1, z1 + 1, 2))
+        for (a0, a1) in rear_slots(d):
+            cut(b, octa('z', a0, a1, y0, y1, n0, n1, 2))
     cy = d['ctrl_y']
     # the nuts of the jack and the encoder need a thinner panel: thin the field on the inside
-    cut(b, rect('z', d['jack_x'] - 11.5, d['encoder_x'] + 7.5, cy - 11.3, cy + 11.3, z0 + d['ctrl_panel_t'], z1 + 1))
-    cut(b, cyl('z', d['jack_x'], cy, d['jack_d'] / 2.0, z0 - 1, z1 + 1))
-    cut(b, cyl('z', d['button_x'], cy, d['button_d'] / 2.0, z0 - 1, z1 + 1))
+    cut(b, rect('z', d['jack_x'] - 11.5, d['encoder_x'] + 7.5, cy - 11.3, cy + 11.3, z0 + d['ctrl_panel_t'], n1))
+    cut(b, cyl('z', d['jack_x'], cy, d['jack_d'] / 2.0, n0, n1))
+    cut(b, cyl('z', d['button_x'], cy, d['button_d'] / 2.0, n0, n1))
     # the button thread is short: 2 of panel left, recess on the inside
-    cut(b, cyl('z', d['button_x'], cy, 6.25, z0 + 2, z1 + 1))
-    cut(b, cyl('z', d['encoder_x'], cy, d['encoder_d'] / 2.0, z0 - 1, z1 + 1))
+    cut(b, cyl('z', d['button_x'], cy, 6.25, z0 + 2, n1))
+    cut(b, cyl('z', d['encoder_x'], cy, d['encoder_d'] / 2.0, n0, n1))
+    # behind the pico: a window, and the two screws of the pico holder
+    bx = d['pico_boss_x']
+    cut(b, octa('z', bx[0] + 7, bx[1] - 7, cy - 6.5, cy + 6.5, n0, n1, 3))
+    for x in bx:
+        cut(b, cyl('z', x, cy, d['m3_clear_d'] / 2.0, n0, n1))
     ft, fw, g = d['flange_t'], d['flange_w'], d['gap']
     fx0, fx1 = d['xil'] + fw + g, d['xir'] - fw - g
     join(b, rect('z', fx0, fx1, d['floor_top'], d['floor_top'] + ft, z1 - 0.5, z1 + fw))
     join(b, rect('z', fx0, fx1, d['top_bottom'] - ft, d['top_bottom'], z1 - 0.5, z1 + fw))
+    for x in d['rear_screw_x']:
+        cut(b, cyl('y', x, d['z_rear_screw'], d['m3_insert_d'] / 2.0, d['floor_top'] - 1, d['floor_top'] + ft + 1))
+        cut(b, cyl('y', x, d['z_rear_screw'], d['m3_insert_d'] / 2.0, d['top_bottom'] - ft - 1, d['top_bottom'] + 1))
+    c = d['edge_chamfer']
+    chamfer_edge(b, 'x', z0, d['yt'], -1, 1, c, d['xol'] - 1, d['xor'] + 1)
+    chamfer_edge(b, 'x', z0, d['yb'], -1, -1, c, d['xol'] - 1, d['xor'] + 1)
+    cc = d['corner_chamfer']
+    chamfer_edge(b, 'y', d['xol'], z0, -1, -1, cc, d['yb'] - 1, d['yt'] + 1)
+    chamfer_edge(b, 'y', d['xor'], z0, 1, -1, cc, d['yb'] - 1, d['yt'] + 1)
     return b
 
 
 def pico_holder(d):
     z0 = d['z_rear']
-    b = rect('z', -8.0, 53.5, 15.3, 39.3, z0, z0 + 3)
-    cut(b, octa('z', 5.0, 41.0, 20.8, 33.8, z0 - 1, z0 + 4, 3))
+    cy = d['ctrl_y']
+    bx = d['pico_boss_x']
+    xs = [h[0] for h in d['pico_holes']]
+    b = rect('z', min(xs) - 5.7, max(xs) + 3.8, cy - 12.0, cy + 12.0, z0, z0 + 3)
+    cut(b, octa('z', bx[0] + 7, bx[1] - 7, cy - 6.5, cy + 6.5, z0 - 1, z0 + 4, 3))
     for (x, y, ztop) in d['pico_holes']:
         join(b, cyl('z', x, y, 3.0, z0 + 2.5, ztop))
+    for x in bx:
+        join(b, cyl('z', x, cy, 4.0, z0 + 2.5, z0 + 5))
+    # M2 inserts in the posts, M3 inserts in the two bosses
     for (x, y, ztop) in d['pico_holes']:
-        cut(b, cyl('z', x, y, 0.9, z0 - 1, ztop + 1))
+        cut(b, cyl('z', x, y, d['m2_insert_d'] / 2.0, z0 - 1, ztop + 1))
+    for x in bx:
+        cut(b, cyl('z', x, cy, d['m3_insert_d'] / 2.0, z0 - 1, z0 + 6))
     return b
 
 
 def buck_tray(d):
-    y0 = d['floor_top']
-    x0, x1 = d['buck_x0'] - 2.0, d['buck_x1'] + 2.0
-    z0, z1 = d['buck_z0'] - 2.0, d['buck_z1'] + 2.0
-    b = rect('y', x0, x1, z0, z1, y0, y0 + 2)
-    rim = rect('y', x0, x1, z0, z1, y0 + 1.5, y0 + 4.8)
-    cut(rim, rect('y', d['buck_x0'] - 0.3, d['buck_x1'] + 0.3, d['buck_z0'] - 0.3, d['buck_z1'] + 0.3, y0, y0 + 6))
-    corners = None
+    """Snap tray. The board drops between four corner posts onto two rails, two arms hook over its long edges."""
+    yb0 = d['floor_top']
+    yb1 = yb0 + 2.0
+    py0 = d['buck_pcb_y0']
+    py1 = py0 + d['buck_pcb_t']
+    bx0, bx1, bz0, bz1 = d['buck_x0'], d['buck_x1'], d['buck_z0'], d['buck_z1']
+    xm, zc = (bx0 + bx1) / 2.0, d['buck_zc']
+    x0, x1, z0, z1 = bx0 - 2.0, bx1 + 2.0, bz0 - 2.0, bz1 + 2.0
+    b = rect('y', x0, x1, z0, z1, yb0, yb1)
+    # ears with the two screws
+    for x in d['buck_ear_x']:
+        join(b, octa('y', x - 4.5, x + 4.5, zc - 4.5, zc + 4.5, yb0, yb1, 2))
+    join(b, rect('y', d['buck_ear_x'][0], d['buck_ear_x'][1], zc - 4.5, zc + 4.5, yb0, yb1))
+    for x in d['buck_ear_x']:
+        cut(b, cyl('y', x, zc, d['m3_clear_d'] / 2.0, yb0 - 1, yb1 + 1))
+    # two rails carry the board, clear of the solder pads on its short ends
+    for sx in (-1, 1):
+        join(b, rect('y', xm + sx * 4.0 - 1.5, xm + sx * 4.0 + 1.5, bz0 + 1.0, bz1 - 1.0, yb1 - 0.5, py0))
+    # corner posts up to the top of the board
+    posts = rect('y', x0, x1, z0, z1, yb1 - 0.5, py1)
+    cut(posts, rect('y', bx0 - 0.3, bx1 + 0.3, bz0 - 0.3, bz1 + 0.3, yb0, py1 + 1))
+    keep = None
     for cx in (x0, x1):
         for cz in (z0, z1):
-            k = rect('y', cx - 7, cx + 7, cz - 7, cz + 7, y0, y0 + 6)
-            if corners is None:
-                corners = k
+            k = rect('y', cx - 4.8, cx + 4.8, cz - 4.8, cz + 4.8, yb0, py1 + 1)
+            if keep is None:
+                keep = k
             else:
-                join(corners, k)
-    tm().booleanOperation(rim, corners, adsk.fusion.BooleanTypes.IntersectionBooleanType)
-    join(b, rim)
+                join(keep, k)
+    tm().booleanOperation(posts, keep, adsk.fusion.BooleanTypes.IntersectionBooleanType)
+    join(b, posts)
+    # snap arms on the two long sides, each set off to the side where the board edge is free:
+    # the trimmer sits 0.4 from one edge, the diode 0.7 from the other
+    hook = 0.6
+    for (ze, s, xo) in ((bz0, -1, 3.0), (bz1, 1, -3.0)):
+        ax0, ax1 = xm + xo - 3.0, xm + xo + 3.0
+        a0, a1 = sorted((ze + s * 0.3, ze + s * 1.3))
+        join(b, rect('y', ax0, ax1, a0, a1, yb1 - 0.5, py1 + 0.1))
+        h0, h1 = sorted((ze + s * 1.3, ze - s * hook))
+        hk = rect('y', ax0, ax1, h0, h1, py1 + 0.1, py1 + 1.6)
+        chamfer_edge(hk, 'x', ze - s * hook, py1 + 1.6, -s, 1, 1.2, ax0 - 1, ax1 + 1)
+        join(b, hk)
     return b
 
 
@@ -271,6 +430,41 @@ def sensor_module(d):
         for sz in (-1, 1):
             cut(b, cyl('y', xc + sx * h, z + sz * h, d['m3_clear_d'] / 2.0, y0 - 1, y1 + 1))
     return b
+
+
+def fasteners(d):
+    """Every insert and screw: kind, where it belongs, seat point, direction it goes in."""
+    rows = []
+
+    def add(kind, group, x, y, z, dx, dy, dz):
+        rows.append({'kind': kind, 'group': group, 'seat': [round(x, 2), round(y, 2), round(z, 2)], 'into': [dx, dy, dz]})
+
+    for top in (False, True):
+        y_face = d['top_bottom'] if top else d['floor_top']
+        y_out = d['yt'] if top else d['yb']
+        s = -1 if top else 1
+        name = 'top' if top else 'floor'
+        for (x, z) in frame_screws(d, top):
+            add('M3 insert', 'frame flange, ' + name, x, y_face, z, 0, s, 0)
+            add('M3 x 8', 'plate to frame, ' + name, x, y_out, z, 0, s, 0)
+        for (x, z) in port_holes(d):
+            add('M3 insert', 'module port, ' + name, x, y_out, z, 0, s, 0)
+    h = d['port_pitch'] / 2.0
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            add('M3 x 6', 'tripod adapter', d['xc'] + sx * h, d['yb'] - 2.2, d['port_tripod_z'] + sz * h, 0, 1, 0)
+            add('M3 x 8', 'sensor module', d['xc'] + sx * h, d['yb'] - 4.0, d['port_sensor_z'] + sz * h, 0, 1, 0)
+    for x in d['pico_boss_x']:
+        add('M3 insert', 'pico holder', x, d['ctrl_y'], d['z_rear'], 0, 0, 1)
+        add('M3 x 8', 'pico holder', x, d['ctrl_y'], d['zro'], 0, 0, 1)
+    for (x, y, ztop) in d['pico_holes']:
+        add('M2 insert', 'pico post', x, y, ztop, 0, 0, -1)
+        add('M2 x 5', 'pico', x, y, ztop + 1.6, 0, 0, -1)
+    for x in d['buck_ear_x']:
+        add('M3 insert', 'buck tray, in the floor', x, d['floor_top'], d['buck_zc'], 0, -1, 0)
+        add('M3 x 6', 'buck tray', x, d['floor_top'] + 2.0, d['buck_zc'], 0, -1, 0)
+    add('1/4-20 x 10', 'projector', d['proj_tripod_x'], d['yb'], d['proj_tripod_z'], 0, 1, 0)
+    return rows
 
 
 def _appearance(app, des, rgb):
@@ -314,7 +508,7 @@ def put(root, name, temp_body, ap):
     body = comp.bRepBodies.item(0)
     body.name = name.split(': ')[-1]
     body.appearance = ap
-    return occ
+    return body
 
 
 def main():
@@ -322,35 +516,47 @@ def main():
     doc = app.activeDocument
     if not doc.name.startswith('komorebi-cage'):
         raise RuntimeError('active document is %s, not komorebi-cage' % doc.name)
+    # raises on the copy that komorebi-box keeps open: a change there is never saved
+    doc.isUpToDate
     des = adsk.fusion.Design.cast(app.activeProduct)
     root = des.rootComponent
     d = derived()
     ap = _appearance(app, des, d['colour'])
+    while root.rigidGroups.count:
+        root.rigidGroups.item(0).deleteMe()
+    # each end frame is its own component now: drop the turned copy of the first draft
+    seen = set()
+    for o in list(root.occurrences):
+        if o.component.name in seen:
+            o.deleteMe()
+        else:
+            seen.add(o.component.name)
     parts = [
-        ('Cage: floor plate', floor_plate),
-        ('Cage: top plate', top_plate),
-        ('Cage: end frame', end_frame),
-        ('Cage: rear frame', rear_frame),
-        ('Pico holder: base', pico_holder),
-        ('Buck converter holder: tray', buck_tray),
-        ('Light sensor module: plate', sensor_module),
+        ('Cage: floor plate', lambda: floor_plate(d)),
+        ('Cage: top plate', lambda: top_plate(d)),
+        ('Cage: end frame', lambda: end_frame(d, False)),
+        ('Cage: end frame, port', lambda: end_frame(d, True)),
+        ('Cage: rear frame', lambda: rear_frame(d)),
+        ('Pico holder: base', lambda: pico_holder(d)),
+        ('Buck converter holder: tray', lambda: buck_tray(d)),
+        ('Light sensor module: plate', lambda: sensor_module(d)),
     ]
     for name, fn in parts:
-        occ = put(root, name, fn(d), ap)
-        bb = occ.boundingBox
-        print('%s  %.1f x %.1f x %.1f' % (
+        body = put(root, name, fn(), ap)
+        bb = body.boundingBox
+        print('%-30s %6.1f x %5.1f x %6.1f  lumps %d' % (
             name, (bb.maxPoint.x - bb.minPoint.x) * 10, (bb.maxPoint.y - bb.minPoint.y) * 10,
-            (bb.maxPoint.z - bb.minPoint.z) * 10))
-    # second end frame: the same component, turned half round about the cage's long axis
-    ends = [o for o in root.occurrences if o.component.name == 'Cage: end frame']
-    if len(ends) < 2:
-        m = adsk.core.Matrix3D.create()
-        m.setToRotation(math.pi, adsk.core.Vector3D.create(0, 0, 1),
-                        adsk.core.Point3D.create(d['xc'] / 10.0, (d['yb'] + d['yt']) / 20.0, 0))
-        root.occurrences.addExistingComponent(ends[0].component, m)
-    if root.rigidGroups.count == 0:
-        coll = adsk.core.ObjectCollection.create()
-        for o in root.occurrences:
-            coll.add(o)
-        root.rigidGroups.add(coll, True)
+            (bb.maxPoint.z - bb.minPoint.z) * 10, body.lumps.count))
+    coll = adsk.core.ObjectCollection.create()
+    for o in root.occurrences:
+        coll.add(o)
+    root.rigidGroups.add(coll, True)
+    rows = fasteners(d)
+    counts = {}
+    for r in rows:
+        counts[r['kind']] = counts.get(r['kind'], 0) + 1
+    out = os.path.join(os.path.dirname(__file__), 'fasteners.json')
+    with open(out, 'w') as fh:
+        json.dump({'counts': counts, 'fasteners': rows}, fh, indent=2)
     print('occurrences', root.occurrences.count, 'rigid groups', root.rigidGroups.count)
+    print('fasteners', counts)
