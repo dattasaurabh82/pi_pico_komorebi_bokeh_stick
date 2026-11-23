@@ -15,10 +15,10 @@ It is not a new language. It is the one from the solar server enclosure, carried
 
 - Every device gets **its own adapter**. A new device means a new adapter, nothing else.
 - Parts are **small, flat and repeated**. They are bolted together, not printed as one big piece.
-- Everything **prints flat without supports**. Chamfers, not fillets, under overhangs.
+- Everything **prints flat without supports**. Chamfers, not fillets, under overhangs. Never on the bed face.
 - **Few screw sizes.** Screws are visible and reachable from outside.
 - **Air gaps are designed**, not left over.
-- The look is **plain and honest**: open windows and trusses, chamfered corners, one dark matte colour, visible screws.
+- The look is **plain and honest**: open windows and trusses, cut window corners, one dark matte colour, visible screws.
 
 ---
 
@@ -32,7 +32,8 @@ It is not a new language. It is the one from the solar server enclosure, carried
 | **Room** | Roomy is better than tight | Enough room, not too much |
 | **Hands** | Serviced with the lid open | Knob, button, focus lever and the projector's buttons are used while it runs |
 | **Backbone** | Floor tiles with a 20 mm grid | Two plates and three frames. No grid yet |
-| **Printer** | Prusa Mini, design to 140 | Prusa Mini, 180 x 180 bed. The plates are at 170, the rear frame goes on at 45 degrees |
+| **Printer** | Prusa Mini, design to 140 | Prusa Mini, 180 x 180 bed. No part is larger than 120 x 120 |
+| **Material** | ASA | PLA, with a brim |
 
 ---
 
@@ -40,7 +41,7 @@ It is not a new language. It is the one from the solar server enclosure, carried
 
 ### Structure
 
-1. **Two plates, three frames.** Floor and top are flat plates. The two ends and the rear are upright frames. The front is open.
+1. **Two plates, three frames.** Floor and top are flat plates. The two ends and the rear are upright frames. The front is open. Floor, top and rear are two parts each.
 2. **The frames carry the threads.** A frame is a web with a flange at the bottom and at the top. The inserts go into the flanges, the screws come from outside through the plates.
 3. **Variants differ only in a cut-out.** The two end frames are the same frame. The port one has a shorter top flange and a stepped window. The two plates share outline, ports and screw lines.
 4. **One adapter per device.** Pico holder, buck tray, sensor module. The controls hold themselves with their own nuts.
@@ -57,30 +58,33 @@ Checked against the Doscher images on `2026-11-23`.
 1. **Windows are octagons.** Rectangles with all four corners chamfered. No sharp inside corners, no round holes except for round parts.
 2. **A truss window has one diagonal rib,** 6 wide. The two diagonals of a pair open toward the front.
 3. **Members keep their width.** Bands 8 to 10, ribs 6 to 8.
-4. **Outer edges are chamfered 1.5,** the two rear corners 3. No fillets.
+4. **Outer edges are square.** No chamfer through the thickness, no fillets. A corner may be cut in plan view, that prints clean.
 5. **Slot vents come in rows.** A mullion sits behind the knob, so the knob has slots left and right of it.
 6. **Screws show.** Cap heads stand proud, on a line 5 mm inside the edge, the same on floor and top.
 7. **One colour.** Dark grey, matte.
 
 ### Printed parts
 
-1. **Every part fits the Prusa Mini bed.** Straight if it is under 172, at 45 degrees if it is long and narrow.
-2. **Every part prints flat, without supports.** A frame lies on its web, the flanges stand up.
-3. **Wall thickness (start value):** 5 for plates, 4 for webs, 5 for flanges, so an M3 insert has its 4.2 of material.
-4. **Clearance (start value):** 0.2 between printed parts, 0.5 to the projector, 0.3 around a board in a tray.
-5. **A snap arm is at least 6 long and 1 thick, with a hook of 0.6.** Shorter arms break.
-6. **No text or logos** unless asked.
+1. **Every part fits the Prusa Mini bed with a brim.** No part is longer than 120. A long face is cut in two.
+2. **Every part prints flat, without supports.** A frame lies on its web, the flanges stand up. So a frame can only lie on its outer face.
+3. **No chamfer on the bed face.** With a brim the layer above the chamfer prints onto the brim and has to be cut off. Chamfers go on edges that face up, like the lead-in of a snap hook.
+4. **Seams are staggered.** The plates are cut at one X, the rear frame at another. Each part then bridges the other's seam with screws it has anyway.
+5. **A seam that nothing bridges gets a strap.** A flat bar on the outside with one M3 on each side of the seam, into inserts in the plates. Two per seam, far apart.
+6. **Wall thickness (start value):** 5 for plates, 4 for webs, 5 for flanges, so an M3 insert has its 4.2 of material.
+7. **Clearance (start value):** 0.2 between printed parts, 0.5 to the projector, 0.3 around a board in a tray.
+8. **A snap arm is at least 6 long and 1 thick, with a hook of 0.6.** Shorter arms break.
+9. **No text or logos** unless asked.
 
 ### Fasteners
 
 In the model since `2026-11-23`. Counts and places are in [CAGE.md](CAGE.md#fasteners).
 
 1. **Printed parts are joined with machine screws into heat-set inserts, or with nuts and bolts.** No screws straight into printed plastic.
-2. **M3 for the cage and the modules, M2 for the Pico.** Two lengths of M3: 8 and 6.
+2. **M3 for the cage and the modules, M2 for the Pico.** Three lengths of M3: 8, 6, and 12 where a screw goes through a module and a plate.
 3. **An M3 heat-set insert gets a 4.0 hole** and at least 4.2 of material. An M2 insert gets 3.2. Start values.
 4. **A clearance hole for M3 is 3.4.**
 5. **No countersinks.** If one is ever needed, it keeps 3 mm of plastic to every edge.
-6. **No screw under a module.** A module covers the plate around its port, so the screw lines skip that stretch.
+6. **No extra screw under a module.** A module covers the plate around its port, so the screw lines skip that stretch. Where a frame needs a screw there, a port hole does both jobs.
 7. **Saurabh brings the models of inserts, screws and nuts in himself.** The agent cuts the holes, counts, then copies and places the models.
 
 ### In Fusion
@@ -101,3 +105,4 @@ In the model since `2026-11-23`. Counts and places are in [CAGE.md](CAGE.md#fast
 
 - First version, taken over from the solar server enclosure. Cage rules written after the layout talk with Saurabh.
 - After his first review: the rules under [The look](#the-look), the plug rule, the snap tray rule, the fastener rules.
+- After his second review: PLA with a brim, no chamfer on the bed face, split faces with staggered seams and straps. See [Printed parts](#printed-parts).

@@ -26,16 +26,19 @@ enclosure/
 
 | File Name | Highlights | Why it matters |
 | --- | --- | --- |
-| [CAGE.md](CAGE.md) | **Steps**, the rules for this cage, the numbers, what goes inside, the printed parts, **fasteners**, the first review, open points, the log | The resume point. *Read it first* |
+| [CAGE.md](CAGE.md) | **Steps**, the rules for this cage, the numbers, what goes inside, the printed parts with their **seams**, **fasteners**, the two reviews, open points, the log | The resume point. *Read it first* |
 | [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | The rules for CAD on this cage, taken over from the solar server enclosure: structure, **the look**, printed parts, fasteners, Fusion | Read it before modelling |
 
 ## CAD
 
 | File Name | Highlights | Why it matters |
 | --- | --- | --- |
-| [cad/build_cage.py](cad/build_cage.py) | Builds the eight printed parts in the Fusion file `komorebi-cage`. All numbers in the **`P`** table at the top | After a change: run it in the cage's own tab, save, get the latest version in `komorebi-box`, save that. *Then update the numbers in [CAGE.md](CAGE.md#numbers)* |
-| [cad/fasteners.json](cad/fasteners.json) | **79 fasteners.** One row each: kind, group, seat point, the direction it goes in. `counts` at the top | Written by the build script, *do not edit by hand*. The fastener models get placed from it |
+| [cad/build_cage.py](cad/build_cage.py) | Builds the twelve printed parts in the Fusion file `komorebi-cage`. All numbers in the **`P`** table at the top | After a change: run it in the cage's own tab, save, get the latest version in `komorebi-box`, save that. *Then update the numbers in [CAGE.md](CAGE.md#numbers)* |
+| [cad/fasteners.json](cad/fasteners.json) | **101 fasteners.** One row each: kind, group, seat point, the direction it goes in. `counts` at the top | Written by the build script, *do not edit by hand*. The fastener models get placed from it |
 
 ## Pictures
 
 Screenshots from `komorebi-box`, taken on `2026-11-23`. They get taken again when the cage changes.
+
+> [!Note]
+> **Pictures 01 to 04 show the split cage.** Pictures 05 to 07 are from before the split. The parts they show are the same, only the seams are missing.
