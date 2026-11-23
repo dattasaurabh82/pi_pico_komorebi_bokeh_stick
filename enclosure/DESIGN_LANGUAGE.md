@@ -41,7 +41,7 @@ It is not a new language. It is the one from the solar server enclosure, carried
 
 ### Structure
 
-1. **Two plates, three frames.** Floor and top are flat plates. The two ends and the rear are upright frames. The front is open. Floor, top and rear are two parts each.
+1. **Two plates, three frames.** Floor and top are flat plates. The two ends and the rear are upright frames. The front is open at the lens, the rest of it has a grill. Floor, top and rear are two parts each.
 2. **The frames carry the threads.** A frame is a web with a flange at the bottom and at the top. The inserts go into the flanges, the screws come from outside through the plates.
 3. **Variants differ only in a cut-out.** The two end frames are the same frame. The port one has a shorter top flange and a stepped window. The two plates share outline, ports and screw lines.
 4. **One adapter per device.** Pico holder, buck tray, sensor module. The controls hold themselves with their own nuts.
@@ -50,6 +50,7 @@ It is not a new language. It is the one from the solar server enclosure, carried
 7. **What a hand must reach stays open:** the projector's buttons, the focus lever, the ports, the Pico's USB, the screws of the DC plug.
 8. **A plug gets its full length plus room for the wire to turn.** The DC plug adapter set the 34 mm of the port bay.
 9. **A board without mounting holes gets a snap tray.** Corner posts locate it, rails lift it, two arms hook over free edges. Solder pads stay open.
+10. **Where a frame has no room for flanges, it gets lips on the outside.** The front grill has a 3 mm lip over each plate. The screws go through the lip into inserts in the plate, like on a strap.
 
 ### The look
 
@@ -59,7 +60,7 @@ Checked against the Doscher images on `2026-11-23`.
 2. **A truss window has one diagonal rib,** 6 wide. The two diagonals of a pair open toward the front.
 3. **Members keep their width.** Bands 8 to 10, ribs 6 to 8.
 4. **Outer edges are square.** No chamfer through the thickness, no fillets. A corner may be cut in plan view, that prints clean.
-5. **Slot vents come in rows.** A mullion sits behind the knob, so the knob has slots left and right of it.
+5. **Slot vents come in rows.** A mullion sits behind the knob, so the knob has slots left and right of it. On the grill one row sits on the projector's own vent.
 6. **Screws show.** Cap heads stand proud, on a line 5 mm inside the edge, the same on floor and top.
 7. **One colour.** Dark grey, matte.
 
@@ -69,7 +70,7 @@ Checked against the Doscher images on `2026-11-23`.
 2. **Every part prints flat, without supports.** A frame lies on its web, the flanges stand up. So a frame can only lie on its outer face.
 3. **No chamfer on the bed face.** With a brim the layer above the chamfer prints onto the brim and has to be cut off. Chamfers go on edges that face up, like the lead-in of a snap hook.
 4. **Seams are staggered.** The plates are cut at one X, the rear frame at another. Each part then bridges the other's seam with screws it has anyway.
-5. **A seam that nothing bridges gets a strap.** A flat bar on the outside with one M3 on each side of the seam, into inserts in the plates. Two per seam, far apart.
+5. **A seam that nothing bridges gets a strap.** A flat bar on the outside with one M3 on each side of the seam, into inserts in the plates. A seam is held in two places, far apart: by a strap, or by a part that crosses it anyway, like the front grill.
 6. **Wall thickness (start value):** 5 for plates, 4 for webs, 5 for flanges, so an M3 insert has its 4.2 of material.
 7. **Clearance (start value):** 0.2 between printed parts, 0.5 to the projector, 0.3 around a board in a tray.
 8. **A snap arm is at least 6 long and 1 thick, with a hook of 0.6.** Shorter arms break.
@@ -86,6 +87,7 @@ In the model since `2026-11-23`. Counts and places are in [CAGE.md](CAGE.md#fast
 5. **No countersinks.** If one is ever needed, it keeps 3 mm of plastic to every edge.
 6. **No extra screw under a module.** A module covers the plate around its port, so the screw lines skip that stretch. Where a frame needs a screw there, a port hole does both jobs.
 7. **Saurabh brings the models of inserts, screws and nuts in himself.** The agent cuts the holes, counts, then copies and places the models.
+8. **The fastener copies live in `komorebi-box`,** in the component `Fasteners`. [cad/place_fasteners.py](cad/place_fasteners.py) places them from [cad/fasteners.json](cad/fasteners.json). Never by hand.
 
 ### In Fusion
 
@@ -106,3 +108,4 @@ In the model since `2026-11-23`. Counts and places are in [CAGE.md](CAGE.md#fast
 - First version, taken over from the solar server enclosure. Cage rules written after the layout talk with Saurabh.
 - After his first review: the rules under [The look](#the-look), the plug rule, the snap tray rule, the fastener rules.
 - After his second review: PLA with a brim, no chamfer on the bed face, split faces with staggered seams and straps. See [Printed parts](#printed-parts).
+- After his third review: the front grill with lips on the outside, the place of the fastener copies.

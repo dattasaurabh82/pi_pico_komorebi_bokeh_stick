@@ -44,8 +44,14 @@ P = {
     'plate_seam_x': -60.0,     # between the projector's -X feet and the module ports
     'rear_seam_x': -23.1,      # on the projector centre, between the knob and the pico
     'strap_dx': 5.5,           # strap screws left and right of the plate seam
-    'strap_z_floor': [35.5, -4.0],
-    'strap_z_top': [35.5, -26.0],
+    'strap_z_floor': [-4.0],   # the front of the seam is held by the front grill
+    'strap_z_top': [-26.0],
+    # ---- front grill: from the -X end up to the lens panel, lips over the outside of both plates
+    'grill_x1': -11.0,         # the projector's lens panel starts at -10.6
+    'grill_lip_t': 3.0,
+    'grill_screw_z': 35.5,     # same line as the strap screws, so two of them sit on the old front strap inserts
+    'grill_lip_z0': 31.0,
+    'grill_slot_h': 6.0, 'grill_slot_pitch': 9.5, 'grill_slot_rows': 5,   # the middle row is on the projector's front vent
     # ---- module ports, same on the floor and on the top
     'port_tripod_z': -8.0, 'port_sensor_z': -58.0,
     'port_pitch': 31.82,       # square of the four M3 holes, the magic arm adapter turned 45 degrees
@@ -179,6 +185,11 @@ def derived():
     d['buck_pcb_y0'] = P['floor_top'] + 2.0 + P['buck_lift']
     d['buck_zc'] = (P['buck_z0'] + P['buck_z1']) / 2.0
     d['buck_ear_x'] = [P['buck_x0'] - 6.0, P['buck_x1'] + 6.0]
+    # front grill: four screws per lip, the two in the middle flank the plate seam
+    d['grill_screw_x'] = [P['proj_x0'], P['plate_seam_x'] - P['strap_dx'], P['plate_seam_x'] + P['strap_dx'],
+                          P['grill_x1'] - 5.5]
+    d['grill_lip_x0'] = d['xil'] + P['flange_w']        # clear of the frame screw head at the -X end
+    d['grill_z0'] = P['z_front'] + P['gap']
     return d
 
 
@@ -212,6 +223,10 @@ def strap_holes(d, top):
     return [(d['plate_seam_x'] + s * d['strap_dx'], z) for z in zs for s in (-1, 1)]
 
 
+def grill_holes(d):
+    return [(x, d['grill_screw_z']) for x in d['grill_screw_x']]
+
+
 def split_x(body, x, gap):
     """Cut a body in two at x. Returns the -X part and the +X part."""
     left = tm().copy(body)
@@ -236,7 +251,7 @@ def plate_blank(d, y0, y1, top):
     cut_ports(b, d, y0, y1)
     for (x, z) in frame_screws(d, top):
         cut(b, cyl('y', x, z, d['m3_clear_d'] / 2.0, y0 - 1, y1 + 1))
-    for (x, z) in strap_holes(d, top):
+    for (x, z) in strap_holes(d, top) + grill_holes(d):
         cut(b, cyl('y', x, z, d['m3_insert_d'] / 2.0, y0 - 1, y1 + 1))
     return b
 
@@ -281,6 +296,9 @@ def floor_plate(d):
     rx0, rx1 = d['proj_x1'] - 13.5, d['xir'] - d['flange_w'] - d['gap']
     join(b, rect('y', rx0, rx1, zf, d['z_front'], y1 - 0.5, lip_top))
     join(b, rect('y', rx0, rx1, zr - 3, zr, y1 - 0.5, lip_top))
+    # a front lip went over one of the grill inserts: open the hole again
+    for (x, z) in grill_holes(d):
+        cut(b, cyl('y', x, z, d['m3_insert_d'] / 2.0, n0, n1))
     return b
 
 
@@ -377,8 +395,47 @@ def rear_frame(d):
     return b
 
 
+def grill_slots(d):
+    """x ranges of the grill slots. One mullion is on the plate seam, one on the projector's -X end."""
+    s0, s1 = d['xil'] + 4, d['grill_x1'] - 8
+    m = 3.0
+    a, q = d['proj_x0'], d['plate_seam_x']
+    c = (q + m + s1) / 2.0
+    return [(s0, a - m), (a + m, q - m), (q + m, c - m), (c + m, s1)]
+
+
+def front_grill(d):
+    """Partial front frame: a slotted web in front of the plate edges, from the -X end up to the lens panel.
+
+    There is no room for flanges between the plates and the projector, so it has a lip over the outside
+    of each plate instead. The screws go through the lips into inserts in the plates, like the seam straps.
+    It prints lying on its front face, the lips stand up.
+    """
+    z0 = d['grill_z0']
+    z1 = z0 + d['web']
+    x0, x1 = d['xol'], d['grill_x1']
+    b = rect('z', x0, x1, d['yb'], d['yt'], z0, z1)
+    yc = (d['yb'] + d['yt']) / 2.0
+    n = d['grill_slot_rows']
+    for i in range(n):
+        cy = yc + (i - (n - 1) / 2.0) * d['grill_slot_pitch']
+        for (a0, a1) in grill_slots(d):
+            cut(b, octa('z', a0, a1, cy - d['grill_slot_h'] / 2.0, cy + d['grill_slot_h'] / 2.0, z0 - 1, z1 + 1, 2))
+    lt = d['grill_lip_t']
+    lx0, lz0 = d['grill_lip_x0'], d['grill_lip_z0']
+    for (ya, yb_) in ((d['yb'] - lt, d['yb']), (d['yt'], d['yt'] + lt)):
+        lip = rect('y', lx0, x1, lz0, z0 + 0.5, ya, yb_)
+        # the two free corners are cut in plan view
+        chamfer_edge(lip, 'y', lx0, lz0, -1, -1, 2.0, ya - 1, yb_ + 1)
+        chamfer_edge(lip, 'y', x1, lz0, 1, -1, 2.0, ya - 1, yb_ + 1)
+        for (x, z) in grill_holes(d):
+            cut(lip, cyl('y', x, z, d['m3_clear_d'] / 2.0, ya - 1, yb_ + 1))
+        join(b, lip)
+    return b
+
+
 def seam_strap(d):
-    """Flat bar across the plate seam, on the outside. Built at the front of the floor, copied to the other three places."""
+    """Flat bar across the plate seam, on the outside. Built on the floor, copied to the top."""
     x, z = d['plate_seam_x'], d['strap_z_floor'][0]
     y1 = d['yb']
     y0 = y1 - 3.0
@@ -493,6 +550,9 @@ def fasteners(d):
         for (x, z) in strap_holes(d, top):
             add('M3 insert', 'seam strap, ' + name, x, y_out, z, 0, s, 0)
             add('M3 x 8', 'seam strap, ' + name, x, y_out - s * 3.0, z, 0, s, 0)
+        for (x, z) in grill_holes(d):
+            add('M3 insert', 'front grill, ' + name, x, y_out, z, 0, s, 0)
+            add('M3 x 8', 'front grill, ' + name, x, y_out - s * d['grill_lip_t'], z, 0, s, 0)
     for sx in (-1, 1):
         for sz in (-1, 1):
             add('M3 x 6', 'tripod adapter', d['xc'] + sx * h, d['yb'] - 2.2, d['port_tripod_z'] + sz * h, 0, 1, 0)
@@ -588,6 +648,7 @@ def main():
         ('Cage: rear frame', lambda: rear_r),
         ('Cage: rear frame, port', lambda: rear_l),
         ('Cage: seam strap', lambda: seam_strap(d)),
+        ('Cage: front grill', lambda: front_grill(d)),
         ('Pico holder: base', lambda: pico_holder(d)),
         ('Buck converter holder: tray', lambda: buck_tray(d)),
         ('Light sensor module: plate', lambda: sensor_module(d)),
@@ -598,11 +659,12 @@ def main():
         print('%-30s %6.1f x %5.1f x %6.1f  lumps %d' % (
             name, (bb.maxPoint.x - bb.minPoint.x) * 10, (bb.maxPoint.y - bb.minPoint.y) * 10,
             (bb.maxPoint.z - bb.minPoint.z) * 10, body.lumps.count))
-    # three more straps: floor middle, top front, top middle
+    # the other straps: more on the floor if there are any, and the ones on the top
     strap = [o for o in root.occurrences if o.component.name == 'Cage: seam strap'][0].component
     z0 = d['strap_z_floor'][0]
     up = d['yt'] - (d['yb'] - 3.0)
-    for (dy, dz) in ((0.0, d['strap_z_floor'][1] - z0), (up, d['strap_z_top'][0] - z0), (up, d['strap_z_top'][1] - z0)):
+    copies = [(0.0, z - z0) for z in d['strap_z_floor'][1:]] + [(up, z - z0) for z in d['strap_z_top']]
+    for (dy, dz) in copies:
         m = adsk.core.Matrix3D.create()
         m.translation = adsk.core.Vector3D.create(0, dy / 10.0, dz / 10.0)
         root.occurrences.addExistingComponent(strap, m)

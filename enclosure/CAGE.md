@@ -13,7 +13,7 @@ Fusion files, in the project `AA`, folder `smartProjector / prototyping`:
 
 ![Cage from the back, controls on the rear frame](assets/cage-02-rear-left.png)
 
-More views are in [assets](assets): the underside with the seam straps and the two modules, the top, the bay without the top plate, the port end with the DC plug, the buck converter in its snap tray.
+More views are in [assets](assets): the underside with the seam strap and the two modules, the top, the bay without the top plate, the port end with the DC plug, the buck converter in its snap tray, the front with the grill.
 
 ---
 
@@ -25,9 +25,10 @@ More views are in [assets](assets): the underside with the seam straps and the t
 4. [x] **First review by Saurabh.** Done `2026-11-23`, see [Review, first round](#review-first-round).
 5. [x] **Fastener holes cut, fasteners counted.** Done `2026-11-23`.
 6. [x] **Second review: PLA, brim, split parts.** Done `2026-11-23`, see [Review, second round](#review-second-round). The fastener list changed with it, see [Fasteners](#fasteners).
-7. [ ] **Fastener models placed.** Saurabh brings one model of each kind into `komorebi-box`. They get copied and placed from [cad/fasteners.json](cad/fasteners.json).
-8. [ ] **Sizes against the real projector**, then the lips.
-9. [ ] **Test prints**, then the assembly notes.
+7. [x] **Third review: front grill.** Done `2026-11-23`, see [Review, third round](#review-third-round) and [Front grill](#front-grill).
+8. [x] **Fastener models placed.** Done `2026-11-23`. Saurabh brought six models into `komorebi-box`. 108 copies sit on their places, see [Fastener models](#fastener-models).
+9. [ ] **Sizes against the real projector**, then the lips.
+10. [ ] **Test prints**, then the assembly notes.
 
 ---
 
@@ -47,6 +48,7 @@ From Saurabh on `2026-11-23`:
 - **It is printed in PLA, with a brim.** Without a brim the edges curl up.
 - **The rear, the top and the floor are two parts each.** Small parts stay flat. The joint between the two is small but strong.
 - **No chamfer on an edge that lies on the bed.**
+- **The front gets a printed grill, but not in front of the lens.**
 - **Enough room, not too much.** Tighter than the solar server cage.
 - **The look follows Doscher.** Open trusses, octagon windows, screws that show.
 - **No assembly documents yet.** Design first.
@@ -72,7 +74,8 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
     "front_edge_z": 40.0,
     "floor_top_y": 1.8,
     "top_plate_bottom_y": 52.8,
-    "outside": [178.5, 61.0, 124.0]
+    "outside": [178.5, 61.0, 124.0],
+    "outside_with_front_grill": [178.5, 67.0, 128.2]
   },
   "gaps": {
     "port_end": 34.0,
@@ -105,8 +108,21 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
     "rear_frame_x": -23.1,
     "gap": 0.2,
     "strap_screws_from_seam": 5.5,
-    "strap_z_floor": [35.5, -4.0],
-    "strap_z_top": [35.5, -26.0]
+    "strap_z_floor": [-4.0],
+    "strap_z_top": [-26.0]
+  },
+  "front_grill": {
+    "x": [-124.1, -11.0],
+    "z": [40.2, 44.2],
+    "lens_panel_from_x": -10.6,
+    "lip_thickness": 3.0,
+    "lip_z": [31.0, 40.2],
+    "screw_x": [-86.1, -65.5, -54.5, -16.5],
+    "screw_z": 35.5,
+    "slot_rows_y": [8.3, 17.8, 27.3, 36.8, 46.3],
+    "slot_height": 6.0,
+    "projector_front_vent_x": [-68.7, -28.0],
+    "projector_front_vent_y": [24.4, 30.3]
   },
   "holes": {
     "m3_insert": 4.0,
@@ -157,14 +173,15 @@ In `komorebi-cage`. Every part lies flat on the bed and needs no supports. The l
 | End frame, port | `Cage: end frame, port` | 1 | 120 x 61 x 14 | The -X end. Same, but the top flange stops before the DC plug and the window steps up in front of it |
 | Rear frame | `Cage: rear frame` | 1 | 77.4 x 61 x 17 | The +X part, behind the Pico. Window behind the Pico, two holes for the Pico holder |
 | Rear frame, port | `Cage: rear frame, port` | 1 | 100.9 x 61 x 17 | The -X part, with the knob, the button and the DC socket |
-| Seam strap | `Cage: seam strap` | 4 | 19 x 8 x 3 | Flat bar with two holes across the plate seam, on the outside. Two on the floor, two on the top |
+| Seam strap | `Cage: seam strap` | 2 | 19 x 8 x 3 | Flat bar with two holes across the plate seam, on the outside. One on the floor, one on the top, in the middle of the seam |
+| Front grill | `Cage: front grill` | 1 | 113.1 x 67 x 13.2 | Slotted web in front of the plate edges, from the -X end up to the lens panel. A lip over the outside of each plate |
 | Pico holder | `Pico holder: base` | 1 | 61.5 x 24 x 7.9 | Plate on the inside of the rear frame. Four posts with M2 inserts, two bosses with M3 inserts |
 | Buck tray | `Buck converter holder: tray` | 1 | 43.4 x 21.1 x 10.2 | Snap tray, see [Buck tray](#buck-tray) |
 | Sensor module | `Light sensor module: plate` | 1 | 44 x 44 x 4 | Plate with the dome hole and a seat for the sensor's flange |
 
 How it is built:
 
-- **Two plates and three upright frames make the box.** The front stays open.
+- **Two plates and three upright frames make the box.** The front has a grill up to the lens. The lens end stays open.
 - **A frame is a web with two flanges.** The flanges lie on the inside of the plates and carry the heat-set inserts. The screws go in from outside through the plates. So the plates stay plain, and every screw head shows.
 - **The plates sit inside the frames.** The webs cover their edges.
 - **The projector is not centred.** The -X end has 34 mm: the HDMI plug, the DC plug adapter with its 30 mm, and the folded ribbon. The +X end has 10.5 mm, enough for a finger on the focus lever through the window.
@@ -180,12 +197,30 @@ How it is built:
 The plates are cut at X -60, the rear frame at X -23.1. The two seams are 37 mm apart on purpose.
 
 - **Each part bridges the other's seam.** The -X rear frame has flange screws left and right of the plate seam, at X -66 and X -52. The +X plates have flange screws left and right of the rear seam, at X -39 and X -7. No extra part is needed at the back.
-- **The plate seam gets two straps per plate,** at the front edge and in the middle. A strap lies on the outside, its two M3 x 8 go into inserts in the plates.
+- **The plate seam is held twice on each plate:** at the front edge by the front grill, in the middle by a strap. A strap lies on the outside, its two M3 x 8 go into inserts in the plates. The lips of the grill do the same at the front.
+- **Without the grill, two more straps go on the front.** They fit the same inserts.
 - **The plate seam runs between the projector's -X feet and the module ports.** So each foot pair stands on one part, both ports are in one part, and no module covers a strap.
 - **The rear seam runs between the knob and the Pico.** It cuts no hole and no window.
 - **The two rear screws of the bay port go into the rear flange.** The flange has a tab there. With a module on the port, the module's own screws do that job. Without one, a plain M3 x 8 goes in. So the rear frame is screwed down right next to its seam on both plates.
 
-![Underside with the plate seam, the two straps, the sensor module and the tripod adapter](assets/cage-03-underside.png)
+![Underside with the plate seam, the strap, the lip of the grill, the sensor module and the tripod adapter](assets/cage-03-underside.png)
+
+### Front grill
+
+A partial front frame. It covers the front from the -X end up to the lens panel. Behind it are the port bay and the white part of the projector.
+
+- **It has no flanges.** There are 2 mm between a plate and the projector, and 3.8 mm in front of the projector. A flange with an insert does not fit there.
+- **It has a lip over the outside of each plate instead,** 3 thick and 9 deep. Four M3 x 8 per lip go through the lip into inserts in the plate, like on a strap.
+- **The two middle screws of each lip sit left and right of the plate seam.** So the grill is the front strap as well. Its web ties the two floor parts, the two top parts and the port end frame together.
+- **Five rows of slots.** The middle row is on the projector's own front vent. One mullion is on the plate seam, one on the projector's -X end.
+- **It stops at X -11.** The lens panel starts at X -10.6.
+- **The lips start 10 mm in from the -X end.** A frame screw has its head under the floor there.
+- **It prints on its front face,** the lips stand up. 113 x 67 on the bed.
+
+> [!Important]
+> **The projector does not come out of the front any more.** The opening left beside the grill is 61 mm, the projector is 126 mm long. Take the grill off first, or the top plate.
+
+![Front with the grill, the lens end open](assets/cage-08-front-grill.png)
 
 ### Module ports
 
@@ -217,15 +252,15 @@ The holes are in the model. The list is written by the build script into [cad/fa
 
 | Fastener | Count | Where |
 | --- | --- | --- |
-| **M3 heat-set insert**, 4.0 hole | 49 | 25 in the frame flanges, 12 in the four module ports, 8 in the plates for the seam straps, 2 in the Pico holder, 2 in the floor for the buck tray |
-| **M3 x 8**, cap head | 35 | 23 plate to frame, 8 seam straps, 2 sensor module, 2 Pico holder |
+| **M3 heat-set insert**, 4.0 hole | 53 | 25 in the frame flanges, 12 in the four module ports, 8 in the plates for the front grill, 4 in the plates for the two seam straps, 2 in the Pico holder, 2 in the floor for the buck tray |
+| **M3 x 8**, cap head | 39 | 23 plate to frame, 8 front grill, 4 seam straps, 2 sensor module, 2 Pico holder |
 | **M3 x 12**, cap head | 2 | Sensor module, through the plate into the rear flange |
 | **M3 x 6**, cap head | 6 | 4 tripod adapter, 2 buck tray |
 | **M2 heat-set insert**, 3.2 hole | 4 | Pico holder posts |
-| **M2 x 5** | 4 | Pico and DVI sock onto the posts |
+| **M2 x 5**, cap head | 4 | Pico and DVI sock onto the posts |
 | **1/4-20 x 10**, camera screw | 1 | Through the floor into the projector's own tripod thread |
 
-That is 101 in all. Models to bring into `komorebi-box`, one of each: the M3 insert, M3 x 8, M3 x 12, M3 x 6, the M2 insert, M2 x 5, the 1/4 inch screw.
+That is 109 in all.
 
 Where the 25 frame screws are:
 
@@ -238,11 +273,31 @@ Where the 25 frame screws are:
 
 - **The port end frame has one screw less on top.** Its top flange stops at Z 12 to clear the DC plug.
 - **Two of the rear screws on each plate are the rear holes of the bay port.** On the floor the sensor module sits there, so those two are its M3 x 12. On the top they are plain M3 x 8.
+- **Four of the eight grill inserts are the old front strap inserts.** Two per plate, left and right of the seam.
 - **No countersinks.** The cap heads stand proud, as on the solar server cage.
 - **Not counted:** the nuts of the encoder, the button and the socket, and the tripod bushing in the magic arm adapter.
 
 > [!Note]
-> **The M2 insert hole is a start value.** 3.2 mm fits the common M2 x 3 inserts. Tell the size of the ones bought and the posts follow.
+> **The M2 insert hole is a start value.** 3.2 mm fits the common M2 x 3 inserts. The model Saurabh brought in is 3.64 across and 3.18 long, so 3.2 fits it.
+
+### Fastener models
+
+| Kind in the list | Model in `komorebi-box` | Copies |
+| --- | --- | --- |
+| `M3 insert` | `M3 heat-set insert, 4.0 hole` | 53 |
+| `M3 x 8` | `M3 x 8 cap head` | 39 |
+| `M3 x 12` | `M3 x 12 cap head` | 2 |
+| `M3 x 6` | `M3 x 6 cap head` | 6 |
+| `M2 insert` | `M2 heat-set insert, 3.2 hole` | 4 |
+| `M2 x 5` | `M2 x 5 cap head` | 4 |
+| `1/4-20 x 10` | No model | 0 |
+
+- **The copies are in `komorebi-box`,** in the component `Fasteners`. Not in `komorebi-cage`: that file holds only what gets printed, and the build script writes it again on every run.
+- **[cad/place_fasteners.py](cad/place_fasteners.py) places them** from [cad/fasteners.json](cad/fasteners.json). Run it again after every change of the cage. It moves the copies, adds the missing ones and deletes the ones too many.
+- **An insert sits flush with the mouth of its hole,** wide end out. A screw sits with the underside of its head on the part.
+- **The 1/4 inch screw has no model.** Saurabh's call. It stays in the list and in the count.
+
+![Top with the screws, the inserts of the module ports, the strap and the lip of the grill](assets/cage-04-top.png)
 
 ---
 
@@ -269,13 +324,27 @@ Saurabh on `2026-11-23`, after the fastener holes:
 
 ---
 
+## Review, third round
+
+Saurabh on `2026-11-23`, after the split:
+
+- **He brought six fastener models into `komorebi-box`** and asked if they belong there or in `komorebi-cage`. They stay in `komorebi-box`, see [Fastener models](#fastener-models).
+- **No model for the 1/4 inch camera screw.**
+- **A partial printed grill on the front, not over the lens.** Done, see [Front grill](#front-grill). It replaces the two front straps and adds eight fasteners.
+- **New pictures, new counts, and a numbered order of what to follow in which file.** The order is in [README.md](README.md#follow-in-this-order).
+- **No assembly breakdown yet.**
+
+---
+
 ## Checks
 
-Done on `2026-11-23` in `komorebi-box` with the interference tool, hidden parts left out.
+Done on `2026-11-23` in `komorebi-box` with the interference tool. Hidden parts are left out. The inserts are left out too: an insert is wider than its hole on purpose.
 
-- **No part cuts into another.** Three touches stay, all between bought models: the socket's flange on the panel (under 0.1 mm), the HDMI plug inside the projector's port, the DC plug's barrel inside the projector's jack.
+- **No printed part cuts into another part or into a screw.** One touch stays: the socket's flange on the panel, under 0.1 mm.
+- **Every fastener copy sits on its row of the list.** 108 of 108, checked by their boxes.
+- **Touches between bought models stay:** the HDMI plug inside the projector's port, the DC plug's barrel inside the projector's jack, the HDMI plug in the DVI sock. Two M2 x 5 heads sit 0.1 mm in the board of the DVI sock: that board model is 1.7 thick, the list counts 1.6.
 - **Every printed part is inside 120 x 120.** With a 5 mm brim that is 130 x 130 on the 180 x 180 bed.
-- **The projector's buttons, focus lever, ports and vents are all open.**
+- **The projector's buttons, focus lever and ports are open.** Its front vent is behind the middle slot row of the grill.
 
 ---
 
@@ -286,7 +355,8 @@ Done on `2026-11-23` in `komorebi-box` with the interference tool, hidden parts 
 - [ ] **PLA next to the projector's vents.** PLA gets soft at 55 to 60 degrees. The rear frame and the floor are 14 to 36 mm from the vents. Fine with the stock LED as far as we know, not checked with the brighter LED. PETG is the fallback.
 - [ ] **Which plug goes into the projector.** `HDMI-CY-17-UP` is plugged in now. Both CY models are 10.5 wide, which is mini HDMI size.
 - [ ] **Snap hooks against the real board.** The hook places come from the model's trimmer and diode.
-- [ ] **Size of the M2 inserts.**
+- [ ] **Grill in front of the projector's front vent.** The middle slot row is on the vent, two mullions cross it. Not checked with the projector running.
+- [ ] **Head of the camera screw.** No model. A head up to 21 mm across clears the lip of the grill.
 
 ---
 
@@ -296,7 +366,9 @@ Done on `2026-11-23` in `komorebi-box` with the interference tool, hidden parts 
 > **Run the build script only in the cage's own tab.** `komorebi-box` keeps its own copies of `komorebi-cage` open. `documents.item(i).activate()` can land on one of them. A change made there shows in the assembly but is never saved. The cage's own tab is the one where `isUpToDate` does not raise. The script checks that now. After the save, get the latest version in `komorebi-box`.
 
 - **Measure nested parts with `root.allOccurrences`.** Walking `occurrence.childOccurrences` gives boxes in the wrong frame. It made the buck converter look flat when it stood on edge.
-- **Run the interference tool in small groups.** All bodies in one call gave no result at all. One bought part against the cage and the projector works.
+- **The interference tool can come back empty for all bodies in one call.** Then run it in small groups. With the inserts left out, all visible bodies in one call worked.
+- **Sort interference hits by `parentComponent.name`.** The bodies in a hit have no `assemblyContext`, and their tokens are not the tokens of the bodies handed in.
+- **Set the place of a nested copy through the root.** `transform2` works only on the occurrence as seen from the root, `group_occ.childOccurrences`. Do all adds, moves into a component and deletes first, then all places, then one snapshot. A feature in between throws the moves away.
 - **A camera set by script keeps perspective.** The zoom is the distance from eye to target, `viewExtents` is ignored. About 45 cm shows the whole cage.
 - **The cage parts are plain bodies in base features.** The script builds them from boxes and cylinders and swaps the body in place, so the links stay valid. They have no sketches. A part Saurabh wants to edit by hand gets rebuilt with sketches then.
 - **Hiding a cage part from `komorebi-box` marks that copy of the cage as changed.** Fusion may ask to save it on closing. Discard it.
@@ -315,3 +387,4 @@ Done on `2026-11-23` in `komorebi-box` with the interference tool, hidden parts 
 - Second build: port bay 34 mm, snap tray, encoder on the mullion, Doscher pass, fastener holes. The two end frames are two components now. `komorebi-cage` version 6, `komorebi-box` version 20.
 - The Amazon page of the buck converter could not be opened from the agent's side. The tray follows Saurabh's note and the model: six pads, no mounting holes.
 - Second review by Saurabh, see [Review, second round](#review-second-round). Third build: floor, top and rear frame cut in two, four seam straps, edge chamfers removed, the buck tray moved 8 mm toward -X to stay on one plate. 101 fasteners. `komorebi-cage` version 7, `komorebi-box` version 21.
+- Third review by Saurabh, see [Review, third round](#review-third-round). Fourth build: front grill, the two front straps dropped. 109 fasteners. [cad/place_fasteners.py](cad/place_fasteners.py) written, 108 copies placed in `komorebi-box`. All eight pictures taken again. `komorebi-cage` version 9, `komorebi-box` version 27.
