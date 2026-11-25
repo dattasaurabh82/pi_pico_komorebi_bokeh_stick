@@ -129,7 +129,7 @@ The frame does not know the device. A small adapter sits between them. A differe
 
 - **Seen in:** Flat Hack, Obelisk, Recovery Kit 3, Open Frame.
 - **His hindsight on one build:** one adapter with all the mounts would have cut the part count.
-- **For us:** Pico holder, buck tray, sensor module, terminal block clamp bar, blower bracket. The cage got none of them as a cut-out for one device, only inserts.
+- **For us:** Pico holder, buck tray, sensor module, terminal block clamp bar, blower bracket, Wago bracket. The cage got none of them as a cut-out for one device, only inserts.
 
 ### 4. Print flat, no supports
 
@@ -242,7 +242,7 @@ This is what the images show. He does not write it down as rules.
 1. **Two plates, three frames.** Floor and top are flat plates. The two ends and the rear are upright frames. The front is open at the lens, the rest of it has a grill. Floor, top and rear are two parts each.
 2. **The frames carry the threads.** A frame is a web with a flange at the bottom and at the top. The inserts go into the flanges, the screws come from outside through the plates.
 3. **Variants differ only in a cut-out.** The two end frames have the same web. The port one has a notch in its top flange and three more inserts. The two plates share outline, ports and screw lines.
-4. **One adapter per device.** Pico holder, buck tray, sensor module, terminal block clamp bar, blower bracket. The controls hold themselves with their own nuts.
+4. **One adapter per device.** Pico holder, buck tray, sensor module, terminal block clamp bar, blower bracket, Wago bracket. The controls hold themselves with their own nuts.
 5. **Anything that may move between top and bottom is a module.** It bolts to a module port. Both plates have the same ports.
 6. **Nothing sits in front of a vent.** Boards stand upright against the rear frame or lie below the vent strip.
 7. **What a hand must reach stays open:** the projector's buttons, the focus lever, the ports, the Pico's USB, the screws of the DC plug.
@@ -358,3 +358,4 @@ All by Jay Doscher on doscher.com. Read on `2026-11-15`.
 Other:
 
 - [Recovery Kit 2 and 2B frame enclosure, print guidelines](https://raw.githubusercontent.com/jdoscher/Recovery-Kit-2-and-2B-Open-Source-Frame-Enclosure/main/License%20and%20Print%20Guidelines.txt) (GitHub)
+- Later the same day: the Wago bracket, the second part that prints on its wall face. The slicer step for such a part is written down in [CAGE.md](CAGE.md#print-again).

@@ -1,7 +1,7 @@
 {
   "counts": {
-    "M3 insert": 59,
-    "M3 x 8": 45,
+    "M3 insert": 62,
+    "M3 x 8": 48,
     "M3 x 12": 2,
     "M3 x 6": 6,
     "M2.5 insert": 4,
@@ -1700,6 +1700,90 @@
       "into": [
         0,
         -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "wago bracket, in the frame flange",
+      "seat": [
+        -115.1,
+        6.8,
+        -24.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "wago bracket",
+      "seat": [
+        -115.1,
+        9.8,
+        -24.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "wago bracket, in the frame flange",
+      "seat": [
+        -115.1,
+        6.8,
+        19.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "wago bracket",
+      "seat": [
+        -115.1,
+        9.8,
+        19.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "wago clamp bar, in the bracket",
+      "seat": [
+        -110.3,
+        27.1,
+        -2.65
+      ],
+      "into": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "wago clamp bar",
+      "seat": [
+        -107.9,
+        27.1,
+        -2.65
+      ],
+      "into": [
+        -1,
+        0,
         0
       ]
     }

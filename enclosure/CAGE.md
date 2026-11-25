@@ -28,7 +28,7 @@ More views are in [assets](assets): the underside with the seam strap and the tw
 7. [x] **Third review: front grill.** Done `2026-11-23`, see [Review, third round](#review-third-round) and [Front grill](#front-grill).
 8. [x] **Fastener models placed.** Done `2026-11-23`. Saurabh brought six models into `komorebi-box`. 108 copies sit on their places, see [Fastener models](#fastener-models).
 9. [x] **Sizes against the real projector, then the lips.** Done `2026-11-25`. The real projector did not fit front to back. The cage keeps its size, the lips changed, see [Projector stops](#projector-stops).
-10. [x] **Fourth review, after the first prints.** Done `2026-11-25`: clamp bars, M2.5 for the Pico, the terminal block, truss side panels, the blower. See [Review, fourth round](#review-fourth-round).
+10. [x] **Fourth review, after the first prints.** Done `2026-11-25`: clamp bars, M2.5 for the Pico, the terminal block, truss side panels, the blower, the Wago holder. See [Review, fourth round](#review-fourth-round).
 11. [ ] **Print what changed.** The list is in [Print again](#print-again).
 12. [ ] **Blower against the real heat sink.** Its place is a guess, see [Blower](#blower).
 13. [ ] **Assembly notes.**
@@ -68,7 +68,7 @@ From Saurabh on `2026-11-25`, after the first prints:
 
 ## Numbers
 
-All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, the projector's ports are on the -X end. The numbers of `2026-11-23` are the `P` table at the top of [cad/build_cage.py](cad/build_cage.py). The blocks `projector_stops`, `side_panels`, `terminal_block` and `blower` are not in the script, see [Fusion traps](#fusion-traps).
+All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, the projector's ports are on the -X end. The numbers of `2026-11-23` are the `P` table at the top of [cad/build_cage.py](cad/build_cage.py). The blocks `projector_stops`, `side_panels`, `terminal_block`, `blower` and `wago_holder` are not in the script, see [Fusion traps](#fusion-traps).
 
 ```json
 {
@@ -164,6 +164,13 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
     "bracket_screws_z": [-45.5, -33.65],
     "clamp_screw": [-115.0, -63.25]
   },
+  "wago_holder": {
+    "wago_x": [-118.5, -110.4],
+    "wago_z": [-20.3, 15.0],
+    "wago_y": [[15.7, 23.5], [30.7, 38.5]],
+    "bracket_screws_z": [-24.0, 19.0],
+    "clamp_screw": [27.1, -2.65]
+  },
   "holes": {
     "m3_insert": 4.0,
     "m3_clearance": 3.4,
@@ -194,6 +201,7 @@ Sizes are measured in `komorebi-box`. Use `root.allOccurrences` for that, see [F
 | Buck converter | `DC-DC 4.5-28V to 0.8-20V Output 3A MP1584EN Step Down Buck Converter` | 22.4 x 17.1 x 4.6 | On the bay floor, lifted 5 | `Buck converter holder: tray` and its clamp bar, one M3 |
 | Terminal block | `Terminal Block LT-422` | 23.4 x 14.5 x 39.5 | On the floor of the port bay, the four-wire end to the rear | `Terminal block holder: clamp bar`, one M3 and a peg |
 | Blower | `30mm Fan Mockup 3010 v5` | 30 x 30 x 10 | Flat in the port bay under the DC plug, inlet down, outlet to the projector | `Blower holder: bracket` and its clamp bar |
+| Wago, two of them | `Wago 221-2411 v2` | 7.8 x 8.1 x 35.3 | On the wall of the -X end frame beside the terminal block, one above the other, levers toward the bay | `Wago holder: bracket` and its clamp bar |
 | Light sensor | `BH1750` | flange 28 across, dome 25.5 | In its module, now on the floor, dome down | `Light sensor module: plate` |
 | Tripod adapter | `Bottom Adapter for Magic Arm Nut` | 60 x 60 x 10 | On the floor's tripod port, turned 45 degrees | Four M3 from outside |
 
@@ -203,7 +211,7 @@ The models say `Raspberry_Pi_Pico_W` and `Adafruit DVI Sock`. The real boards ar
 
 ## Printed parts
 
-In `komorebi-cage`: 17 components, 18 pieces with the second strap. Every part lies flat on the bed and needs no supports. The largest is 120 x 120, so a 5 mm brim fits everywhere.
+In `komorebi-cage`: 19 components, 20 pieces with the second strap. Every part lies flat on the bed and needs no supports. The largest is 120 x 120, so a 5 mm brim fits everywhere.
 
 | Part | Component | Copies | Size | What it is |
 | --- | --- | --- | --- | --- |
@@ -212,7 +220,7 @@ In `komorebi-cage`: 17 components, 18 pieces with the second strap. Every part l
 | Top plate | `Cage: top plate` | 1 | 110.1 x 119.8 x 5 | The +X part. Both module ports, the window over the lens end, one truss window |
 | Top plate, port | `Cage: top plate, port` | 1 | 59.8 x 119.8 x 5 | The -X part. Windows over the port bay and over the projector's buttons, one truss window |
 | End frame | `Cage: end frame` | 1 | 120 x 61 x 14 | The +X end. Web 4 thick with three truss bays, a flange at the bottom and at the top. Its bottom flange is the projector's end stop. See [Side panels](#side-panels) |
-| End frame, port | `Cage: end frame, port` | 1 | 120 x 61 x 14 | The -X end. The same three bays. The top flange has a notch for the DC plug at the rear. The bottom flange has three more inserts, for the terminal block and the blower |
+| End frame, port | `Cage: end frame, port` | 1 | 120 x 61 x 14 | The -X end. The same three bays. The top flange has a notch for the DC plug at the rear. The bottom flange has five more inserts, for the terminal block, the blower and the Wago holder |
 | Rear frame | `Cage: rear frame` | 1 | 77.4 x 61 x 17 | The +X part, behind the Pico. Window behind the Pico, two holes for the Pico holder |
 | Rear frame, port | `Cage: rear frame, port` | 1 | 100.9 x 61 x 17 | The -X part, with the knob, the button and the DC socket |
 | Seam strap | `Cage: seam strap` | 2 | 19 x 8 x 3 | Flat bar with two holes across the plate seam, on the outside. One on the floor, one on the top, in the middle of the seam |
@@ -223,6 +231,8 @@ In `komorebi-cage`: 17 components, 18 pieces with the second strap. Every part l
 | Terminal block clamp bar | `Terminal block holder: clamp bar` | 1 | 14 x 8.2 x 6 | Bar 3 thick with one hole and a peg 3 long, see [Terminal block](#terminal-block) |
 | Blower bracket | `Blower holder: bracket` | 1 | 39.7 x 29.8 x 32.2 | Foot, leg and three rails for the blower. Prints on its wall face, see [Blower](#blower) |
 | Blower clamp bar | `Blower holder: clamp bar` | 1 | 13.5 x 9 x 5.4 | Bar 2.4 thick with one hole and a peg 3 long. Prints peg up |
+| Wago bracket | `Wago holder: bracket` | 1 | 49.1 x 33.4 x 9.4 | Two pads, a back frame, seats for two Wagos and a boss with an insert. Prints on its wall face, see [Wago holder](#wago-holder) |
+| Wago clamp bar | `Wago holder: clamp bar` | 1 | 20.2 x 7 x 2.4 | Flat bar with one hole, narrow where it crosses the Wagos |
 | Sensor module | `Light sensor module: plate` | 1 | 44 x 44 x 4 | Plate with the dome hole and a seat for the sensor's flange |
 
 How it is built:
@@ -321,12 +331,28 @@ A 30 x 30 x 10 radial blower, added by Saurabh on `2026-11-25`. Air goes in on o
 - **The wires keep their room.** Under the rails 20 mm stay free above the floor, 9.5 above the buck tray.
 - **The bracket stands on the bottom flange of the -X end frame.** Two M3 x 8 into inserts in the flange. The blower rests on three rails, so the screws stay reachable and the inlet stays open.
 - **The blower goes in from above,** front edge under the lip of the bracket. The clamp bar holds the rear edge with one M3 x 8, its peg sits in the blower's mounting hole.
-- **The bracket prints on its wall face.** Every feature rises from that face, so it needs no supports.
+- **The bracket prints on its wall face.** Every feature rises from that face, so it needs no supports. In PrusaSlicer: Place on face, click the flat back. Z then reads 32.2.
 
 > [!Important]
 > **The place of the heat sink is a guess.** We take it on the -X side in the rear half, behind the vent slits of the cover. The outlet is 24.7 to 32.3 mm above the floor. About 9 of its 21 mm blow behind the projector's rear face. The HDMI plug is 1.2 mm in front of the blower, so it cannot move forward at this height. **Measure the heat sink in the open projector before printing the bracket.**
 
 ![Blower under the DC plug, top plate and projector hidden](assets/cage-09-blower.png)
+
+### Wago holder
+
+Two Wago 221-2411 splicing connectors, added by Saurabh on `2026-11-25`. They join the output of the buck converter to the wires of the blower. One Wago is 7.8 x 8.1 x 35.3.
+
+- **They sit on the wall of the -X end frame,** between the blower bracket and the front corner, beside the terminal block. One above the other, wires in and out along Z.
+- **The levers face the bay.** They are reached through the window of the port top plate.
+- **The bracket stands on the bottom flange of the -X end frame** with two pads. Two M3 x 8 into inserts in the flange, one before and one behind the Wagos, so a driver gets to both.
+- **A clamp bar holds both Wagos.** It crosses them in the middle, between the lever tips, with one M3 x 8 into an insert in the bracket.
+- **It is smaller than his old holder.** That one was 62.5 x 20 x 15.6 with two screw ears. This one stands 9.4 off the wall, 49.1 long and 33.4 high.
+- **The bracket prints on its wall face.** In PrusaSlicer: Place on face, click the flat back. Z then reads 9.4.
+
+> [!Important]
+> **The terminal block goes in first.** The screw of its clamp bar is under the Wagos. To take the terminal block out, the Wago bracket comes off first.
+
+![Two Wagos in their holder beside the terminal block, top plate and projector hidden](assets/cage-10-wago-holder.png)
 
 ### Buck tray
 
@@ -350,15 +376,15 @@ The holes are in the model. The list is [cad/fasteners.json](cad/fasteners.json)
 
 | Fastener | Count | Where |
 | --- | --- | --- |
-| **M3 heat-set insert**, 4.0 hole | 59 | 26 in the frame flanges for the plates, 12 in the four module ports, 8 in the plates for the front grill, 4 in the plates for the two seam straps, 2 in the Pico holder, 2 in the floor for the buck tray, 1 in the buck tray for its clamp bar, 3 in the bottom flange of the -X end frame for the terminal block and the blower bracket, 1 in the blower bracket for its clamp bar |
-| **M3 x 8**, cap head | 45 | 24 plate to frame, 8 front grill, 4 seam straps, 2 sensor module, 2 Pico holder, 1 buck clamp bar, 1 terminal block clamp bar, 2 blower bracket, 1 blower clamp bar |
+| **M3 heat-set insert**, 4.0 hole | 62 | 26 in the frame flanges for the plates, 12 in the four module ports, 8 in the plates for the front grill, 4 in the plates for the two seam straps, 2 in the Pico holder, 2 in the floor for the buck tray, 1 in the buck tray for its clamp bar, 5 in the bottom flange of the -X end frame for the terminal block, the blower bracket and the Wago bracket, 1 in the blower bracket and 1 in the Wago bracket for their clamp bars |
+| **M3 x 8**, cap head | 48 | 24 plate to frame, 8 front grill, 4 seam straps, 2 sensor module, 2 Pico holder, 1 buck clamp bar, 1 terminal block clamp bar, 2 blower bracket, 1 blower clamp bar, 2 Wago bracket, 1 Wago clamp bar |
 | **M3 x 12**, cap head | 2 | Sensor module, through the plate into the rear flange |
 | **M3 x 6**, cap head | 6 | 4 tripod adapter, 2 buck tray |
 | **M2.5 heat-set insert**, 4.0 hole | 4 | Pico holder posts |
 | **M2.5 x 5**, cap head | 4 | Pico and DVI sock onto the posts |
 | **1/4-20 x 10**, camera screw | 1 | Through the floor into the projector's own tripod thread |
 
-That is 121 in all. On `2026-11-23` it was 109: the twelve more are six inserts and six M3 x 8.
+That is 127 in all. On `2026-11-23` it was 109: the eighteen more are nine inserts and nine M3 x 8.
 
 Where the 26 frame screws are:
 
@@ -370,7 +396,8 @@ Where the 26 frame screws are:
 | Rear frame, port part | 4 | 4 |
 
 - **The port end frame has three on top again.** The DC plug sits at the rear now and has a notch in the flange there.
-- **Three inserts in the bottom flange of the port end frame go in from above.** They hold the terminal block clamp bar and the blower bracket.
+- **Five inserts in the bottom flange of the port end frame go in from above.** They hold the terminal block clamp bar, the blower bracket and the Wago bracket.
+- **One screw lies on its side:** the one of the Wago clamp bar goes in along X.
 - **Two of the rear screws on each plate are the rear holes of the bay port.** On the floor the sensor module sits there, so those two are its M3 x 12. On the top they are plain M3 x 8.
 - **Four of the eight grill inserts are the old front strap inserts.** Two per plate, left and right of the seam.
 - **No countersinks.** The cap heads stand proud.
@@ -383,17 +410,17 @@ Where the 26 frame screws are:
 
 | Kind in the list | Model in `komorebi-box` | Copies |
 | --- | --- | --- |
-| `M3 insert` | `M3 heat-set insert, 4.0 hole` | 59 |
-| `M3 x 8` | `M3 x 8 cap head` | 45 |
+| `M3 insert` | `M3 heat-set insert, 4.0 hole` | 62 |
+| `M3 x 8` | `M3 x 8 cap head` | 48 |
 | `M3 x 12` | `M3 x 12 cap head` | 2 |
 | `M3 x 6` | `M3 x 6 cap head` | 6 |
 | `M2.5 insert` | `M2.5 heat-set insert, 4.0 hole` | 4 |
 | `M2.5 x 5` | `M2.5 x 5 cap head` | 4 |
 | `1/4-20 x 10` | No model | 0 |
 
-- **The copies are in `komorebi-box`,** in the component `Fasteners`, 120 of them. Not in `komorebi-cage`: that file holds only what gets printed.
+- **The copies are in `komorebi-box`,** in the component `Fasteners`, 126 of them. Not in `komorebi-cage`: that file holds only what gets printed.
 - **[cad/place_fasteners.py](cad/place_fasteners.py) places them** from [cad/fasteners.json](cad/fasteners.json). It moves the copies, adds the missing ones and deletes the ones too many.
-- **The twelve new rows of `2026-11-25` were added to the list by hand,** and the copies were placed by hand. The list and the copies match, see [Checks](#checks).
+- **The eighteen new rows of `2026-11-25` were added to the list by hand,** and the copies were placed by hand. The list and the copies match, see [Checks](#checks).
 - **An insert sits flush with the mouth of its hole,** wide end out. A screw sits with the underside of its head on the part.
 - **The 1/4 inch screw has no model.** Saurabh's call. It stays in the list and in the count.
 
@@ -449,16 +476,18 @@ Saurabh on `2026-11-25`, with almost everything printed except the front grill:
 - **The real projector does not fit front to back, 5 mm more?** Two ways shown. His call: keep the cage, the grill stops it. See [Projector stops](#projector-stops).
 - **The DC plug sits at the wrong place in the model, and the side panels look wrong.** The plugs moved to the real places, lump sum from his photo. Both side panels are truss bays now, see [Side panels](#side-panels).
 - **A blower for the heat sink in the tight back corner.** Done, see [Blower](#blower).
+- **How is the blower bracket supposed to print?** On its wall face. The slicer step is written down now, see [Blower](#blower).
+- **Two Wagos between the buck converter and the blower's wires,** in a holder smaller than his old one. Done, see [Wago holder](#wago-holder).
 
 ---
 
 ## Checks
 
-Done on `2026-11-25` in `komorebi-cage` version 19 and `komorebi-box` version 43, by cutting the bodies with each other.
+Done on `2026-11-25` in `komorebi-cage` version 23 and `komorebi-box` version 49, by cutting the bodies with each other.
 
-- **No printed part cuts into another printed part.** All 18 pieces against each other.
-- **The blower, the DC plug, the HDMI plug and the two blower parts cut into nothing they should not.** The plugs sit in the projector's jacks, as before.
-- **Every fastener copy sits on its row of the list.** 120 of 120, checked by their boxes. The camera screw has no model.
+- **No printed part cuts into another printed part.** All 20 pieces against each other.
+- **The blower, the two Wagos, the DC plug, the HDMI plug and the four new holder parts cut into nothing they should not.** The plugs sit in the projector's jacks, as before.
+- **Every fastener copy sits on its row of the list.** 126 of 126, checked by their boxes. The camera screw has no model.
 - **Every printed part is inside 120 x 120.** With a 5 mm brim that is 130 x 130 on the 180 x 180 bed.
 
 Room around the new parts:
@@ -472,6 +501,10 @@ Room around the new parts:
 | DC plug and port top plate | 3.0 |
 | HDMI plug and terminal block | 16.5 |
 | Blower bracket and buck tray | 9.8 |
+| Wago bracket and blower bracket | 0.4 |
+| Wago and terminal block | 0.6 |
+| Wago clamp bar and terminal block | 1.9 |
+| Wago and HDMI plug | 15.5 |
 
 > [!Warning]
 > **Two M2.5 heads at the Pico's USB end sit 0.35 mm in the shell of the USB socket,** in the model. File a flat on the two heads, or put that pair back to M2.
@@ -487,6 +520,8 @@ From `2026-11-23`, not checked again:
 
 - [ ] **Place and height of the heat sink in the open projector.** The blower's place hangs on it, see [Blower](#blower).
 - [ ] **Blower: mounting hole and voltage.** The peg of the clamp bar is 2.0 mm, the hole in the mock-up is 2.4. The mock-up's label says 24 V, the supply is 12 V.
+- [ ] **Wago levers beside the clamp bar.** The bar is 4.5 wide where it crosses the Wagos, the gap between the lever tips is 6.5. Check on the real Wagos that the levers open.
+- [ ] **Wago beside the terminal block,** 0.6 mm in the model. Both places come from models, not from the real parts.
 - [ ] **Micro USB plug against the rear brace of the +X end frame.** By the numbers a plug body of 10 x 7 mm passes with about 1 mm, one of 11 mm touches. Measure the plug before printing that frame.
 - [ ] **Two M2.5 heads against the USB socket,** see [Checks](#checks).
 - [ ] **M2.5 insert hole,** 4.0 or 3.8, see [Fasteners](#fasteners).
@@ -497,7 +532,7 @@ From `2026-11-23`, not checked again:
 - [ ] **Which plug goes into the projector.** `HDMI-CY-17-UP` is plugged in now. Both CY models are 10.5 wide, which is mini HDMI size.
 - [ ] **Grill in front of the projector's front vent.** The middle slot row is on the vent, two mullions cross it. Not checked with the projector running.
 - [ ] **Head of the camera screw.** No model. A head up to 21 mm across clears the lip of the grill.
-- [ ] **[cad/build_cage.py](cad/build_cage.py) is behind the cage.** Bring it up to version 19 or retire it, see [Fusion traps](#fusion-traps).
+- [ ] **[cad/build_cage.py](cad/build_cage.py) is behind the cage.** Bring it up to version 23 or retire it, see [Fusion traps](#fusion-traps).
 - [x] **Lips or loose stops.** Decided on `2026-11-25`: fewer lips, the grill is the front stop, see [Projector stops](#projector-stops).
 - [x] **Snap hooks against the real board.** The snap arms are gone, a clamp bar holds the board, see [Buck tray](#buck-tray).
 
@@ -513,14 +548,16 @@ Print:
 2. **`Buck converter holder: tray`** and **`Buck converter holder: clamp bar`.**
 3. **`Pico holder: base`:** M2.5 posts.
 4. **`Terminal block holder: clamp bar`.**
-5. **`Blower holder: bracket`** and **`Blower holder: clamp bar`:** after the heat sink is measured.
+5. **`Blower holder: bracket`** and **`Blower holder: clamp bar`:** after the heat sink is measured. The bracket lies on its wall face, Z reads 32.2 in the slicer.
 6. **`Cage: front grill`:** not printed yet, print the current one.
+7. **`Wago holder: bracket`** and **`Wago holder: clamp bar`.** The bracket lies on its wall face, Z reads 9.4 in the slicer.
 
 Change by hand on the printed parts:
 
 1. **`Cage: top plate, port`:** drill one 3.4 mm hole, 8 mm from the front edge and 4.8 mm from the -X edge. A hole drilled earlier at 32.5 mm from the front edge is not used any more.
 2. **`Cage: floor plate`:** cut off the front lip.
 3. **`Cage: floor plate, port`:** cut off the front lip and the rear lip. The two side legs stay.
+4. **`Cage: end frame, port`,** if it was printed before the Wago holder came: drill two 4.0 mm holes for inserts into the bottom flange, 21 mm and 64 mm from the front edge, in the middle of the flange.
 
 ---
 
@@ -568,3 +605,6 @@ Change by hand on the printed parts:
 - [cad/fasteners.json](cad/fasteners.json) brought up by hand: M2 to M2.5, twelve new rows. All 120 copies checked against their rows.
 - All pictures taken again, [assets/cage-09-blower.png](assets/cage-09-blower.png) is new, the buck tray picture has a new name.
 - [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) made independent: its own reference section, sources and image folder [assets/doscher](assets/doscher). That folder is in `.gitignore`.
+- Saurabh asked how the blower bracket is supposed to print. It lies on its wall face. The slicer step is in [Blower](#blower) and in [Print again](#print-again) now.
+- He added two Wago 221-2411 for the blower's wires. Bracket and clamp bar for them on the wall of the port end frame, two more inserts in its bottom flange. 126 fastener models, 127 fasteners. `komorebi-cage` version 23, `komorebi-box` version 49.
+- Pictures 04, 05 and 06 taken again, [assets/cage-10-wago-holder.png](assets/cage-10-wago-holder.png) is new.
