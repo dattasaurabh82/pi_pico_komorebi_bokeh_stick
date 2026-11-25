@@ -1,3 +1,6 @@
 .DS_Store
 context/
 build/
+
+# Jay Doscher reference images, private, never publish
+enclosure/assets/doscher/

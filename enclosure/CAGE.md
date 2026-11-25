@@ -52,7 +52,7 @@ From Saurabh on `2026-11-23`:
 - **The rear, the top and the floor are two parts each.** Small parts stay flat. The joint between the two is small but strong.
 - **No chamfer on an edge that lies on the bed.**
 - **The front gets a printed grill, but not in front of the lens.**
-- **Enough room, not too much.** Tighter than the solar server cage.
+- **Enough room, not too much.**
 - **The look follows Doscher.** Open trusses, octagon windows, screws that show.
 - **No assembly documents yet.** Design first.
 
@@ -373,7 +373,7 @@ Where the 26 frame screws are:
 - **Three inserts in the bottom flange of the port end frame go in from above.** They hold the terminal block clamp bar and the blower bracket.
 - **Two of the rear screws on each plate are the rear holes of the bay port.** On the floor the sensor module sits there, so those two are its M3 x 12. On the top they are plain M3 x 8.
 - **Four of the eight grill inserts are the old front strap inserts.** Two per plate, left and right of the seam.
-- **No countersinks.** The cap heads stand proud, as on the solar server cage.
+- **No countersinks.** The cap heads stand proud.
 - **Not counted:** the nuts of the encoder, the button and the socket, and the tripod bushing in the magic arm adapter.
 
 > [!Note]
@@ -408,7 +408,7 @@ Saurabh on `2026-11-23`, after the rough cage:
 - **How is the buck converter held, snap fit? Its holes are for wires.** It was only located. Now it is a snap tray, see [Buck tray](#buck-tray). *The snap arms went again in the fourth round.*
 - **Not enough room for the DC jack.** He added the DC plug adapter to `komorebi-box`. The -X end went from 17 to 34 mm, the +X end from 17 to 10.5 mm. The cage grew 10.5 mm in length.
 - **Encoder a bit to the right, seen from behind.** It moved 5 mm and now sits on the mullion between two slots. Button and socket moved with it.
-- **Check it against the Doscher images.** Done: truss windows in the floor, chamfered outer edges and rear corners, a window behind the Pico, screws that show on both plates and on the rear frame. *The edge chamfers went again in the second round.*
+- **Check it against the Doscher images,** now in [assets/doscher](assets/doscher). Done: truss windows in the floor, chamfered outer edges and rear corners, a window behind the Pico, screws that show on both plates and on the rear frame. *The edge chamfers went again in the second round.*
 - **Then the fasteners:** edit the design, count, he brings the models.
 
 ---
@@ -567,3 +567,4 @@ Change by hand on the printed parts:
 - He added the blower to `komorebi-box`. Bracket and clamp bar for it, two more inserts in the bottom flange of the port end frame. `komorebi-cage` version 19, `komorebi-box` version 43. 120 fastener models, 121 fasteners.
 - [cad/fasteners.json](cad/fasteners.json) brought up by hand: M2 to M2.5, twelve new rows. All 120 copies checked against their rows.
 - All pictures taken again, [assets/cage-09-blower.png](assets/cage-09-blower.png) is new, the buck tray picture has a new name.
+- [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) made independent: its own reference section, sources and image folder [assets/doscher](assets/doscher). That folder is in `.gitignore`.

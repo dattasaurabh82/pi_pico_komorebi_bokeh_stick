@@ -18,12 +18,16 @@ enclosure/
 │   ├── cage-06-port-end.png
 │   ├── cage-07-buck-tray.png
 │   ├── cage-08-front-grill.png
-│   └── cage-09-blower.png
+│   ├── cage-09-blower.png
+│   └── doscher/
 └── cad/
     ├── build_cage.py
     ├── place_fasteners.py
     └── fasteners.json
 ```
+
+> [!Important]
+> **`assets/doscher` is private.** It holds 32 reference images by Jay Doscher for [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md). It is in `.gitignore` and must not be published.
 
 ## Follow in this order
 
@@ -43,7 +47,7 @@ enclosure/
 | File Name | Highlights | Why it matters |
 | --- | --- | --- |
 | [CAGE.md](CAGE.md) | **Steps**, the rules for this cage, the numbers, what goes inside, the printed parts with their **seams**, the **front grill**, the **side panels** and the **blower**, **fasteners** with the total count, the four reviews, open points, what to **print again**, the log | The resume point. *Read it first* |
-| [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | The rules for CAD on this cage, taken over from the solar server enclosure: structure, **the look**, printed parts, fasteners, Fusion | Read it before modelling |
+| [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | The design language of this cage, on its own: the **reference** with its images, where we differ, **our rules** for structure, the look, printed parts, fasteners and Fusion, the sources | Read it before modelling |
 
 ## CAD
 
