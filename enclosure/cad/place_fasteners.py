@@ -33,11 +33,11 @@ GROUP = 'Fasteners'
 # flush with the mouth of the hole. Length None means insert.
 MODELS = {
     'M3 insert': ('M3 heat-set insert, 4.0 hole', 'y', None),
-    'M2 insert': ('M2 heat-set insert, 3.2 hole', 'y', None),
+    'M2.5 insert': ('M2.5 heat-set insert, 4.0 hole', 'y', None),
     'M3 x 8': ('M3 x 8 cap head', 'z', 8.0),
     'M3 x 12': ('M3 x 12 cap head', 'z', 12.0),
     'M3 x 6': ('M3 x 6 cap head', 'z', 6.0),
-    'M2 x 5': ('M2 x 5 cap head', 'z', 5.0),
+    'M2.5 x 5': ('M2.5 x 5 cap head', 'z', 5.0),
 }
 
 AXIS = {'x': 0, 'y': 1, 'z': 2}

@@ -1,11 +1,11 @@
 {
   "counts": {
-    "M3 insert": 53,
-    "M3 x 8": 39,
+    "M3 insert": 59,
+    "M3 x 8": 45,
     "M3 x 12": 2,
     "M3 x 6": 6,
-    "M2 insert": 4,
-    "M2 x 5": 4,
+    "M2.5 insert": 4,
+    "M2.5 x 5": 4,
     "1/4-20 x 10": 1
   },
   "fasteners": [
@@ -1354,7 +1354,7 @@
       ]
     },
     {
-      "kind": "M2 insert",
+      "kind": "M2.5 insert",
       "group": "pico post",
       "seat": [
         43.2,
@@ -1368,7 +1368,7 @@
       ]
     },
     {
-      "kind": "M2 x 5",
+      "kind": "M2.5 x 5",
       "group": "pico",
       "seat": [
         43.2,
@@ -1382,7 +1382,7 @@
       ]
     },
     {
-      "kind": "M2 insert",
+      "kind": "M2.5 insert",
       "group": "pico post",
       "seat": [
         43.2,
@@ -1396,7 +1396,7 @@
       ]
     },
     {
-      "kind": "M2 x 5",
+      "kind": "M2.5 x 5",
       "group": "pico",
       "seat": [
         43.2,
@@ -1410,7 +1410,7 @@
       ]
     },
     {
-      "kind": "M2 insert",
+      "kind": "M2.5 insert",
       "group": "pico post",
       "seat": [
         -8.8,
@@ -1424,7 +1424,7 @@
       ]
     },
     {
-      "kind": "M2 x 5",
+      "kind": "M2.5 x 5",
       "group": "pico",
       "seat": [
         -8.8,
@@ -1438,7 +1438,7 @@
       ]
     },
     {
-      "kind": "M2 insert",
+      "kind": "M2.5 insert",
       "group": "pico post",
       "seat": [
         -8.8,
@@ -1452,7 +1452,7 @@
       ]
     },
     {
-      "kind": "M2 x 5",
+      "kind": "M2.5 x 5",
       "group": "pico",
       "seat": [
         -8.8,
@@ -1532,6 +1532,174 @@
       "into": [
         0,
         1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "frame flange, top",
+      "seat": [
+        -115.1,
+        52.8,
+        32.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "plate to frame, top",
+      "seat": [
+        -115.1,
+        57.8,
+        32.0
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "buck clamp bar, in the tray",
+      "seat": [
+        -65.45,
+        10.4,
+        -65.85
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "buck clamp bar",
+      "seat": [
+        -65.45,
+        12.8,
+        -65.85
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "terminal block clamp bar, in the frame flange",
+      "seat": [
+        -115.6,
+        6.8,
+        2.4
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "terminal block clamp bar",
+      "seat": [
+        -115.6,
+        9.8,
+        2.4
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "blower bracket, in the frame flange",
+      "seat": [
+        -115.1,
+        6.8,
+        -45.5
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "blower bracket",
+      "seat": [
+        -115.1,
+        9.8,
+        -45.5
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "blower bracket, in the frame flange",
+      "seat": [
+        -115.1,
+        6.8,
+        -33.65
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "blower bracket",
+      "seat": [
+        -115.1,
+        9.8,
+        -33.65
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 insert",
+      "group": "blower clamp bar, in the bracket",
+      "seat": [
+        -115.0,
+        35.3,
+        -63.25
+      ],
+      "into": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "kind": "M3 x 8",
+      "group": "blower clamp bar",
+      "seat": [
+        -115.0,
+        37.7,
+        -63.25
+      ],
+      "into": [
+        0,
+        -1,
         0
       ]
     }

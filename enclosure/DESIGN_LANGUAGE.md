@@ -49,7 +49,7 @@ It is not a new language. It is the one from the solar server enclosure, carried
 6. **Nothing sits in front of a vent.** Boards stand upright against the rear frame or lie below the vent strip.
 7. **What a hand must reach stays open:** the projector's buttons, the focus lever, the ports, the Pico's USB, the screws of the DC plug.
 8. **A plug gets its full length plus room for the wire to turn.** The DC plug adapter set the 34 mm of the port bay.
-9. **A board without mounting holes gets a snap tray.** Corner posts locate it, rails lift it, two arms hook over free edges. Solder pads stay open.
+9. **A board without mounting holes gets a tray with a clamp bar.** Rails lift it, a fixed lip holds one edge, a small bar with one M3 holds the other. Solder pads stay open. No snap arms, Saurabh's call on `2026-11-25`.
 10. **Where a frame has no room for flanges, it gets lips on the outside.** The front grill has a 3 mm lip over each plate. The screws go through the lip into inserts in the plate, like on a strap.
 
 ### The look
@@ -81,8 +81,8 @@ Checked against the Doscher images on `2026-11-23`.
 In the model since `2026-11-23`. Counts and places are in [CAGE.md](CAGE.md#fasteners).
 
 1. **Printed parts are joined with machine screws into heat-set inserts, or with nuts and bolts.** No screws straight into printed plastic.
-2. **M3 for the cage and the modules, M2 for the Pico.** Three lengths of M3: 8, 6, and 12 where a screw goes through a module and a plate.
-3. **An M3 heat-set insert gets a 4.0 hole** and at least 4.2 of material. An M2 insert gets 3.2. Start values.
+2. **M3 for the cage and the modules, M2.5 for the Pico.** Three lengths of M3: 8, 6, and 12 where a screw goes through a module and a plate.
+3. **An M3 heat-set insert gets a 4.0 hole** and at least 4.2 of material. An M2.5 insert gets 4.0 too. Start values.
 4. **A clearance hole for M3 is 3.4.**
 5. **No countersinks.** If one is ever needed, it keeps 3 mm of plastic to every edge.
 6. **No extra screw under a module.** A module covers the plate around its port, so the screw lines skip that stretch. Where a frame needs a screw there, a port hole does both jobs.
