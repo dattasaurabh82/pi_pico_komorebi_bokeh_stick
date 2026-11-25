@@ -57,7 +57,7 @@ It stands on its own. The reference, the images, the rules and the sources are a
 - Parts are **small, flat and repeated**. They are bolted together, not printed as one big piece.
 - Everything **prints flat without supports**. Never a chamfer on the bed face.
 - **One screw size for the cage.** Screws go into heat-set inserts, they show, and they are reachable from outside.
-- **A side is a row of equal truss bays.** No window made for one plug.
+- **A side or a front is a row of equal truss bays.** No window made for one plug.
 - **Air gaps are designed**, not left over. Nothing sits in front of a vent.
 - **Wires keep their room**, even where they are not modelled yet.
 - The look is **plain and honest**: open trusses, cut window corners, slot vents in rows, one dark matte colour, visible screws.
@@ -194,7 +194,7 @@ Vents are part of the frame from the start.
 - **Quick Kit:** a gap above and below the screen cools passively.
 - **Obelisk:** a gap between each stacked unit, and an open top.
 - **Cluster Deck:** boards stacked too close overheated, so he turned them to let air pass across.
-- **For us:** the cage is open on purpose. Nothing sits in front of the projector's vents. One slot row of the grill is on its front vent. A blower helps the heat sink.
+- **For us:** the cage is open on purpose. Nothing sits in front of the projector's vents. The grill in front of its front vent is open truss bays. A blower helps the heat sink.
 
 ### 8. Build it up in steps
 
@@ -258,12 +258,12 @@ Checked against the images in [assets/doscher](assets/doscher) on `2026-11-23` a
 
 1. **Windows in the plates are octagons.** Rectangles with all four corners chamfered. No sharp inside corners, no round holes except for round parts.
 2. **A truss window in a plate has one diagonal rib,** 6 wide. The two diagonals of a pair open toward the front.
-3. **A side panel is a row of equal truss bays.** Posts 5 wide, one brace of 4 per bay, in a zigzag, a small gusset in each corner. Three bays on the end frames.
+3. **A side panel is a row of equal truss bays.** Posts 5 wide, one brace of 4 per bay, in a zigzag, a small gusset in each corner. Three bays on the end frames and three on the front grill. The bay width follows the length of the panel, everything else stays. The zigzag goes on around the corner.
 4. **No window is shaped for one plug.** No half cut window, no step, and not just an open frame. Plugs and cables go through the bays.
 5. **Both sides read the same from outside.** The web of one end frame is the other one turned, not mirrored.
 6. **Members keep their width.** Bands 8 to 10, ribs 6 to 8 in the plates.
 7. **Outer edges are square.** No chamfer through the thickness, no fillets. A corner may be cut in plan view, that prints clean.
-8. **Slot vents come in rows.** A mullion sits behind the knob, so the knob has slots left and right of it. On the grill one row sits on the projector's own vent.
+8. **Slot vents come in rows, and only on the rear frame.** A mullion sits behind the knob, so the knob has slots left and right of it. The front grill has truss bays.
 9. **Screws show.** Cap heads stand proud, on a line 5 mm inside the edge, the same on floor and top.
 10. **One colour.** Dark grey, matte.
 11. **A later part hides where it can.** The leg of the blower bracket stands behind a post of the truss.
@@ -359,3 +359,4 @@ Other:
 
 - [Recovery Kit 2 and 2B frame enclosure, print guidelines](https://raw.githubusercontent.com/jdoscher/Recovery-Kit-2-and-2B-Open-Source-Frame-Enclosure/main/License%20and%20Print%20Guidelines.txt) (GitHub)
 - Later the same day: the Wago bracket, the second part that prints on its wall face. The slicer step for such a part is written down in [CAGE.md](CAGE.md#print-again).
+- The front grill went from slot rows to truss bays. One pattern for the sides and the front now.

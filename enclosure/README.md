@@ -62,4 +62,4 @@ enclosure/
 
 Screenshots from `komorebi-box`, taken on `2026-11-25`. They get taken again when the cage changes.
 
-All ten show the split cage with the front grill and the fasteners in place. For picture 05 the top plate and its screws are hidden, for pictures 07, 09 and 10 the projector too. Picture 07 also hides the blower and the two plugs.
+All ten show the split cage with the front grill and the fasteners in place. For picture 05 the top plate and its screws are hidden, for pictures 07, 09 and 10 the projector too. Pictures 01, 03 and 08 hide the two Wagos, their clear housing shows through other parts in a saved picture. Picture 07 also hides the blower and the two plugs.

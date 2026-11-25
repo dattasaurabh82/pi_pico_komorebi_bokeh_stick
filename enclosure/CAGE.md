@@ -62,6 +62,7 @@ From Saurabh on `2026-11-25`, after the first prints:
 - **A board in a tray is held by a small clamp bar with one screw.** No snap arms.
 - **The side panels are truss bays,** like the modular Doscher frames. No half cut window, no cut-out made for one plug, and not just an open frame. Both sides as close as possible.
 - **The cage keeps its size.** The front grill stops the projector at the front.
+- **The front grill follows the sides.** Truss bays, no slot rows.
 - **A blower cools the projector's heat sink.** He takes the projector's cover off. The corner is full of wires, so the blower must leave them room.
 
 ---
@@ -130,8 +131,11 @@ All in mm, in the coordinates of `komorebi-box`: Y is up, the lens face is +Z, t
     "lip_z": [31.0, 40.2],
     "screw_x": [-86.1, -65.5, -54.5, -16.5],
     "screw_z": 35.5,
-    "slot_rows_y": [8.3, 17.8, 27.3, 36.8, 46.3],
-    "slot_height": 6.0,
+    "bays": 3,
+    "bay_x": [[-119.1, -88.07], [-83.07, -52.03], [-47.03, -16.0]],
+    "bay_y": [9.0, 45.0],
+    "post": 5.0,
+    "brace": 4.0,
     "projector_front_vent_x": [-68.7, -28.0],
     "projector_front_vent_y": [24.4, 30.3]
   },
@@ -224,7 +228,7 @@ In `komorebi-cage`: 19 components, 20 pieces with the second strap. Every part l
 | Rear frame | `Cage: rear frame` | 1 | 77.4 x 61 x 17 | The +X part, behind the Pico. Window behind the Pico, two holes for the Pico holder |
 | Rear frame, port | `Cage: rear frame, port` | 1 | 100.9 x 61 x 17 | The -X part, with the knob, the button and the DC socket |
 | Seam strap | `Cage: seam strap` | 2 | 19 x 8 x 3 | Flat bar with two holes across the plate seam, on the outside. One on the floor, one on the top, in the middle of the seam |
-| Front grill | `Cage: front grill` | 1 | 113.1 x 67 x 13.2 | Slotted web in front of the plate edges, from the -X end up to the lens panel. A lip over the outside of each plate |
+| Front grill | `Cage: front grill` | 1 | 113.1 x 67 x 13.2 | Web with three truss bays in front of the plate edges, from the -X end up to the lens panel. A lip over the outside of each plate |
 | Pico holder | `Pico holder: base` | 1 | 61.5 x 25.8 x 7.9 | Plate on the inside of the rear frame. Four posts with M2.5 inserts, two bosses with M3 inserts |
 | Buck tray | `Buck converter holder: tray` | 1 | 43.8 x 21.1 x 11 | Tray with a fixed lip, an end stop and a boss with an insert, see [Buck tray](#buck-tray) |
 | Buck clamp bar | `Buck converter holder: clamp bar` | 1 | 22.7 x 7.1 x 2.4 | Flat bar with a tab over the board's rear edge, one hole |
@@ -268,7 +272,12 @@ A partial front frame. It covers the front from the -X end up to the lens panel.
 - **It has no flanges.** There are 2 mm between a plate and the projector, and 3.8 mm in front of the projector. A flange with an insert does not fit there.
 - **It has a lip over the outside of each plate instead,** 3 thick and 9 deep. Four M3 x 8 per lip go through the lip into inserts in the plate, like on a strap.
 - **The two middle screws of each lip sit left and right of the plate seam.** So the grill is the front strap as well. Its web ties the two floor parts, the two top parts and the port end frame together.
-- **Five rows of slots.** The middle row is on the projector's own front vent. One mullion is on the plate seam, one on the projector's -X end.
+- **Three truss bays, like the side panels.** The same posts, braces and gussets, the same bay height. A bay is 31 wide here and 33.3 on the sides, because the grill is shorter.
+- **The zigzag goes on around the -X corner.** The last brace of the port end frame ends at the bottom of the corner, the first brace of the grill starts there.
+- **The second post stands in front of the projector's -X edge.**
+- **The projector's front vent is behind the second and the third bay.** Two braces and one post cross it, the rest is open.
+- **The grill is the projector's front stop.** Posts and braces are 4 mm in front of the model's front face, see [Projector stops](#projector-stops).
+- **No slot rows any more.** Saurabh's call on `2026-11-25`: the front has to look like the sides.
 - **It stops at X -11.** The lens panel starts at X -10.6.
 - **The lips start 14 mm in from the -X end.** A frame screw has its head under the floor there.
 - **It prints on its front face,** the lips stand up. 113 x 67 on the bed.
@@ -468,6 +477,7 @@ Saurabh on `2026-11-23`, after the split:
 Saurabh on `2026-11-25`, with almost everything printed except the front grill:
 
 - **Do the lips of the front grill hold on the plates?** The lips were reworked. Only the grill changed.
+- **The slot rows of the front grill do not fit the sides.** The grill has three truss bays now, see [Front grill](#front-grill).
 - **What else was overlooked?** A list with pictures, no edits. He tested most of it and said it is fine. Three points got fixed, the next three.
 - **The buck tray gets a small clamp bar with one screw.** Done, see [Buck tray](#buck-tray).
 - **The front corner of the port top plate had no screw.** It has one now, see [Side panels](#side-panels).
@@ -483,7 +493,7 @@ Saurabh on `2026-11-25`, with almost everything printed except the front grill:
 
 ## Checks
 
-Done on `2026-11-25` in `komorebi-cage` version 23 and `komorebi-box` version 49, by cutting the bodies with each other.
+Done on `2026-11-25` in `komorebi-cage` version 24 and `komorebi-box` version 51, by cutting the bodies with each other.
 
 - **No printed part cuts into another printed part.** All 20 pieces against each other.
 - **The blower, the two Wagos, the DC plug, the HDMI plug and the four new holder parts cut into nothing they should not.** The plugs sit in the projector's jacks, as before.
@@ -505,6 +515,7 @@ Room around the new parts:
 | Wago and terminal block | 0.6 |
 | Wago clamp bar and terminal block | 1.9 |
 | Wago and HDMI plug | 15.5 |
+| Front grill and projector model | 4.0 |
 
 > [!Warning]
 > **Two M2.5 heads at the Pico's USB end sit 0.35 mm in the shell of the USB socket,** in the model. File a flat on the two heads, or put that pair back to M2.
@@ -512,7 +523,7 @@ Room around the new parts:
 From `2026-11-23`, not checked again:
 
 - **One touch stays:** the socket's flange on the panel, under 0.1 mm.
-- **The projector's buttons, focus lever and ports are open.** Its front vent is behind the middle slot row of the grill.
+- **The projector's buttons, focus lever and ports are open.** Its front vent is behind the second and the third bay of the grill.
 
 ---
 
@@ -530,9 +541,9 @@ From `2026-11-23`, not checked again:
 - [ ] **Real size of the projector,** width, depth, height, and how far the lens ring stands out. Only the depth problem is known.
 - [ ] **PLA next to the projector's vents.** PLA gets soft at 55 to 60 degrees. The rear frame and the floor are 14 to 36 mm from the vents. Fine with the stock LED as far as we know, not checked with the brighter LED. PETG is the fallback. The blower bracket sits closest to the heat sink now.
 - [ ] **Which plug goes into the projector.** `HDMI-CY-17-UP` is plugged in now. Both CY models are 10.5 wide, which is mini HDMI size.
-- [ ] **Grill in front of the projector's front vent.** The middle slot row is on the vent, two mullions cross it. Not checked with the projector running.
+- [ ] **Grill in front of the projector's front vent.** Two braces and one post cross the vent, the rest is open. Not checked with the projector running.
 - [ ] **Head of the camera screw.** No model. A head up to 21 mm across clears the lip of the grill.
-- [ ] **[cad/build_cage.py](cad/build_cage.py) is behind the cage.** Bring it up to version 23 or retire it, see [Fusion traps](#fusion-traps).
+- [ ] **[cad/build_cage.py](cad/build_cage.py) is behind the cage.** Bring it up to version 24 or retire it, see [Fusion traps](#fusion-traps).
 - [x] **Lips or loose stops.** Decided on `2026-11-25`: fewer lips, the grill is the front stop, see [Projector stops](#projector-stops).
 - [x] **Snap hooks against the real board.** The snap arms are gone, a clamp bar holds the board, see [Buck tray](#buck-tray).
 
@@ -549,7 +560,7 @@ Print:
 3. **`Pico holder: base`:** M2.5 posts.
 4. **`Terminal block holder: clamp bar`.**
 5. **`Blower holder: bracket`** and **`Blower holder: clamp bar`:** after the heat sink is measured. The bracket lies on its wall face, Z reads 32.2 in the slicer.
-6. **`Cage: front grill`:** not printed yet, print the current one.
+6. **`Cage: front grill`:** not printed yet. Print the current one, with the truss bays.
 7. **`Wago holder: bracket`** and **`Wago holder: clamp bar`.** The bracket lies on its wall face, Z reads 9.4 in the slicer.
 
 Change by hand on the printed parts:
@@ -608,3 +619,5 @@ Change by hand on the printed parts:
 - Saurabh asked how the blower bracket is supposed to print. It lies on its wall face. The slicer step is in [Blower](#blower) and in [Print again](#print-again) now.
 - He added two Wago 221-2411 for the blower's wires. Bracket and clamp bar for them on the wall of the port end frame, two more inserts in its bottom flange. 126 fastener models, 127 fasteners. `komorebi-cage` version 23, `komorebi-box` version 49.
 - Pictures 04, 05 and 06 taken again, [assets/cage-10-wago-holder.png](assets/cage-10-wago-holder.png) is new.
+- Front grill: the slot rows are out, three truss bays like the side panels are in. Lips and screws did not change. Pictures 01, 03 and 08 taken again. `komorebi-cage` version 24, `komorebi-box` version 51.
+- In saved pictures the clear housing of the Wagos shows through other parts. For the overall pictures the two Wagos are hidden.
