@@ -20,6 +20,7 @@ enclosure/
 │   ├── cage-08-front-grill.png
 │   ├── cage-09-blower.png
 │   ├── cage-10-wago-holder.png
+│   ├── cage-11-front-grill-slots.png
 │   └── doscher/
 └── cad/
     ├── build_cage.py
@@ -41,7 +42,7 @@ enclosure/
 7. **[cad/fasteners.json](cad/fasteners.json), then [cad/place_fasteners.py](cad/place_fasteners.py):** add the rows for new fasteners, run the script in the tab of `komorebi-box`, save.
 8. **[CAGE.md](CAGE.md), [Checks](CAGE.md#checks) and [Fusion traps](CAGE.md#fusion-traps):** run the interference check, mind the traps.
 9. **[CAGE.md](CAGE.md), [Fasteners](CAGE.md#fasteners):** the counts for the shopping list. They come from [cad/fasteners.json](cad/fasteners.json).
-10. **[assets](assets), then the docs:** take the ten pictures again, update the numbers and the log in [CAGE.md](CAGE.md).
+10. **[assets](assets), then the docs:** take the eleven pictures again, update the numbers and the log in [CAGE.md](CAGE.md).
 
 ## Documents
 
@@ -54,7 +55,7 @@ enclosure/
 
 | File Name | Highlights | Why it matters |
 | --- | --- | --- |
-| [cad/build_cage.py](cad/build_cage.py) | Builds the 13 printed parts of `2026-11-23` in the Fusion file `komorebi-cage`. All numbers in the **`P`** table at the top. The cage has 19 parts now | **Do not run it as it is.** It is behind the cage, see [Fusion traps](CAGE.md#fusion-traps). *A run would undo the work of `2026-11-25`* |
+| [cad/build_cage.py](cad/build_cage.py) | Builds the 13 printed parts of `2026-11-23` in the Fusion file `komorebi-cage`. All numbers in the **`P`** table at the top. The cage has 20 parts now | **Do not run it as it is.** It is behind the cage, see [Fusion traps](CAGE.md#fusion-traps). *A run would undo the work of `2026-11-25`* |
 | [cad/place_fasteners.py](cad/place_fasteners.py) | Places the fastener models in `komorebi-box`, in the component **`Fasteners`**. 126 copies of six models | Run it in the tab of `komorebi-box` after the link to the cage is on its latest version. *It can run again and again* |
 | [cad/fasteners.json](cad/fasteners.json) | **127 fasteners.** One row each: kind, group, seat point, the direction it goes in. `counts` at the top | Written by the build script on `2026-11-23`, the rows since then added by hand. The fastener models get placed from it |
 
@@ -62,4 +63,4 @@ enclosure/
 
 Screenshots from `komorebi-box`, taken on `2026-11-25`. They get taken again when the cage changes.
 
-All ten show the split cage with the front grill and the fasteners in place. For picture 05 the top plate and its screws are hidden, for pictures 07, 09 and 10 the projector too. Pictures 01, 03 and 08 hide the two Wagos, their clear housing shows through other parts in a saved picture. Picture 07 also hides the blower and the two plugs.
+All eleven show the split cage with the front grill and the fasteners in place. For picture 05 the top plate and its screws are hidden, for pictures 07, 09 and 10 the projector too. Pictures 01, 03 and 08 hide the two Wagos, their clear housing shows through other parts in a saved picture. Picture 11 shows the slot style of the front grill in place of the truss one. Picture 07 also hides the blower and the two plugs.

@@ -263,7 +263,7 @@ Checked against the images in [assets/doscher](assets/doscher) on `2026-11-23` a
 5. **Both sides read the same from outside.** The web of one end frame is the other one turned, not mirrored.
 6. **Members keep their width.** Bands 8 to 10, ribs 6 to 8 in the plates.
 7. **Outer edges are square.** No chamfer through the thickness, no fillets. A corner may be cut in plan view, that prints clean.
-8. **Slot vents come in rows, and only on the rear frame.** A mullion sits behind the knob, so the knob has slots left and right of it. The front grill has truss bays.
+8. **Slot vents come in rows.** A mullion sits behind the knob, so the knob has slots left and right of it. The front grill has truss bays. Its slot style is kept as a second part until both are printed.
 9. **Screws show.** Cap heads stand proud, on a line 5 mm inside the edge, the same on floor and top.
 10. **One colour.** Dark grey, matte.
 11. **A later part hides where it can.** The leg of the blower bracket stands behind a post of the truss.
@@ -360,3 +360,4 @@ Other:
 - [Recovery Kit 2 and 2B frame enclosure, print guidelines](https://raw.githubusercontent.com/jdoscher/Recovery-Kit-2-and-2B-Open-Source-Frame-Enclosure/main/License%20and%20Print%20Guidelines.txt) (GitHub)
 - Later the same day: the Wago bracket, the second part that prints on its wall face. The slicer step for such a part is written down in [CAGE.md](CAGE.md#print-again).
 - The front grill went from slot rows to truss bays. One pattern for the sides and the front now.
+- The slot style of the front grill is kept as a second part. Saurabh prints both and picks one.
