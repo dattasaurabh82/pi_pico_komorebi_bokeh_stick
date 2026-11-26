@@ -50,6 +50,10 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
   switch (0 no DVI, 1 no DVI at 252 MHz, 2 DVI live). Found that DVI
   activity degrades the STA link and that a 15 s UDP keepalive holds it.
   See the main README, "Two hard-won facts".
+- `bh1750_spike` (Pico 2 W) BH1750 light sensor alone on I2C1 (`Wire1`,
+  SDA GP2, SCL GP3), no DVI, no library to install: bus scan, then lux on
+  serial every 500 ms. PASS, the readings follow the light when the sensor
+  is moved. Flashed from the Arduino IDE. Not yet tried with DVI live.
 - `flash.sh <sketch_dir>` compile + 1200-baud reset + wait for the RP2350
   volume + copy. Use this; arduino-cli's own upload scan gives up before
   the volume mounts on macOS.
