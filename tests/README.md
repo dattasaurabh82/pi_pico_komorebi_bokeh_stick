@@ -63,9 +63,48 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
   Result (`2026-11-28`): no mode and no drive strength worked. A wire from
   the Sock's J5 +5V pad to VSYS (pin 39) fixed it, with the unchanged
   `main/` build. Those projectors wait for 5 V on HDMI pin 18.
+- `ir_capture` (Pico 2 W) reads the YG300 remote with an IR receiver
+  (VS1838B type) on GP22, VCC on 3V3 OUT (pin 36), not 5 V. Uses the
+  IRremote library (4.7.1, Library Manager). Prints protocol, address,
+  command and the raw timings for every key. PASS, the remote is NEC with
+  address `0x00`, codes in "IR codes" below.
+- `ir_send` (Pico 2 W) replays those codes from an IR LED on GP21 (pin 27)
+  through 150 R, no transistor. On boot: Power, 10 s, Power. Serial keys
+  resend single codes (`p s u d l r o m x`, `a` reruns the boot sequence).
+  PASS on the AliExpress YG300: Power, Source, Up, OK switched it to HDMI.
+- `ir_dvi_spike` (Pico 2 W) sends IR while the DVI video runs, the same
+  way `main/` will. 15 s baseline, then one key every 3 s for 5 min,
+  frame meter and the video core's late-scanline counter on serial.
+  PASS (`2026-11-28`, monitor, projector unplugged): 92 sends, 0 late
+  scanlines, no watchdog reboot, 58.7 fps between sends. Each send takes
+  67.8 ms on core 0, so the animation pauses for one 83 ms frame; the
+  video core keeps showing the last frame.
 - `flash.sh <sketch_dir>` compile + 1200-baud reset + wait for the RP2350
   volume + copy. Use this; arduino-cli's own upload scan gives up before
   the volume mounts on macOS.
+
+## IR codes (YG300 remote)
+
+Captured with `ir_capture` on `2026-11-28`. All NEC, address `0x00`.
+
+| Key | Command |
+|---|---|
+| Power (on and off, one toggle code) | `0xA8` |
+| Source | `0x97` |
+| Up | `0x95` |
+| Down | `0x9A` |
+| Left | `0x9B` |
+| Right | `0x99` |
+| OK | `0x9E` |
+| Menu | `0x91` |
+| Exit / Back | `0xA4` |
+| `<<` | `0x98` |
+
+Projector behaviour seen with these codes:
+
+- After power loss it starts on the first input of the source list, it does not remember HDMI.
+- The source list wraps, so Up from the first entry lands on HDMI.
+- Power, then Source, Up, OK selects HDMI. Source worked 7 s after Power.
 
 ## Failure signals
 
