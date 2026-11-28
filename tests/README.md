@@ -54,6 +54,15 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
   SDA GP2, SCL GP3), no DVI, no library to install: bus scan, then lux on
   serial every 500 ms. PASS, the readings follow the light when the sensor
   is moved. Flashed from the Arduino IDE. Not yet tried with DVI live.
+- `hdmi_probe` (Pico 2 W) why two YG300 projectors (AliExpress) said
+  "No Signal" while monitors and a third YG300 worked. Test card in six
+  output modes, switched over serial (`0` to `5`, the board reboots into
+  the mode via a watchdog scratch register): 640x480 60 Hz, 800x480 60 Hz,
+  800x480 30 Hz, 1280x720 30 Hz, 720x576 50 Hz, 720x480 60 Hz. `d` steps
+  the TMDS pin drive strength live (2, 4, 8, 12 mA), `?` prints the state.
+  Result (`2026-11-28`): no mode and no drive strength worked. A wire from
+  the Sock's J5 +5V pad to VSYS (pin 39) fixed it, with the unchanged
+  `main/` build. Those projectors wait for 5 V on HDMI pin 18.
 - `flash.sh <sketch_dir>` compile + 1200-baud reset + wait for the RP2350
   volume + copy. Use this; arduino-cli's own upload scan gives up before
   the volume mounts on macOS.
@@ -65,6 +74,9 @@ DVIGFX16 display(DVI_RES_320x240p60, pico_sock_cfg);
 - Dead LED + black screen: wiring / solder joints on Sock pins GP12 to GP19.
 - Dark screen for up to 3 min after boot with a "komorebi" WiFi network
   visible: the setup portal is waiting (see main README).
+- Monitor shows the picture, a projector says "No Signal" even with HDMI
+  selected by hand: HDMI pin 18 has no 5 V. Wire the Sock's J5 square pad
+  to VSYS (pin 39), see `hdmi_probe` above.
 - USB port present but every open blocks: board frozen by a flash write
   with DVI live. BOOTSEL replug.
 

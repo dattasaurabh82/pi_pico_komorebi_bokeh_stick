@@ -17,6 +17,9 @@ rendered falloffs into true soft penumbra.
 - Pico DVI Sock, Luke Wren's CC0 design (the pi3g/buyzero production run;
   the Adafruit DVI Sock is the same pin map): D0 GP12/13, CK GP14/15,
   D2 GP16/17, D1 GP18/19.
+- One wire from the Sock's J5 pad (the square one, +5V) to the Pico's
+  VSYS (physical pin 39). It puts 5 V on HDMI pin 18. Some projectors
+  show "No Signal" without it, see the tip below.
 - Any HDMI display or projector (signal is DVI 640x480@60, content 320x240)
 - One momentary button (GP7 to GND) and a KY-040 rotary encoder
   (GP6/8/9), see below.
@@ -24,6 +27,13 @@ rendered falloffs into true soft penumbra.
 ### Wiring
 
 ![alt text](assets/wiring.png)
+
+>[!Tip]
+> **Monitor works, projector says "No Signal"?** The Sock leaves HDMI pin 18 (+5V) unconnected. Two of our three YG300 projectors (the AliExpress ones) only take the signal when that pin has 5 V.
+>
+> Solder a wire from the Sock's J5 square pad to VSYS (pin 39). J5 is the unpopulated 2-pin spot behind the HDMI socket, next to GP15 (on the Adafruit Sock it is the `5` pad). The round pad is GND, leave it empty. VSYS is live on USB and on the buck converter.
+>
+> **Resolution, refresh rate and drive strength made no difference, the 5 V did.** See [tests/hdmi_probe](tests/README.md#spikes-in-this-folder).
 
 ### Enclosure
 
